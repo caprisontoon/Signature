@@ -156,7 +156,92 @@ header {
 
 .ribbon .star { color: var(--gold-dark); }
 
-/* ─── Tabs ─── */
+/* ─── Effects Bar ─── */
+.fx-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 20px;
+  background: rgba(15, 14, 12, 0.04);
+  border: 1px solid var(--line);
+  padding: 18px 22px;
+  margin-bottom: 28px;
+  align-items: end;
+}
+
+@media (max-width: 760px) {
+  .fx-bar { grid-template-columns: 1fr; }
+}
+
+.fx-section {
+  min-width: 0;
+}
+
+.fx-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 8px;
+}
+
+.fx-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.fx-select {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  padding: 6px 24px 6px 0;
+}
+
+.fx-file {
+  flex: 0 0 auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fx-file:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.fx-file input { display: none; }
+
+.fx-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#fxPreview {
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(45deg, #e8e2d4 25%, transparent 25%, transparent 75%, #e8e2d4 75%),
+    linear-gradient(45deg, #e8e2d4 25%, transparent 25%, transparent 75%, #e8e2d4 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
+  background-color: #f4efe6;
+  display: block;
+}
+
+/* Hide effects bar on Gallery tab */
+body.gallery-mode .fx-bar { display: none; }
+
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -719,6 +804,38 @@ footer .swirl {
   <button class="tab" data-view="gallery"><span class="num">04</span> Gallery</button>
 </div>
 
+<!-- ═══════════ Effects Bar (shared across Type/Draw/Photo) ═══════════ -->
+<div class="fx-bar" id="fxBar">
+  <div class="fx-section">
+    <div class="fx-label">Background ⋅ 배경</div>
+    <div class="fx-row">
+      <select class="select fx-select" id="fxBackground">
+        <option value="transparent" selected>Transparent / 투명</option>
+        <option value="texture">Dark texture / 어두운 질감</option>
+        <option value="image">Image / 이미지 업로드</option>
+      </select>
+      <label class="fx-file" id="fxBgUpload" style="display:none;">
+        <span id="fxBgName">Choose…</span>
+        <input type="file" id="fxBgInput" accept="image/*">
+      </label>
+    </div>
+  </div>
+
+  <div class="fx-section">
+    <div class="fx-label">Effect ⋅ 특수효과</div>
+    <select class="select fx-select" id="fxEffect">
+      <option value="none" selected>— None / 없음</option>
+      <option value="sparks">Sparks / 불꽃</option>
+      <option value="cinematic">Cinematic / 시네마틱 (크롬+불꽃+먼지)</option>
+    </select>
+  </div>
+
+  <div class="fx-section fx-preview-wrap">
+    <div class="fx-label">Preview ⋅ 미리보기</div>
+    <canvas id="fxPreview" width="240" height="80"></canvas>
+  </div>
+</div>
+
 <!-- ═══════════ VIEW 1: TYPE ═══════════ -->
 <div class="view active" id="view-type">
 <div class="workspace">
@@ -991,9 +1108,96 @@ $$('.tab').forEach(tab => {
     $$('.view').forEach(v => v.classList.remove('active'));
     tab.classList.add('active');
     $('#view-' + tab.dataset.view).classList.add('active');
-    if (tab.dataset.view === 'gallery') renderGallery();
+    if (tab.dataset.view === 'gallery') {
+      document.body.classList.add('gallery-mode');
+      renderGallery();
+    } else {
+      document.body.classList.remove('gallery-mode');
+    }
   });
 });
+
+/* ─── Effects controls ─── */
+window._fxBgImage = null;
+
+$('#fxBackground').addEventListener('change', (e) => {
+  $('#fxBgUpload').style.display = e.target.value === 'image' ? 'flex' : 'none';
+  drawFxPreview();
+});
+
+$('#fxBgInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      window._fxBgImage = img;
+      $('#fxBgName').textContent = file.name.length > 16 ? file.name.slice(0, 14) + '…' : file.name;
+      drawFxPreview();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+$('#fxEffect').addEventListener('change', drawFxPreview);
+
+/* Tiny live preview of current effect setup */
+function drawFxPreview() {
+  const c = $('#fxPreview');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const fx = getEffectsState();
+
+  // Background
+  paintBackground(ctx, W, H, fx);
+
+  // Spotlight
+  if (fx.effect === 'cinematic') {
+    drawSpotlight(ctx, W, H, 0.6);
+  }
+
+  // Small static sample of effects
+  const seed = 99;
+  if (fx.effect === 'sparks' || fx.effect === 'cinematic') {
+    const s = makeSparkSystem(W, H, 14, seed);
+    drawSparks(ctx, s, 0.5, W, H);
+  }
+  if (fx.effect === 'cinematic') {
+    const d = makeDustSystem(W, H, 20, seed + 1);
+    drawDust(ctx, d, 0.4, W, H);
+  }
+
+  // Sample text "Signature"
+  ctx.save();
+  ctx.font = "italic 28px 'Caveat', cursive";
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Draw on temp canvas first to apply chrome if needed
+  const tmpC = document.createElement('canvas');
+  tmpC.width = W; tmpC.height = H;
+  const tctx = tmpC.getContext('2d');
+  tctx.font = "italic 28px 'Caveat', cursive";
+  tctx.textAlign = 'center';
+  tctx.textBaseline = 'middle';
+  tctx.fillStyle = (fx.background === 'transparent' && fx.effect === 'none') ? '#0f0e0c' : '#f0f0f0';
+  tctx.fillText('Signature', W/2, H/2);
+
+  if (fx.inkStyle === 'chrome') {
+    const chrome = renderChromeInk(tmpC, W, H);
+    ctx.drawImage(chrome, 0, 0);
+  } else {
+    ctx.drawImage(tmpC, 0, 0);
+  }
+  ctx.restore();
+}
+
+// Initial preview
+setTimeout(drawFxPreview, 100);
+document.fonts.ready.then(drawFxPreview);
 
 /* ═══════════════════════════════════════════════════════════
    PART A · TYPED SIGNATURE
@@ -1230,7 +1434,7 @@ function downloadCanvas(canvas, filename) {
 }
 
 $('#exportTypePNG').addEventListener('click', () => {
-  const c = renderTypeToTransparentCanvas();
+  const c = renderStaticWithEffects(renderTypeToTransparentCanvas());
   downloadCanvas(c, `signature_${Date.now()}.png`);
   toast('PNG 저장 완료');
 });
@@ -1458,7 +1662,7 @@ $('#exportDrawPNG').addEventListener('click', () => {
     toast('먼저 싸인을 그려주세요');
     return;
   }
-  const c = renderDrawToTransparent();
+  const c = renderStaticWithEffects(renderDrawToTransparent());
   downloadCanvas(c, `signature_drawn_${Date.now()}.png`);
   toast('PNG 저장 완료');
 });
@@ -1613,7 +1817,8 @@ function removeNoise(mask, w, h) {
 
 $('#exportPhotoPNG').addEventListener('click', () => {
   if (!photoProcessed) { toast('먼저 변환하세요'); return; }
-  downloadCanvas(photoCanvas, `signature_photo_${Date.now()}.png`);
+  const c = renderStaticWithEffects(photoCanvas);
+  downloadCanvas(c, `signature_photo_${Date.now()}.png`);
   toast('PNG 저장 완료');
 });
 
@@ -1657,6 +1862,283 @@ function ensureGifLib() {
   if (typeof GIF === 'undefined') {
     throw new Error('GIF 라이브러리가 로드되지 않았습니다. 인터넷 연결을 확인하세요.');
   }
+}
+
+/* ───────────────────────────────────────────────────────────
+   Effects · Particle systems for cinematic GIF effects
+   ─────────────────────────────────────────────────────────── */
+
+// Deterministic PRNG so the same seed yields the same animation
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Pre-generate particles for the full animation duration
+function makeSparkSystem(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const sparks = [];
+  for (let i = 0; i < count; i++) {
+    sparks.push({
+      x0: rng() * W,
+      y0: H + rng() * 50,        // start near bottom
+      vx: (rng() - 0.5) * 0.6,
+      vy: -(0.5 + rng() * 1.5),  // float upward
+      life: 0.4 + rng() * 0.8,    // 0..1 portion of total time when alive
+      birth: rng() * 0.8,         // when it appears (0..0.8 of timeline)
+      size: 1 + rng() * 2.5,
+      hue: 18 + rng() * 18,       // warm orange range
+    });
+  }
+  return sparks;
+}
+
+function makeDustSystem(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const dust = [];
+  for (let i = 0; i < count; i++) {
+    dust.push({
+      x0: rng() * W,
+      y0: rng() * H,
+      vx: (rng() - 0.5) * 0.3,
+      vy: 0.2 + rng() * 0.8,      // gentle fall
+      size: 0.6 + rng() * 1.8,
+      birth: rng(),
+      twinkle: rng() * Math.PI * 2,
+      bright: 0.4 + rng() * 0.6
+    });
+  }
+  return dust;
+}
+
+// Draw all sparks at given normalized progress t in [0,1]
+function drawSparks(ctx, sparks, t, W, H) {
+  ctx.save();
+  for (const s of sparks) {
+    const local = (t - s.birth) / s.life;
+    if (local < 0 || local > 1) continue;
+    const x = s.x0 + s.vx * local * 200;
+    const y = s.y0 + s.vy * local * 200;
+    // Alpha curve: rise quickly, fade out
+    const a = local < 0.1 ? local / 0.1 : 1 - (local - 0.1) / 0.9;
+    if (a <= 0) continue;
+    const sz = s.size * (1 + (1 - local) * 0.3);
+    // Glow
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, sz * 4);
+    grad.addColorStop(0, `hsla(${s.hue}, 100%, 70%, ${a})`);
+    grad.addColorStop(0.4, `hsla(${s.hue - 5}, 100%, 50%, ${a * 0.5})`);
+    grad.addColorStop(1, `hsla(${s.hue - 10}, 100%, 30%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, sz * 4, 0, Math.PI * 2);
+    ctx.fill();
+    // Hot core
+    ctx.fillStyle = `hsla(${s.hue + 20}, 100%, 90%, ${a})`;
+    ctx.beginPath();
+    ctx.arc(x, y, sz * 0.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawDust(ctx, dust, t, W, H) {
+  ctx.save();
+  for (const d of dust) {
+    const local = (t * 1.2 + d.birth) % 1;
+    const x = ((d.x0 + d.vx * local * 300) % W + W) % W;
+    const y = (d.y0 + d.vy * local * H) % H;
+    const tw = Math.sin(t * Math.PI * 4 + d.twinkle) * 0.3 + 0.7;
+    const a = d.bright * tw * 0.6;
+    ctx.fillStyle = `rgba(255, 252, 240, ${a})`;
+    ctx.beginPath();
+    ctx.arc(x, y, d.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// Spotlight from above (radial light)
+function drawSpotlight(ctx, W, H, intensity = 0.6) {
+  ctx.save();
+  const cx = W / 2, cy = H * 0.15;
+  const radius = Math.max(W, H) * 0.7;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+  grad.addColorStop(0, `rgba(255, 250, 235, ${0.35 * intensity})`);
+  grad.addColorStop(0.4, `rgba(180, 170, 150, ${0.12 * intensity})`);
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+// Cement / dark texture procedural background
+let cachedTexture = null;
+function getDarkTexture(W, H) {
+  if (cachedTexture && cachedTexture.width === W && cachedTexture.height === H) return cachedTexture;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  // Base dark
+  ctx.fillStyle = '#0a0a0c';
+  ctx.fillRect(0, 0, W, H);
+  // Noise grain
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const rng = mulberry32(42);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const v = rng();
+    const n = Math.floor(v * 35);
+    imgData.data[i] = 12 + n;
+    imgData.data[i + 1] = 12 + n;
+    imgData.data[i + 2] = 14 + n;
+    imgData.data[i + 3] = 255;
+  }
+  ctx.putImageData(imgData, 0, 0);
+  // Larger blotches for cement feel
+  for (let i = 0; i < 80; i++) {
+    const x = rng() * W, y = rng() * H;
+    const r = 20 + rng() * 60;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const dark = rng() < 0.5;
+    grad.addColorStop(0, dark ? 'rgba(0,0,0,0.4)' : 'rgba(60,55,50,0.15)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Vignette
+  const vg = ctx.createRadialGradient(W/2, H/2, Math.min(W,H)*0.2, W/2, H/2, Math.max(W,H)*0.7);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.7)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, W, H);
+  cachedTexture = c;
+  return c;
+}
+
+// Render ink with chrome/metallic look. Takes an alpha mask canvas.
+function renderChromeInk(srcCanvas, W, H) {
+  const out = document.createElement('canvas');
+  out.width = W; out.height = H;
+  const ctx = out.getContext('2d');
+
+  // Draw original ink lightly first
+  ctx.drawImage(srcCanvas, 0, 0);
+
+  // Create a vertical metallic gradient applied only to ink area
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#f5f5f5');
+  grad.addColorStop(0.3, '#a8a8a8');
+  grad.addColorStop(0.5, '#e8e8e8');
+  grad.addColorStop(0.7, '#5a5a5a');
+  grad.addColorStop(1, '#cfcfcf');
+
+  ctx.globalCompositeOperation = 'source-in';
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
+
+  // Soft outer glow for chrome rim
+  const glow = document.createElement('canvas');
+  glow.width = W; glow.height = H;
+  const gctx = glow.getContext('2d');
+  gctx.filter = 'blur(2px)';
+  gctx.drawImage(srcCanvas, 0, 0);
+  gctx.globalCompositeOperation = 'source-in';
+  gctx.fillStyle = 'rgba(255, 240, 220, 0.5)';
+  gctx.fillRect(0, 0, W, H);
+
+  const combined = document.createElement('canvas');
+  combined.width = W; combined.height = H;
+  const cctx = combined.getContext('2d');
+  cctx.drawImage(glow, 0, 0);
+  cctx.drawImage(out, 0, 0);
+  return combined;
+}
+
+/* Apply current effects to a transparent signature canvas, producing
+ * a static image with background + effects + ink composited.
+ * Used by PNG export when an effect is selected. */
+function renderStaticWithEffects(srcCanvas) {
+  const W = srcCanvas.width, H = srcCanvas.height;
+  const fx = getEffectsState();
+  if (isTransparent(fx)) {
+    // No effects → return as-is for transparent PNG
+    return srcCanvas;
+  }
+  const out = document.createElement('canvas');
+  out.width = W; out.height = H;
+  const ctx = out.getContext('2d');
+
+  paintBackground(ctx, W, H, fx);
+  if (fx.effect === 'cinematic') drawSpotlight(ctx, W, H, 0.7);
+
+  const seed = 12345;
+  if (fx.effect === 'cinematic') {
+    const dust = makeDustSystem(W, H, 80, seed + 1);
+    drawDust(ctx, dust, 0.6, W, H);
+  }
+
+  const inkToUse = (fx.inkStyle === 'chrome') ? renderChromeInk(srcCanvas, W, H) : srcCanvas;
+  ctx.drawImage(inkToUse, 0, 0);
+
+  if (fx.effect === 'sparks' || fx.effect === 'cinematic') {
+    const sparks = makeSparkSystem(W, H, 60, seed);
+    drawSparks(ctx, sparks, 0.85, W, H);
+  }
+  return out;
+}
+
+
+/* Options structure passed to GIF generators:
+ *   {
+ *     background: 'transparent' | 'image' | 'texture',
+ *     bgImage:    HTMLImageElement | null,
+ *     effect:     'none' | 'sparks' | 'cinematic',
+ *     inkStyle:   'plain' | 'chrome'   // chrome = metallic for cinematic
+ *   }
+ */
+
+function getEffectsState() {
+  return {
+    background: $('#fxBackground').value,
+    bgImage: window._fxBgImage || null,
+    effect: $('#fxEffect').value,
+    inkStyle: $('#fxEffect').value === 'cinematic' ? 'chrome' : 'plain'
+  };
+}
+
+// Resolve background → draw onto ctx
+function paintBackground(ctx, W, H, opts) {
+  if (opts.background === 'image' && opts.bgImage) {
+    // Cover fit
+    const img = opts.bgImage;
+    const ar = img.width / img.height;
+    const car = W / H;
+    let dw, dh, dx, dy;
+    if (ar > car) {
+      dh = H; dw = H * ar; dx = (W - dw) / 2; dy = 0;
+    } else {
+      dw = W; dh = W / ar; dx = 0; dy = (H - dh) / 2;
+    }
+    ctx.drawImage(img, dx, dy, dw, dh);
+  } else if (opts.background === 'texture' || opts.effect === 'cinematic') {
+    ctx.drawImage(getDarkTexture(W, H), 0, 0);
+  } else {
+    // Transparent → fill with green key
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// Whether the GIF should use transparency
+function isTransparent(opts) {
+  return opts.background === 'transparent' && opts.effect === 'none';
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -1759,18 +2241,20 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
     const frames = options.frames || 36;
     const delay = options.delay || 55;
     const W = srcCanvas.width, H = srcCanvas.height;
+    const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
 
     let workerURL;
     try {
       workerURL = await getWorkerBlobURL();
     } catch (e) { reject(e); return; }
 
+    const useTransparent = isTransparent(fx);
     const gif = new GIF({
       workers: 2,
       quality: 10,
       width: W,
       height: H,
-      transparent: 0x00ff00,
+      ...(useTransparent ? { transparent: 0x00ff00 } : {}),
       workerScript: workerURL
     });
 
@@ -1792,39 +2276,46 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
     }
     if (minX > maxX) { reject(new Error('빈 이미지')); return; }
 
-    // Trace a path so we can compute end position if needed
-    const path = tracePathFromImage(srcData, W, H);
-    const midY = (minY + maxY) / 2;
-
-    // Pre-build a fully opaque ink canvas (ink on green background)
-    // Used for rect-clipped reveal via drawImage — far safer than pixel loops.
-    const inkBg = document.createElement('canvas');
-    inkBg.width = W; inkBg.height = H;
-    const ibctx = inkBg.getContext('2d');
-    ibctx.fillStyle = '#00ff00';
-    ibctx.fillRect(0, 0, W, H);
-    ibctx.drawImage(srcCanvas, 0, 0);
+    // Apply chrome ink style if cinematic
+    const inkSource = (fx.inkStyle === 'chrome') ? renderChromeInk(srcCanvas, W, H) : srcCanvas;
 
     const tmp = document.createElement('canvas');
     tmp.width = W;
     tmp.height = H;
     const tctx = tmp.getContext('2d');
 
-    // No pen, no intro/outro — just reveal progressively, then hold final frame.
+    // Prepare particle systems if needed
+    const seed = 12345;
+    const sparks = (fx.effect === 'sparks' || fx.effect === 'cinematic') ? makeSparkSystem(W, H, 60, seed) : null;
+    const dust = (fx.effect === 'cinematic') ? makeDustSystem(W, H, 80, seed + 1) : null;
+
     const totalFrames = frames;
 
     for (let f = 0; f < totalFrames; f++) {
-      tctx.fillStyle = '#00ff00';
-      tctx.fillRect(0, 0, W, H);
+      const t = (f + 1) / totalFrames;
 
-      const writeProgress = (f + 1) / totalFrames;
+      // 1. Background
+      paintBackground(tctx, W, H, fx);
+
+      // 2. Spotlight (cinematic only, drawn before ink so it lights everything)
+      if (fx.effect === 'cinematic') {
+        drawSpotlight(tctx, W, H, 0.7);
+      }
+
+      // 3. Falling dust (behind ink for depth)
+      if (dust) drawDust(tctx, dust, t, W, H);
+
+      // 4. Reveal ink up to writeProgress
+      const writeProgress = t;
       const revealX = minX + (maxX - minX + 1) * writeProgress;
-
-      // Reveal ink: copy left-portion of the prebuilt ink-on-green canvas
       const revealRight = Math.min(W, Math.max(0, Math.ceil(revealX) + 1));
       if (revealRight > 0) {
-        tctx.drawImage(inkBg, 0, 0, revealRight, H, 0, 0, revealRight, H);
+        // Use the (possibly chrome-styled) ink canvas — has transparency, so drawImage composites correctly
+        tctx.drawImage(inkSource, 0, 0, revealRight, H, 0, 0, revealRight, H);
       }
+
+      // 5. Sparks (in front for embers feel)
+      if (sparks) drawSparks(tctx, sparks, t, W, H);
 
       const isLast = (f === totalFrames - 1);
       gif.addFrame(tctx, { copy: true, delay: isLast ? 1400 : delay });
@@ -1848,26 +2339,28 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
    GIF · From stroke data (hand-drawn signature)
    Pen tip follows the actual drawing path, point by point.
    ─────────────────────────────────────────────────────────── */
-function generateGifFromStrokes(strokes, W, H) {
+function generateGifFromStrokes(strokes, W, H, options = {}) {
   return new Promise(async (resolve, reject) => {
     try {
       ensureGifLib();
     } catch (e) { reject(e); return; }
 
-    const frames = 40;
-    const delay = 50;
+    const frames = options.frames || 40;
+    const delay = options.delay || 50;
+    const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
 
     let workerURL;
     try {
       workerURL = await getWorkerBlobURL();
     } catch (e) { reject(e); return; }
 
+    const useTransparent = isTransparent(fx);
     const gif = new GIF({
       workers: 2,
       quality: 10,
       width: W,
       height: H,
-      transparent: 0x00ff00,
+      ...(useTransparent ? { transparent: 0x00ff00 } : {}),
       workerScript: workerURL
     });
 
@@ -1878,17 +2371,29 @@ function generateGifFromStrokes(strokes, W, H) {
     tmp.height = H;
     const tctx = tmp.getContext('2d');
 
-    // No pen, no intro/outro — just animate the stroke progression, then hold.
+    // Particle systems if needed
+    const seed = 54321;
+    const sparks = (fx.effect === 'sparks' || fx.effect === 'cinematic') ? makeSparkSystem(W, H, 60, seed) : null;
+    const dust = (fx.effect === 'cinematic') ? makeDustSystem(W, H, 80, seed + 1) : null;
+
     const totalFrames = frames;
 
     for (let f = 0; f < totalFrames; f++) {
-      tctx.fillStyle = '#00ff00';
-      tctx.fillRect(0, 0, W, H);
+      const t = (f + 1) / totalFrames;
 
-      const writeProgress = (f + 1) / totalFrames;
-      const targetPts = Math.round(totalPts * writeProgress);
+      // 1. Background
+      paintBackground(tctx, W, H, fx);
 
-      // Render ink up to targetPts onto a fresh canvas
+      // 2. Spotlight
+      if (fx.effect === 'cinematic') {
+        drawSpotlight(tctx, W, H, 0.7);
+      }
+
+      // 3. Dust behind ink
+      if (dust) drawDust(tctx, dust, t, W, H);
+
+      // 4. Render ink up to current point count
+      const targetPts = Math.round(totalPts * t);
       const inkCanvas = document.createElement('canvas');
       inkCanvas.width = W; inkCanvas.height = H;
       const ictx = inkCanvas.getContext('2d');
@@ -1919,8 +2424,12 @@ function generateGifFromStrokes(strokes, W, H) {
         drawnPts += stroke.points.length;
       }
 
-      // Composite ink over the green tmp (drawImage handles alpha correctly)
-      tctx.drawImage(inkCanvas, 0, 0);
+      // Apply chrome styling if needed
+      const inkToUse = (fx.inkStyle === 'chrome') ? renderChromeInk(inkCanvas, W, H) : inkCanvas;
+      tctx.drawImage(inkToUse, 0, 0);
+
+      // 5. Sparks in front
+      if (sparks) drawSparks(tctx, sparks, t, W, H);
 
       const isLast = (f === totalFrames - 1);
       gif.addFrame(tctx, { copy: true, delay: isLast ? 1400 : delay });
@@ -1963,7 +2472,7 @@ $('#exportTypeGIF').addEventListener('click', async (e) => {
   showLoading(btn, 'GIF...');
   try {
     const c = renderTypeToTransparentCanvas();
-    const url = await generateGifFromCanvas(c, { frames: 28 });
+    const url = await generateGifFromCanvas(c, { frames: 28, fx: getEffectsState() });
     downloadURL(url, `signature_${Date.now()}.gif`);
     toast('GIF 저장 완료');
   } catch (err) {
@@ -1978,7 +2487,7 @@ $('#exportDrawGIF').addEventListener('click', async (e) => {
   const btn = e.currentTarget;
   showLoading(btn, 'GIF...');
   try {
-    const url = await generateGifFromStrokes(strokes, drawCanvas.width, drawCanvas.height);
+    const url = await generateGifFromStrokes(strokes, drawCanvas.width, drawCanvas.height, { fx: getEffectsState() });
     downloadURL(url, `signature_drawn_${Date.now()}.gif`);
     toast('GIF 저장 완료');
   } catch (err) {
@@ -1993,7 +2502,7 @@ $('#exportPhotoGIF').addEventListener('click', async (e) => {
   const btn = e.currentTarget;
   showLoading(btn, 'GIF...');
   try {
-    const url = await generateGifFromCanvas(photoCanvas, { frames: 30 });
+    const url = await generateGifFromCanvas(photoCanvas, { frames: 30, fx: getEffectsState() });
     downloadURL(url, `signature_photo_${Date.now()}.gif`);
     toast('GIF 저장 완료');
   } catch (err) {
@@ -2103,19 +2612,20 @@ async function renderGallery() {
 
 $('#saveTypeGallery').addEventListener('click', () => {
   const name = $('#typeText').value.trim() || 'Untitled';
-  const c = renderTypeToTransparentCanvas();
+  const c = renderStaticWithEffects(renderTypeToTransparentCanvas());
   addToGallery(name, c.toDataURL('image/png'));
 });
 
 $('#saveDrawGallery').addEventListener('click', () => {
   if (strokes.length === 0) { toast('먼저 싸인을 그려주세요'); return; }
-  const c = renderDrawToTransparent();
+  const c = renderStaticWithEffects(renderDrawToTransparent());
   addToGallery('Drawn', c.toDataURL('image/png'));
 });
 
 $('#savePhotoGallery').addEventListener('click', () => {
   if (!photoProcessed) { toast('먼저 변환하세요'); return; }
-  addToGallery('Photo', photoCanvas.toDataURL('image/png'));
+  const c = renderStaticWithEffects(photoCanvas);
+  addToGallery('Photo', c.toDataURL('image/png'));
 });
 
 // Initial render
