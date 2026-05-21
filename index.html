@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signature Studio — 나만의 싸인 스튜디오</title>
+<title>SVIP 시그니처 이펙트 스튜디오 · TOONATION</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Nanum+Pen+Script&family=Caveat:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Allura&family=Sacramento&family=Pinyon+Script&family=Homemade+Apple&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Caveat:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Allura&family=Sacramento&family=Pinyon+Script&family=Homemade+Apple&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 // Load gif.js with fallback to multiple CDNs
 (function loadGifLib() {
@@ -31,519 +32,931 @@
 })();
 </script>
 <style>
+/* ═══════════════════════════════════════════════════════════
+   TOONATION · SVIP SIGNATURE EFFECT STUDIO
+   Design System Tokens
+   ═══════════════════════════════════════════════════════════ */
+
 :root {
-  --ink: #0f0e0c;
-  --paper: #f4efe6;
-  --paper-warm: #ebe3d5;
-  --gold: #b89766;
-  --gold-dark: #8c6d3f;
-  --red: #8b2a2a;
-  --line: rgba(15, 14, 12, 0.12);
-  --line-soft: rgba(15, 14, 12, 0.06);
-  --muted: rgba(15, 14, 12, 0.55);
+  /* Toonation Brand Colors */
+  --toonation-blue:        #4B96FF;
+  --toonation-blue-hover:  #3A82E8;
+  --toonation-blue-active: #2B70D0;
+  --toonation-navy:        #1E4B78;
+  --toonation-navy-dark:   #143553;
+  --toonation-blue-50:     #EAF3FF;
+  --toonation-blue-100:    #D4E7FF;
+  --toonation-blue-200:    #A8CFFF;
+  --toonation-charcoal:    #0F0F0F;
+
+  --primary-normal:    var(--toonation-blue);
+  --primary-strong:    var(--toonation-blue-hover);
+  --primary-heavy:     var(--toonation-blue-active);
+  --primary-bg-weak:   var(--toonation-blue-50);
+  --primary-bg-strong: var(--toonation-blue-100);
+
+  /* Label */
+  --label-normal: #1A1B1F;
+  --label-strong: #000000;
+  --label-neutral: #45474B;
+  --label-alternative: #8A8C92;
+  --label-assistive: #B5B7BC;
+  --label-disable: #D8DADE;
+
+  /* Background */
+  --bg-normal: #FFFFFF;
+  --bg-alternative: #F6F7F9;
+
+  /* Fill */
+  --fill-normal: rgba(15, 15, 15, 0.04);
+  --fill-strong: rgba(15, 15, 15, 0.08);
+  --fill-alternative: rgba(15, 15, 15, 0.16);
+
+  /* Lines */
+  --line-normal: rgba(15, 15, 15, 0.10);
+  --line-neutral: rgba(15, 15, 15, 0.18);
+  --line-alternative: rgba(15, 15, 15, 0.06);
+  --line-solid-normal: #E4E6EB;
+
+  /* Status */
+  --status-positive: #00B843;
+  --status-cautionary: #FFB800;
+  --status-negative: #FF4949;
+
+  /* Elevation */
+  --elev-1: 0 1px 2px rgba(15, 15, 15, 0.04), 0 1px 3px rgba(15, 15, 15, 0.06);
+  --elev-2: 0 2px 4px rgba(15, 15, 15, 0.04), 0 4px 12px rgba(15, 15, 15, 0.08);
+  --elev-3: 0 8px 16px rgba(15, 15, 15, 0.06), 0 16px 32px rgba(15, 15, 15, 0.10);
+  --elev-toonation: 0 6px 24px rgba(75, 150, 255, 0.20), 0 2px 8px rgba(75, 150, 255, 0.12);
+
+  /* Radius */
+  --r-xs: 4px; --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+  --r-xl: 18px; --r-2xl: 24px; --r-pill: 999px;
+
+  /* Spacing */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-7: 28px; --s-8: 32px;
+  --s-10: 40px; --s-12: 48px; --s-16: 64px; --s-20: 80px;
 }
+
+[data-theme="dark"] {
+  --label-normal: #ECEDF0;
+  --label-strong: #FFFFFF;
+  --label-neutral: #C2C4CC;
+  --label-alternative: #898C94;
+  --label-assistive: #5F6168;
+  --label-disable: #3D3F45;
+
+  --bg-normal: #15171A;
+  --bg-alternative: #0F1114;
+
+  --fill-normal: rgba(255, 255, 255, 0.05);
+  --fill-strong: rgba(255, 255, 255, 0.10);
+  --fill-alternative: rgba(255, 255, 255, 0.16);
+
+  --line-normal: rgba(255, 255, 255, 0.10);
+  --line-neutral: rgba(255, 255, 255, 0.18);
+  --line-alternative: rgba(255, 255, 255, 0.06);
+  --line-solid-normal: #2A2D33;
+
+  --primary-bg-weak: rgba(75, 150, 255, 0.14);
+  --primary-bg-strong: rgba(75, 150, 255, 0.24);
+
+  --elev-1: 0 1px 2px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
+  --elev-2: 0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.4);
+  --elev-3: 0 8px 16px rgba(0,0,0,0.5), 0 16px 32px rgba(0,0,0,0.5);
+  --elev-toonation: 0 6px 24px rgba(75, 150, 255, 0.35), 0 2px 8px rgba(75, 150, 255, 0.20);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  min-height: 100vh;
+  background: var(--bg-alternative);
+  color: var(--label-normal);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(rgba(15,14,12,0.04) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
-  z-index: 0;
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
 }
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at top left, rgba(184,151,102,0.08), transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(139,42,42,0.05), transparent 50%);
-  pointer-events: none;
-  z-index: 0;
+input, select, textarea {
+  font-family: inherit;
+  color: inherit;
 }
+
+::selection { background: var(--toonation-blue-100); color: var(--toonation-navy); }
+[data-theme="dark"] ::selection { color: var(--toonation-blue); background: var(--toonation-navy); }
+
+/* ═══════════════════════════════════════════════════════════
+   APP SHELL · sidebar + main
+   ═══════════════════════════════════════════════════════════ */
 
 .app {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 48px 32px 80px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
 }
 
-/* ─── Header ─── */
-header {
+/* ─── Sidebar ─── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--bg-normal);
+  border-right: 1px solid var(--line-normal);
+  display: flex;
+  flex-direction: column;
+  padding: var(--s-5) var(--s-4);
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-2) var(--s-6);
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: end;
-  gap: 24px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--ink);
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.brand-logo svg { width: 100%; height: 100%; }
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-text .brand-name {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.03em;
+  color: var(--label-strong);
+}
+
+.brand-text .brand-product {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--label-alternative);
+  margin-top: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--label-alternative);
+  padding: var(--s-3) var(--s-3) var(--s-1);
+  margin-top: var(--s-2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Each tab nav item — keeps .tab class for JS compatibility */
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--label-neutral);
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s;
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--fill-normal);
+  color: var(--label-normal);
+}
+
+.tab.active {
+  background: var(--primary-bg-weak);
+  color: var(--primary-normal);
+  font-weight: 600;
+}
+
+.tab.active::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: var(--toonation-blue);
+  border-radius: 0 var(--r-xs) var(--r-xs) 0;
+}
+
+.tab .num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--fill-strong);
+  color: var(--label-alternative);
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  margin-left: auto;
+}
+
+.tab.active .num {
+  background: var(--toonation-blue);
+  color: white;
+}
+
+.tab svg { flex-shrink: 0; }
+
+.sidebar-footer {
+  border-top: 1px solid var(--line-alternative);
+  padding-top: var(--s-3);
+  margin-top: var(--s-3);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--fill-normal);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.theme-toggle:hover { background: var(--fill-strong); }
+
+.theme-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 14px;
+  color: var(--label-normal);
+  font-weight: 500;
+}
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  border-radius: var(--r-pill);
+  background: var(--fill-strong);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--elev-1);
+  transition: transform 0.2s;
+}
+
+[data-theme="dark"] .toggle-switch { background: var(--toonation-blue); }
+[data-theme="dark"] .toggle-switch::after { transform: translateX(16px); }
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN
+   ═══════════════════════════════════════════════════════════ */
+
+.main {
+  padding: var(--s-8) var(--s-10);
+  max-width: 1400px;
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .main { padding: var(--s-6); }
+  .app { grid-template-columns: 220px 1fr; }
+}
+
+/* ─── Hero Banner ─── */
+.hero-banner {
+  background: linear-gradient(135deg, var(--toonation-navy) 0%, var(--toonation-charcoal) 100%);
+  border-radius: var(--r-xl);
+  padding: var(--s-6) var(--s-8);
+  margin-bottom: var(--s-6);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+}
+
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(75, 150, 255, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-banner::after {
+  content: "";
+  position: absolute;
+  bottom: -30%;
+  right: 30%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(140, 91, 255, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  display: inline-block;
+  background: linear-gradient(135deg, #4B96FF 0%, #8C5BFF 100%);
+  color: white;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   margin-bottom: 8px;
 }
 
-.logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-weight: 500;
-  font-size: 14px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
+.hero-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--s-1);
 }
 
-.masthead {
-  text-align: center;
-}
-
-.masthead h1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 500;
-  font-size: clamp(48px, 7vw, 88px);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-}
-
-.masthead h1 .it {
-  font-style: italic;
-  color: var(--gold-dark);
-}
-
-.masthead .sub {
-  margin-top: 8px;
+.hero-subtitle {
   font-size: 13px;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
 }
 
-.dateline {
-  text-align: right;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.ribbon {
+/* ─── Page Header ─── */
+.page-header {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
-  align-items: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
-  padding: 10px 0 32px;
-  border-bottom: 2px double var(--ink);
-  margin-bottom: 40px;
+  gap: var(--s-6);
+  margin-bottom: var(--s-6);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line-normal);
 }
 
-.ribbon .star { color: var(--gold-dark); }
+.page-title-group h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--label-strong);
+  margin-bottom: 4px;
+}
 
-/* ─── Effects Bar ─── */
+.page-title-group p {
+  font-size: 14px;
+  color: var(--label-alternative);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════════ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-4);
+  height: 40px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: all 0.15s;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--toonation-blue);
+  color: white;
+  box-shadow: 0 1px 2px rgba(75, 150, 255, 0.20);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--toonation-blue-hover);
+  box-shadow: var(--elev-toonation);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  background: var(--toonation-blue-active);
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--fill-normal);
+  color: var(--label-normal);
+}
+
+.btn-secondary:hover:not(:disabled) { background: var(--fill-strong); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--line-solid-normal);
+  color: var(--label-normal);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--fill-normal);
+  border-color: var(--label-neutral);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--label-neutral);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--fill-normal);
+  color: var(--label-normal);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--status-negative);
+  border: 1px solid transparent;
+}
+
+.btn-danger:hover { background: rgba(255, 73, 73, 0.08); }
+
+.btn-svip {
+  background: linear-gradient(135deg, var(--toonation-blue) 0%, var(--toonation-navy) 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-svip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+
+.btn-svip:hover::before { transform: translateX(100%); }
+
+/* ═══════════════════════════════════════════════════════════
+   EFFECTS BAR
+   ═══════════════════════════════════════════════════════════ */
+
 .fx-bar {
+  background: var(--bg-normal);
+  border: 1px solid var(--line-normal);
+  border-radius: var(--r-xl);
+  padding: var(--s-5);
+  margin-bottom: var(--s-6);
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  gap: 20px;
-  background: rgba(15, 14, 12, 0.04);
-  border: 1px solid var(--line);
-  padding: 18px 22px;
-  margin-bottom: 28px;
+  gap: var(--s-5);
   align-items: end;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .fx-bar { grid-template-columns: 1fr; }
 }
 
-.fx-section {
-  min-width: 0;
-}
+.fx-section { min-width: 0; }
 
 .fx-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--label-normal);
   margin-bottom: 8px;
+  display: block;
 }
 
-.fx-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+.fx-row { display: flex; gap: 8px; align-items: center; }
 
 .fx-select {
   flex: 1;
   min-width: 0;
-  font-size: 15px;
-  padding: 6px 24px 6px 0;
 }
 
 .fx-file {
   flex: 0 0 auto;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 8px 12px;
-  border: 1px solid var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  border: 1px solid var(--line-solid-normal);
+  border-radius: var(--r-md);
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
-  max-width: 140px;
+  transition: all 0.15s;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: var(--bg-normal);
+  color: var(--label-normal);
 }
 
 .fx-file:hover {
-  background: var(--ink);
-  color: var(--paper);
+  border-color: var(--toonation-blue);
+  color: var(--toonation-blue);
 }
 
 .fx-file input { display: none; }
 
-.fx-preview-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
 #fxPreview {
-  border: 1px solid var(--line);
+  width: 240px;
+  height: 64px;
+  border-radius: var(--r-md);
   background:
-    linear-gradient(45deg, #e8e2d4 25%, transparent 25%, transparent 75%, #e8e2d4 75%),
-    linear-gradient(45deg, #e8e2d4 25%, transparent 25%, transparent 75%, #e8e2d4 75%);
-  background-size: 10px 10px;
-  background-position: 0 0, 5px 5px;
-  background-color: #f4efe6;
+    linear-gradient(45deg, var(--fill-alternative) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--fill-alternative) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--fill-alternative) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--fill-alternative) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  background-color: var(--bg-alternative);
   display: block;
+  border: 1px solid var(--line-alternative);
 }
 
 /* Hide effects bar on Gallery tab */
 body.gallery-mode .fx-bar { display: none; }
 
+/* ═══════════════════════════════════════════════════════════
+   WORKSPACE LAYOUT (Type/Draw/Photo)
+   ═══════════════════════════════════════════════════════════ */
 
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin-bottom: 28px;
-  border-bottom: 1px solid var(--line);
-}
-
-.tab {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 16px 22px 14px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
-  font-style: italic;
-  color: var(--muted);
-  position: relative;
-  transition: color 0.3s;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.tab .num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-style: normal;
-  color: var(--gold-dark);
-  letter-spacing: 0.1em;
-}
-
-.tab:hover { color: var(--ink); }
-.tab.active {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-
-/* ─── Layout ─── */
 .workspace {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 32px;
+  grid-template-columns: 340px 1fr;
+  gap: var(--s-6);
   align-items: start;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
   .workspace { grid-template-columns: 1fr; }
 }
 
+/* ─── Cards (panels) ─── */
 .panel {
-  background: rgba(255, 253, 248, 0.6);
-  border: 1px solid var(--line);
-  padding: 28px;
+  background: var(--bg-normal);
+  border: 1px solid var(--line-normal);
+  border-radius: var(--r-xl);
+  padding: var(--s-6);
   position: relative;
 }
 
-.panel::before {
-  content: "";
-  position: absolute;
-  top: 6px; left: 6px; right: 6px; bottom: 6px;
-  border: 1px solid var(--line-soft);
-  pointer-events: none;
-}
-
 .panel-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
-  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--label-strong);
+  letter-spacing: -0.025em;
+  margin-bottom: var(--s-2);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--s-2);
 }
 
-.panel-title::after {
+.panel-title::before {
   content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line);
+  width: 4px;
+  height: 16px;
+  background: var(--toonation-blue);
+  border-radius: 2px;
+  display: inline-block;
 }
 
+/* ─── Form fields ─── */
 .field {
-  margin-bottom: 18px;
+  margin-bottom: var(--s-5);
 }
 
 .field label {
-  display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--label-normal);
   margin-bottom: 8px;
 }
 
 .input, .select {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--ink);
-  padding: 10px 0;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
-  color: var(--ink);
+  height: 44px;
+  padding: 0 var(--s-4);
+  background: var(--bg-normal);
+  border: 1px solid var(--line-solid-normal);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  color: var(--label-normal);
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.15s;
+}
+
+.input:hover, .select:hover {
+  border-color: var(--label-alternative);
 }
 
 .input:focus, .select:focus {
-  border-bottom-color: var(--gold-dark);
+  border-color: var(--toonation-blue);
+  box-shadow: 0 0 0 3px var(--primary-bg-weak);
 }
+
+.input::placeholder { color: var(--label-assistive); }
 
 .select {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%230f0e0c' fill='none' stroke-width='1.2'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5l5 5 5-5' stroke='%238A8C92' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat: no-repeat;
-  background-position: right 4px center;
+  background-position: right var(--s-4) center;
   appearance: none;
   cursor: pointer;
-  padding-right: 24px;
+  padding-right: 40px;
 }
 
+/* ─── Range slider ─── */
 .range-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .range-row input[type="range"] {
   flex: 1;
   -webkit-appearance: none;
   appearance: none;
-  height: 1px;
-  background: var(--ink);
+  height: 4px;
+  background: var(--fill-strong);
+  border-radius: var(--r-pill);
   outline: none;
 }
 
 .range-row input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  background: var(--ink);
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid var(--toonation-blue);
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--ink);
+  box-shadow: var(--elev-1);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.range-row input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px var(--primary-bg-weak);
 }
 
 .range-row input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  background: var(--ink);
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid var(--toonation-blue);
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--ink);
 }
 
 .range-row .val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  min-width: 36px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: var(--label-alternative);
+  min-width: 40px;
   text-align: right;
+  font-weight: 600;
 }
 
+/* ─── Font / Color chips ─── */
 .font-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: var(--s-2);
   margin-bottom: 8px;
 }
 
 .font-chip {
-  border: 1px solid var(--line);
-  padding: 14px 10px;
-  cursor: pointer;
-  background: transparent;
+  border: 1px solid var(--line-solid-normal);
+  background: var(--bg-normal);
+  border-radius: var(--r-md);
+  padding: var(--s-3);
+  font-size: 18px;
   text-align: center;
-  font-size: 22px;
-  line-height: 1;
-  color: var(--ink);
-  transition: all 0.2s;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--label-normal);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.font-chip:hover { border-color: var(--ink); }
-.font-chip.active {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+.font-chip:hover {
+  border-color: var(--label-neutral);
+  background: var(--fill-normal);
 }
+
+.font-chip.active {
+  background: var(--primary-bg-weak);
+  border-color: var(--toonation-blue);
+  color: var(--toonation-navy);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .font-chip.active { color: var(--toonation-blue); }
+
+/* Color chip variant — used for ink color */
+.font-chip[data-color] {
+  font-size: 0;
+  min-height: 44px;
+  position: relative;
+  padding: 0;
+  border: 1px solid var(--line-solid-normal) !important;
+  background: var(--bg-normal) !important;
+  color: transparent !important;
+}
+
+.font-chip[data-color]::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: var(--r-sm);
+  background: var(--chip-color, currentColor);
+  transition: transform 0.15s;
+}
+
+.font-chip[data-color].active::after {
+  transform: scale(0.85);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--toonation-blue);
+}
+
+[data-theme="dark"] .font-chip[data-color].active::after {
+  box-shadow: 0 0 0 2px var(--bg-normal), 0 0 0 4px var(--toonation-blue);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTON ROWS · used inside panels
+   ═══════════════════════════════════════════════════════════ */
 
 .btn-row {
   display: flex;
-  gap: 8px;
+  gap: var(--s-2);
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin-top: var(--s-2);
 }
 
-.btn {
+.btn-row .btn {
   flex: 1;
   min-width: 110px;
-  padding: 12px 16px;
-  background: var(--ink);
-  color: var(--paper);
-  border: 1px solid var(--ink);
-  cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ─── Hint / Alert ─── */
+.hint {
+  margin-top: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--primary-bg-weak);
+  border-left: 3px solid var(--toonation-blue);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--toonation-navy);
+}
+
+[data-theme="dark"] .hint { color: var(--toonation-blue); }
+
+.hint strong {
+  display: block;
   font-size: 10px;
-  letter-spacing: 0.2em;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: all 0.2s;
+  margin-bottom: 4px;
+  color: var(--toonation-blue);
 }
 
-.btn:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
+/* ═══════════════════════════════════════════════════════════
+   STAGE (canvas area)
+   ═══════════════════════════════════════════════════════════ */
 
-.btn.secondary {
-  background: transparent;
-  color: var(--ink);
-}
-
-.btn.secondary:hover {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.btn.danger {
-  background: transparent;
-  color: var(--red);
-  border-color: var(--red);
-}
-
-.btn.danger:hover {
-  background: var(--red);
-  color: var(--paper);
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* ─── Canvas Area ─── */
 .stage {
-  background:
-    linear-gradient(135deg, #fefdfa 0%, #f7f1e4 100%);
-  border: 1px solid var(--line);
-  padding: 28px;
-  position: relative;
-  min-height: 480px;
-}
-
-.stage::before {
-  content: "";
-  position: absolute;
-  top: 8px; left: 8px; right: 8px; bottom: 8px;
-  border: 1px solid var(--line-soft);
-  pointer-events: none;
+  background: var(--bg-normal);
+  border: 1px solid var(--line-normal);
+  border-radius: var(--r-xl);
+  overflow: hidden;
 }
 
 .stage-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
+  justify-content: space-between;
+  padding: var(--s-4) var(--s-5);
+  border-bottom: 1px solid var(--line-alternative);
+  background: var(--bg-alternative);
 }
 
 .stage-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--toonation-blue-50);
+  color: var(--toonation-navy);
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .stage-label {
+  background: rgba(75, 150, 255, 0.14);
+  color: var(--toonation-blue);
 }
 
 .stage-meta {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.1em;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: var(--label-alternative);
+  font-weight: 500;
 }
 
 .canvas-wrap {
   position: relative;
   background:
-    repeating-linear-gradient(45deg, transparent 0, transparent 12px, rgba(15,14,12,0.025) 12px, rgba(15,14,12,0.025) 13px),
-    #fbf8f1;
-  border: 1px dashed var(--line);
-  min-height: 320px;
+    linear-gradient(45deg, var(--fill-alternative) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--fill-alternative) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--fill-alternative) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--fill-alternative) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: var(--s-6);
+}
+
+[data-theme="dark"] .canvas-wrap {
+  background:
+    linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
 }
 
 canvas {
@@ -553,183 +966,211 @@ canvas {
 }
 
 #drawCanvas, #photoCanvas {
-  background: #fbf8f1;
+  background: var(--bg-normal);
+  border-radius: var(--r-sm);
+  box-shadow: var(--elev-1);
   cursor: crosshair;
+}
+
+#typeCanvas {
+  background: transparent;
 }
 
 .empty-state {
   text-align: center;
-  color: var(--muted);
-  font-style: italic;
-  font-size: 18px;
-  padding: 40px;
+  color: var(--label-alternative);
+  padding: var(--s-8);
 }
 
 .empty-state .glyph {
-  font-size: 48px;
-  color: var(--gold);
-  margin-bottom: 12px;
-  font-style: normal;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bg-alternative);
+  display: grid;
+  place-items: center;
+  margin: 0 auto var(--s-3);
+  color: var(--toonation-blue);
+  box-shadow: var(--elev-1);
+  font-size: 24px;
 }
 
-/* ─── Gallery ─── */
+.empty-state > div:not(.glyph) {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--label-normal);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GALLERY
+   ═══════════════════════════════════════════════════════════ */
+
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--s-5);
 }
 
 .gallery-item {
-  background: #fbf8f1;
-  border: 1px solid var(--line);
-  padding: 14px;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--bg-normal);
+  border: 1px solid var(--line-normal);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+  padding: 0;
 }
 
 .gallery-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15,14,12,0.08);
+  border-color: var(--toonation-blue);
+  box-shadow: var(--elev-2);
 }
 
 .gallery-item img {
   width: 100%;
-  height: 140px;
+  height: 160px;
   object-fit: contain;
   background:
-    linear-gradient(45deg, #e8e2d4 25%, transparent 25%, transparent 75%, #e8e2d4 75%),
-    linear-gradient(45deg, #e8e2d4 25%, transparent 25%, transparent 75%, #e8e2d4 75%);
+    linear-gradient(45deg, var(--fill-alternative) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--fill-alternative) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--fill-alternative) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--fill-alternative) 75%);
   background-size: 12px 12px;
-  background-position: 0 0, 6px 6px;
-  background-color: #f4efe6;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  background-color: var(--bg-alternative);
   display: block;
+  padding: var(--s-3);
 }
 
 .gallery-meta {
-  margin-top: 10px;
+  padding: var(--s-3) var(--s-4) 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .gallery-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
-  font-style: italic;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--label-strong);
+  letter-spacing: -0.01em;
 }
 
 .gallery-date {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--label-alternative);
 }
 
 .gallery-actions {
   display: flex;
-  gap: 6px;
-  margin-top: 10px;
+  gap: var(--s-1);
+  padding: var(--s-3) var(--s-4) var(--s-4);
 }
 
 .icon-btn {
   flex: 1;
-  padding: 6px;
+  padding: 6px 10px;
   background: transparent;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-solid-normal);
+  border-radius: var(--r-sm);
   cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink);
-  transition: all 0.2s;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--label-normal);
+  transition: all 0.15s;
 }
 
 .icon-btn:hover {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
+  background: var(--toonation-blue);
+  color: white;
+  border-color: var(--toonation-blue);
 }
 
 .icon-btn.del:hover {
-  background: var(--red);
-  border-color: var(--red);
+  background: var(--status-negative);
+  border-color: var(--status-negative);
 }
 
-/* ─── Toast ─── */
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════════════ */
+
 .toast {
   position: fixed;
   bottom: 32px;
   left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: var(--ink);
-  color: var(--paper);
-  padding: 14px 24px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--label-strong);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   z-index: 1000;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
-  border: 1px solid var(--gold-dark);
+  box-shadow: var(--elev-3);
 }
 
 .toast.show {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ─── File input ─── */
+/* ═══════════════════════════════════════════════════════════
+   FILE DROP
+   ═══════════════════════════════════════════════════════════ */
+
 .file-drop {
-  border: 2px dashed var(--line);
-  padding: 32px 20px;
+  border: 1.5px dashed var(--line-solid-normal);
+  border-radius: var(--r-lg);
+  padding: var(--s-8) var(--s-4);
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(255, 253, 248, 0.5);
+  background: var(--bg-alternative);
+  transition: all 0.15s;
 }
 
 .file-drop:hover, .file-drop.over {
-  border-color: var(--gold-dark);
-  background: rgba(184, 151, 102, 0.05);
+  border-color: var(--toonation-blue);
+  background: var(--primary-bg-weak);
 }
 
 .file-drop .icon {
-  font-size: 32px;
-  color: var(--gold);
-  margin-bottom: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-normal);
+  margin: 0 auto var(--s-3);
+  display: grid;
+  place-items: center;
+  color: var(--toonation-blue);
+  box-shadow: var(--elev-1);
+  font-size: 20px;
 }
 
 .file-drop p {
-  font-style: italic;
-  color: var(--muted);
-  font-size: 16px;
+  font-size: 14px;
+  color: var(--label-normal);
+  font-weight: 600;
+}
+
+.file-drop p:last-child {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--label-alternative);
+  margin-top: 4px;
 }
 
 .file-drop input { display: none; }
 
-.hint {
-  margin-top: 14px;
-  padding: 14px;
-  background: rgba(184, 151, 102, 0.06);
-  border-left: 2px solid var(--gold-dark);
-  font-style: italic;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--muted);
-}
+/* ═══════════════════════════════════════════════════════════
+   VIEW MANAGEMENT
+   ═══════════════════════════════════════════════════════════ */
 
-.hint strong {
-  font-style: normal;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold-dark);
-  display: block;
-  margin-bottom: 4px;
-}
-
-/* ─── View management ─── */
 .view { display: none; }
 .view.active { display: block; }
 
@@ -738,7 +1179,7 @@ canvas {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border: 2px solid var(--paper);
+  border: 2px solid currentColor;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -748,113 +1189,199 @@ canvas {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─── Footer ─── */
-footer {
-  margin-top: 80px;
-  padding-top: 32px;
-  border-top: 1px solid var(--ink);
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+
+footer.app-footer {
+  margin-top: var(--s-16);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--line-normal);
+  color: var(--label-alternative);
+  font-size: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
 }
 
-footer .swirl {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 22px;
-  color: var(--gold-dark);
-  letter-spacing: 0;
-  text-transform: none;
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--label-neutral);
+  font-weight: 600;
 }
+
+.footer-brand svg { opacity: 0.7; }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    transition: left 0.3s;
+    z-index: 100;
+  }
+  .sidebar.open { left: 0; }
+  .main { padding: var(--s-4); }
+  .hero-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--s-5);
+  }
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-3);
+  }
+}
+
 </style>
 </head>
 <body>
 
 <div class="app">
 
-<!-- ═══════════ Header ═══════════ -->
-<header>
-  <div class="logo">№ 001 ⋅ Estd. 2026</div>
-  <div class="masthead">
-    <h1>Signature <span class="it">Studio</span></h1>
-    <div class="sub">The Atelier of Personal Marks</div>
+<!-- ═══════════ Sidebar ═══════════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">
+      <svg viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#4B96FF">
+          <rect x="14" y="14" width="26" height="52" rx="13"/>
+          <rect x="0" y="28" width="54" height="26" rx="13"/>
+        </g>
+        <g>
+          <circle cx="90" cy="40" r="28" fill="#1E4B78"/>
+          <circle cx="90" cy="40" r="11" fill="var(--bg-normal)"/>
+        </g>
+        <g>
+          <circle cx="158" cy="40" r="28" fill="#4B96FF"/>
+          <circle cx="158" cy="40" r="11" fill="var(--bg-normal)"/>
+        </g>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">toonation</span>
+      <span class="brand-product">Signature Studio</span>
+    </div>
   </div>
-  <div class="dateline">
-    <div id="todayDate">—</div>
-    <div>VOL. I · ED. I</div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">SIGNATURE</div>
+    <button class="tab active" data-view="type">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4h10M9 4v10M6 14h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Type
+      <span class="num">01</span>
+    </button>
+    <button class="tab" data-view="draw">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 15L4 11L12 3L15 6L7 14L3 15Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 5L13 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Draw
+      <span class="num">02</span>
+    </button>
+    <button class="tab" data-view="photo">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4.5" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 4.5L7.5 2.5h3l1 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Photograph
+      <span class="num">03</span>
+    </button>
+
+    <div class="nav-section-label">LIBRARY</div>
+    <button class="tab" data-view="gallery">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="2.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9.5" y="2.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="2.5" y="9.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9.5" y="9.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/></svg>
+      Gallery
+      <span class="num">04</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="theme-toggle" id="themeToggle">
+      <div class="theme-toggle-label">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 9.5A5.5 5.5 0 016.5 3 5.5 5.5 0 1013 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        다크 모드
+      </div>
+      <div class="toggle-switch"></div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--label-alternative);margin-top:12px;padding:0 12px;letter-spacing:0.05em;" id="todayDate">—</div>
   </div>
-</header>
+</aside>
 
-<div class="ribbon">
-  <span>Type · Draw · Capture</span>
-  <span class="star">✦ ✦ ✦</span>
-  <span>Transparent PNG · Animated GIF</span>
-</div>
+<!-- ═══════════ Main ═══════════ -->
+<main class="main">
 
-<!-- ═══════════ Tabs ═══════════ -->
-<div class="tabs">
-  <button class="tab active" data-view="type"><span class="num">01</span> Type</button>
-  <button class="tab" data-view="draw"><span class="num">02</span> Draw</button>
-  <button class="tab" data-view="photo"><span class="num">03</span> Photograph</button>
-  <button class="tab" data-view="gallery"><span class="num">04</span> Gallery</button>
-</div>
+  <!-- ── Hero banner ── -->
+  <div class="hero-banner">
+    <div class="hero-content">
+      <span class="hero-eyebrow">SVIP EXCLUSIVE</span>
+      <div class="hero-title">투네이션 SVIP 시그니처 이펙트</div>
+      <div class="hero-subtitle">후원자 화면에 나만의 시그니처를 멋진 이펙트와 함께 노출하세요</div>
+    </div>
+  </div>
 
 <!-- ═══════════ Effects Bar (shared across Type/Draw/Photo) ═══════════ -->
 <div class="fx-bar" id="fxBar">
   <div class="fx-section">
-    <div class="fx-label">Background ⋅ 배경</div>
+    <div class="fx-label">배경</div>
     <div class="fx-row">
       <select class="select fx-select" id="fxBackground">
-        <option value="transparent" selected>Transparent / 투명</option>
-        <option value="texture">Dark texture / 어두운 질감</option>
-        <option value="image">Image / 이미지 업로드</option>
+        <option value="transparent" selected>투명</option>
+        <option value="texture">어두운 질감</option>
+        <option value="image">이미지 업로드</option>
       </select>
       <label class="fx-file" id="fxBgUpload" style="display:none;">
-        <span id="fxBgName">Choose…</span>
+        <span id="fxBgName">파일 선택</span>
         <input type="file" id="fxBgInput" accept="image/*">
       </label>
     </div>
   </div>
 
   <div class="fx-section">
-    <div class="fx-label">Effect ⋅ 특수효과</div>
+    <div class="fx-label">특수 효과</div>
     <select class="select fx-select" id="fxEffect">
-      <option value="none" selected>— None / 없음</option>
-      <option value="sparks">Sparks / 불꽃</option>
-      <option value="cinematic">Cinematic / 시네마틱 (크롬+불꽃+먼지)</option>
+      <option value="none" selected>— 없음</option>
+      <option value="sparks">Sparks · 불꽃</option>
+      <option value="cinematic">Cinematic · 시네마틱</option>
+      <option value="svip-gold">SVIP Gold · 황금 별빛</option>
+      <option value="svip-purple">SVIP Purple · 보랏빛 광선</option>
+      <option value="vip-aqua">VIP Aqua · 청록 링</option>
     </select>
   </div>
 
   <div class="fx-section fx-preview-wrap">
-    <div class="fx-label">Preview ⋅ 미리보기</div>
+    <div class="fx-label">미리보기</div>
     <canvas id="fxPreview" width="240" height="80"></canvas>
   </div>
 </div>
 
 <!-- ═══════════ VIEW 1: TYPE ═══════════ -->
 <div class="view active" id="view-type">
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>이름으로 시그니처 만들기</h1>
+    <p>입력한 텍스트로 손글씨 스타일의 시그니처를 자동 생성합니다</p>
+  </div>
+</div>
 <div class="workspace">
 
   <div class="panel">
-    <div class="panel-title">Compose ⋅ 작성</div>
+    <div class="panel-title">서명 설정</div>
 
     <div class="field">
-      <label>Your name / 이름</label>
+      <label>이름</label>
       <input type="text" class="input" id="typeText" placeholder="홍길동 or John" value="홍길동" maxlength="30">
     </div>
 
     <div class="field">
-      <label>Hand / 서체</label>
+      <label>서체</label>
       <div class="font-grid" id="fontGrid"></div>
     </div>
 
     <div class="field">
-      <label>Stroke / 두께</label>
+      <label>굵기</label>
       <div class="range-row">
         <input type="range" id="typeStroke" min="1" max="8" value="3" step="0.5">
         <span class="val" id="typeStrokeVal">3</span>
@@ -862,7 +1389,7 @@ footer .swirl {
     </div>
 
     <div class="field">
-      <label>Slant / 기울기</label>
+      <label>기울기</label>
       <div class="range-row">
         <input type="range" id="typeSlant" min="-20" max="20" value="-8">
         <span class="val" id="typeSlantVal">-8°</span>
@@ -870,7 +1397,7 @@ footer .swirl {
     </div>
 
     <div class="field">
-      <label>Flourish / 장식</label>
+      <label>장식</label>
       <select class="select" id="typeFlourish">
         <option value="none">— None / 없음</option>
         <option value="underline" selected>Underline / 밑줄</option>
@@ -881,22 +1408,22 @@ footer .swirl {
     </div>
 
     <div class="btn-row">
-      <button class="btn" id="exportTypePNG">Save PNG</button>
-      <button class="btn secondary" id="exportTypeGIF">Save GIF</button>
+      <button class="btn btn-primary" id="exportTypePNG">PNG 저장</button>
+      <button class="btn btn-svip" id="exportTypeGIF">GIF 저장</button>
     </div>
     <div class="btn-row">
-      <button class="btn secondary" id="saveTypeGallery">Save to Gallery</button>
+      <button class="btn btn-outline" id="saveTypeGallery">보관함에 저장</button>
     </div>
 
     <div class="hint">
-      <strong>Tip</strong>
-      투명 배경 PNG는 즉시 다운로드됩니다. GIF는 펜이 따라다니며 싸인이 그려지는 모습을 담은 애니메이션으로, 처리에 10–15초 정도 걸려요.
+      <strong>SVIP TIP</strong>
+      투명 PNG는 즉시 다운로드됩니다. GIF는 시그니처가 그려지는 모습을 담은 애니메이션으로, 처리에 10~15초 정도 걸립니다.
     </div>
   </div>
 
   <div class="stage">
     <div class="stage-header">
-      <span class="stage-label">Preview ⋅ 미리보기</span>
+      <span class="stage-label">미리보기</span>
       <span class="stage-meta" id="typeMeta">800 × 320 px</span>
     </div>
     <div class="canvas-wrap">
@@ -908,23 +1435,29 @@ footer .swirl {
 
 <!-- ═══════════ VIEW 2: DRAW ═══════════ -->
 <div class="view" id="view-draw">
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>직접 그려서 만들기</h1>
+    <p>마우스나 펜으로 자유롭게 시그니처를 그려보세요</p>
+  </div>
+</div>
 <div class="workspace">
 
   <div class="panel">
-    <div class="panel-title">Pen Settings ⋅ 펜 설정</div>
+    <div class="panel-title">펜 설정</div>
 
     <div class="field">
-      <label>Ink color / 잉크 색상</label>
+      <label>잉크 색상</label>
       <div class="font-grid" style="grid-template-columns: repeat(4, 1fr);">
-        <button class="font-chip active" data-color="#0f0e0c" style="background:#0f0e0c; color:#fff;">●</button>
-        <button class="font-chip" data-color="#1a3a8a" style="background:#1a3a8a; color:#fff;">●</button>
-        <button class="font-chip" data-color="#8b2a2a" style="background:#8b2a2a; color:#fff;">●</button>
-        <button class="font-chip" data-color="#3d5544" style="background:#3d5544; color:#fff;">●</button>
+        <button class="font-chip active" data-color="#0f0e0c" style="--chip-color:#0f0e0c;"></button>
+        <button class="font-chip" data-color="#4B96FF" style="--chip-color:#4B96FF;"></button>
+        <button class="font-chip" data-color="#FF4949" style="--chip-color:#FF4949;"></button>
+        <button class="font-chip" data-color="#00B843" style="--chip-color:#00B843;"></button>
       </div>
     </div>
 
     <div class="field">
-      <label>Stroke / 두께</label>
+      <label>굵기</label>
       <div class="range-row">
         <input type="range" id="drawStroke" min="1" max="10" value="3.5" step="0.5">
         <span class="val" id="drawStrokeVal">3.5</span>
@@ -932,7 +1465,7 @@ footer .swirl {
     </div>
 
     <div class="field">
-      <label>Smoothing / 곡선 보정</label>
+      <label>곡선 보정</label>
       <div class="range-row">
         <input type="range" id="drawSmooth" min="0" max="100" value="60">
         <span class="val" id="drawSmoothVal">60%</span>
@@ -940,32 +1473,32 @@ footer .swirl {
     </div>
 
     <div class="btn-row">
-      <button class="btn secondary" id="drawUndo">Undo</button>
-      <button class="btn danger" id="drawClear">Clear</button>
+      <button class="btn btn-secondary" id="drawUndo">되돌리기</button>
+      <button class="btn btn-danger" id="drawClear">전체 지우기</button>
     </div>
 
     <div class="btn-row">
-      <button class="btn" id="drawApplySmooth">Refine / 다듬기</button>
+      <button class="btn btn-primary" id="drawApplySmooth">곡선 다듬기</button>
     </div>
 
     <div class="btn-row">
-      <button class="btn" id="exportDrawPNG">Save PNG</button>
-      <button class="btn secondary" id="exportDrawGIF">Save GIF</button>
+      <button class="btn btn-primary" id="exportDrawPNG">PNG 저장</button>
+      <button class="btn btn-svip" id="exportDrawGIF">GIF 저장</button>
     </div>
     <div class="btn-row">
-      <button class="btn secondary" id="saveDrawGallery">Save to Gallery</button>
+      <button class="btn btn-outline" id="saveDrawGallery">보관함에 저장</button>
     </div>
 
     <div class="hint">
-      <strong>Tip</strong>
-      마우스 · 트랙패드 · 애플펜슬로 그린 후 "다듬기"를 누르면 떨림이 부드럽게 정돈됩니다. Smoothing 값이 높을수록 더 매끄러워져요.
+      <strong>SVIP TIP</strong>
+      마우스·트랙패드·애플펜슬로 그린 후 "곡선 다듬기"를 누르면 떨림이 부드럽게 정돈됩니다. 곡선 보정 값이 높을수록 더 매끄러워집니다.
     </div>
   </div>
 
   <div class="stage">
     <div class="stage-header">
-      <span class="stage-label">Tablet ⋅ 화판</span>
-      <span class="stage-meta">Draw freely · 자유롭게 그리세요</span>
+      <span class="stage-label">화판</span>
+      <span class="stage-meta">자유롭게 그려보세요</span>
     </div>
     <div class="canvas-wrap">
       <canvas id="drawCanvas" width="800" height="380"></canvas>
@@ -976,23 +1509,31 @@ footer .swirl {
 
 <!-- ═══════════ VIEW 3: PHOTO ═══════════ -->
 <div class="view" id="view-photo">
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>사진에서 가져오기</h1>
+    <p>종이에 그린 서명을 사진으로 찍어 디지털로 변환합니다</p>
+  </div>
+</div>
 <div class="workspace">
 
   <div class="panel">
-    <div class="panel-title">From Paper ⋅ 종이에서</div>
+    <div class="panel-title">사진 변환</div>
 
     <div class="field">
-      <label>Upload photo / 사진 업로드</label>
+      <label>사진 업로드</label>
       <label class="file-drop" id="fileDrop">
-        <div class="icon">✎</div>
-        <p>Click or drop image here</p>
-        <p style="font-size: 12px; margin-top: 6px;">JPG · PNG · WEBP</p>
+        <div class="icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 14V3M10 3L6 7M10 3L14 7M3 15v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p>사진을 끌어다 놓거나 클릭하세요</p>
+        <p>JPG · PNG · WEBP</p>
         <input type="file" id="photoInput" accept="image/*">
       </label>
     </div>
 
     <div class="field">
-      <label>Threshold / 임계값</label>
+      <label>임계값</label>
       <div class="range-row">
         <input type="range" id="photoThreshold" min="80" max="220" value="150">
         <span class="val" id="photoThresholdVal">150</span>
@@ -1000,7 +1541,7 @@ footer .swirl {
     </div>
 
     <div class="field">
-      <label>Ink color / 잉크 색상</label>
+      <label>잉크 색상</label>
       <select class="select" id="photoInkColor">
         <option value="#0f0e0c" selected>Black / 검정</option>
         <option value="#1a3a8a">Blue / 파랑</option>
@@ -1010,7 +1551,7 @@ footer .swirl {
     </div>
 
     <div class="field">
-      <label>Cleanup / 정리</label>
+      <label>정리</label>
       <div class="range-row">
         <input type="range" id="photoCleanup" min="0" max="10" value="3">
         <span class="val" id="photoCleanupVal">3</span>
@@ -1018,33 +1559,35 @@ footer .swirl {
     </div>
 
     <div class="btn-row">
-      <button class="btn" id="photoProcess">Process / 변환</button>
+      <button class="btn btn-primary" id="photoProcess">변환 시작</button>
     </div>
 
     <div class="btn-row">
-      <button class="btn" id="exportPhotoPNG">Save PNG</button>
-      <button class="btn secondary" id="exportPhotoGIF">Save GIF</button>
+      <button class="btn btn-primary" id="exportPhotoPNG">PNG 저장</button>
+      <button class="btn btn-svip" id="exportPhotoGIF">GIF 저장</button>
     </div>
     <div class="btn-row">
-      <button class="btn secondary" id="savePhotoGallery">Save to Gallery</button>
+      <button class="btn btn-outline" id="savePhotoGallery">보관함에 저장</button>
     </div>
 
     <div class="hint">
-      <strong>Tip</strong>
-      종이에 검정 펜으로 진하게 싸인한 사진이 가장 잘 변환됩니다. 임계값을 조절해 흰 배경을 깨끗하게 제거하세요.
+      <strong>SVIP TIP</strong>
+      종이에 검정 펜으로 진하게 서명한 사진이 가장 잘 변환됩니다. 임계값을 조절해 흰 배경을 깨끗하게 제거하세요.
     </div>
   </div>
 
   <div class="stage">
     <div class="stage-header">
-      <span class="stage-label">Result ⋅ 결과</span>
+      <span class="stage-label">변환 결과</span>
       <span class="stage-meta" id="photoMeta">— ⋅ —</span>
     </div>
     <div class="canvas-wrap">
       <canvas id="photoCanvas" width="800" height="380" style="display:none;"></canvas>
       <div class="empty-state" id="photoEmpty">
-        <div class="glyph">✑</div>
-        <div>Upload a photo of your signature</div>
+        <div class="glyph">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M8 6l1.5-2h5L16 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>사진을 업로드해주세요</div>
       </div>
     </div>
   </div>
@@ -1053,24 +1596,31 @@ footer .swirl {
 
 <!-- ═══════════ VIEW 4: GALLERY ═══════════ -->
 <div class="view" id="view-gallery">
-  <div class="panel" style="margin-bottom: 24px;">
-    <div class="panel-title">Personal Archive ⋅ 보관함</div>
-    <p style="font-style: italic; color: var(--muted); margin-bottom: 12px;">
-      저장된 싸인은 브라우저에 보관됩니다. 다른 기기에서는 접근할 수 없어요.
-    </p>
+  <div class="page-header">
+    <div class="page-title-group">
+      <h1>내 시그니처 보관함</h1>
+      <p>저장된 시그니처는 이 브라우저에만 보관되며, 다른 기기에서는 접근할 수 없습니다.</p>
+    </div>
   </div>
   <div id="galleryGrid" class="gallery-grid"></div>
   <div id="galleryEmpty" class="empty-state" style="grid-column: 1/-1;">
-    <div class="glyph">⌖</div>
-    <div>아직 보관된 싸인이 없습니다</div>
+    <div class="glyph">📁</div>
+    <div>아직 보관된 시그니처가 없습니다</div>
   </div>
 </div>
 
-<footer>
-  <div>© Signature Studio · MMXXVI</div>
-  <div class="swirl">~ finis ~</div>
-  <div>Made with care</div>
+<footer class="app-footer">
+  <div class="footer-brand">
+    <svg width="20" height="20" viewBox="0 0 220 80"><g fill="currentColor"><rect x="14" y="14" width="26" height="52" rx="13"/><rect x="0" y="28" width="54" height="26" rx="13"/></g><circle cx="90" cy="40" r="28" fill="currentColor"/><circle cx="90" cy="40" r="11" fill="var(--bg-alternative)"/><circle cx="158" cy="40" r="28" fill="currentColor"/><circle cx="158" cy="40" r="11" fill="var(--bg-alternative)"/></svg>
+    © 2026 TOONATION · SVIP Signature Effect Studio
+  </div>
+  <div style="display:flex;gap:16px;align-items:center;font-family:'JetBrains Mono',monospace;">
+    <span>v1.0</span>
+    <span style="color:var(--toonation-blue);font-size:16px;line-height:1;">●</span>
+  </div>
 </footer>
+
+</main>
 
 </div>
 
@@ -1087,8 +1637,21 @@ const $$ = (s) => document.querySelectorAll(s);
 /* ─── Today date ─── */
 (function(){
   const d = new Date();
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  $('#todayDate').textContent = `${String(d.getDate()).padStart(2,'0')} · ${months[d.getMonth()]} · ${d.getFullYear()}`;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const el = $('#todayDate');
+  if (el) el.textContent = `${yyyy}.${mm}.${dd}`;
+})();
+
+/* ─── Theme toggle ─── */
+(function(){
+  const toggle = $('#themeToggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', () => {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
 })();
 
 /* ─── Toast ─── */
@@ -1151,48 +1714,26 @@ function drawFxPreview() {
   ctx.clearRect(0, 0, W, H);
 
   const fx = getEffectsState();
+  const cache = buildParticleCache(W, H, fx, 99);
+  const t = 0.65;
 
-  // Background
   paintBackground(ctx, W, H, fx);
+  applyBackEffects(ctx, W, H, t, fx, cache);
 
-  // Spotlight
-  if (fx.effect === 'cinematic') {
-    drawSpotlight(ctx, W, H, 0.6);
-  }
-
-  // Small static sample of effects
-  const seed = 99;
-  if (fx.effect === 'sparks' || fx.effect === 'cinematic') {
-    const s = makeSparkSystem(W, H, 14, seed);
-    drawSparks(ctx, s, 0.5, W, H);
-  }
-  if (fx.effect === 'cinematic') {
-    const d = makeDustSystem(W, H, 20, seed + 1);
-    drawDust(ctx, d, 0.4, W, H);
-  }
-
-  // Sample text "Signature"
-  ctx.save();
-  ctx.font = "italic 28px 'Caveat', cursive";
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  // Draw on temp canvas first to apply chrome if needed
+  // Sample text "Signature" on a transparent canvas, then theme it
   const tmpC = document.createElement('canvas');
   tmpC.width = W; tmpC.height = H;
   const tctx = tmpC.getContext('2d');
   tctx.font = "italic 28px 'Caveat', cursive";
   tctx.textAlign = 'center';
   tctx.textBaseline = 'middle';
-  tctx.fillStyle = (fx.background === 'transparent' && fx.effect === 'none') ? '#0f0e0c' : '#f0f0f0';
+  tctx.fillStyle = isTransparent(fx) ? '#0f0e0c' : '#f0f0f0';
   tctx.fillText('Signature', W/2, H/2);
 
-  if (fx.inkStyle === 'chrome') {
-    const chrome = renderChromeInk(tmpC, W, H);
-    ctx.drawImage(chrome, 0, 0);
-  } else {
-    ctx.drawImage(tmpC, 0, 0);
-  }
-  ctx.restore();
+  const themed = renderStyledInk(tmpC, W, H, fx.inkStyle);
+  ctx.drawImage(themed, 0, 0);
+
+  applyFrontEffects(ctx, W, H, t, fx, cache);
 }
 
 // Initial preview
@@ -1976,6 +2517,397 @@ function drawSpotlight(ctx, W, H, intensity = 0.6) {
   ctx.restore();
 }
 
+/* ───────────────────────────────────────────────────────────
+   SVIP / VIP Effects
+   ─────────────────────────────────────────────────────────── */
+
+// Radial burst rays exploding from a center point
+function drawRadialBurst(ctx, cx, cy, W, H, t, opts) {
+  const { color, count = 24, rotation = 0, intensity = 1 } = opts;
+  const maxLen = Math.hypot(W, H);
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation + t * 0.4);
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const len = maxLen * (0.4 + Math.sin(t * Math.PI * 2 + i) * 0.15 + 0.6);
+    const w = 6 + Math.sin(t * 8 + i * 1.7) * 4;
+    ctx.save();
+    ctx.rotate(angle);
+    const grad = ctx.createLinearGradient(0, 0, len, 0);
+    grad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.6 * intensity})`);
+    grad.addColorStop(0.3, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.3 * intensity})`);
+    grad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(0, -w/2);
+    ctx.lineTo(len, -w * 0.2);
+    ctx.lineTo(len, w * 0.2);
+    ctx.lineTo(0, w/2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// Star outlines/strokes pulsing in (the giant star of SVIP gold)
+function drawGiantStar(ctx, cx, cy, size, t, opts) {
+  const { color, glow } = opts;
+  ctx.save();
+  // Outline pulses
+  for (let layer = 0; layer < 3; layer++) {
+    const scale = size * (1 + layer * 0.15);
+    const pulse = 0.7 + Math.sin(t * Math.PI * 2 + layer) * 0.15;
+    ctx.lineWidth = 8 - layer * 2;
+    ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${pulse * (1 - layer * 0.3)})`;
+    ctx.shadowBlur = glow * pulse;
+    ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const outer = (i * 2 / 5) * Math.PI - Math.PI / 2;
+      const inner = ((i * 2 + 1) / 5) * Math.PI - Math.PI / 2;
+      const ox = cx + Math.cos(outer) * scale;
+      const oy = cy + Math.sin(outer) * scale;
+      const ix = cx + Math.cos(inner) * scale * 0.4;
+      const iy = cy + Math.sin(inner) * scale * 0.4;
+      if (i === 0) ctx.moveTo(ox, oy);
+      else ctx.lineTo(ox, oy);
+      ctx.lineTo(ix, iy);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// Twinkling star sprites scattered around
+function makeStarSprites(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: rng() * W,
+      y: rng() * H,
+      size: 2 + rng() * 5,
+      phase: rng() * Math.PI * 2,
+      speed: 1 + rng() * 2,
+      birth: rng() * 0.5
+    });
+  }
+  return stars;
+}
+
+function drawStarSprites(ctx, stars, t, color) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const s of stars) {
+    const tt = (t + s.birth) % 1;
+    const twink = (Math.sin(tt * Math.PI * 2 * s.speed + s.phase) + 1) / 2;
+    const a = twink * 0.9;
+    if (a < 0.05) continue;
+    const sz = s.size * (0.7 + twink * 0.6);
+    // 4-point sparkle
+    ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${a})`;
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y - sz * 2);
+    ctx.lineTo(s.x + sz * 0.4, s.y - sz * 0.4);
+    ctx.lineTo(s.x + sz * 2, s.y);
+    ctx.lineTo(s.x + sz * 0.4, s.y + sz * 0.4);
+    ctx.lineTo(s.x, s.y + sz * 2);
+    ctx.lineTo(s.x - sz * 0.4, s.y + sz * 0.4);
+    ctx.lineTo(s.x - sz * 2, s.y);
+    ctx.lineTo(s.x - sz * 0.4, s.y - sz * 0.4);
+    ctx.closePath();
+    ctx.fill();
+    // Hot core
+    ctx.fillStyle = `rgba(255, 255, 255, ${a * 0.9})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, sz * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// Falling vertical light streaks (SVIP purple)
+function makeVerticalStreaks(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const streaks = [];
+  for (let i = 0; i < count; i++) {
+    streaks.push({
+      x: rng() * W,
+      offset: rng(),
+      speed: 0.5 + rng() * 1.5,
+      length: 40 + rng() * 120,
+      width: 2 + rng() * 4,
+      bright: 0.5 + rng() * 0.5
+    });
+  }
+  return streaks;
+}
+
+function drawVerticalStreaks(ctx, streaks, t, W, H, color) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const s of streaks) {
+    const yProgress = ((t * s.speed + s.offset) % 1) * (H + s.length) - s.length;
+    const grad = ctx.createLinearGradient(s.x, yProgress, s.x, yProgress + s.length);
+    grad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    grad.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.7 * s.bright})`);
+    grad.addColorStop(1, `rgba(255, 255, 255, ${0.9 * s.bright})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(s.x - s.width / 2, yProgress, s.width, s.length);
+    // Dots trailing
+    for (let i = 0; i < 4; i++) {
+      const dotY = yProgress + (i / 4) * s.length;
+      const dotA = (i / 4) * s.bright * 0.8;
+      ctx.fillStyle = `rgba(${color.r + 30}, ${color.g + 30}, ${color.b + 30}, ${dotA})`;
+      ctx.beginPath();
+      ctx.arc(s.x, dotY, s.width * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+// Rotating ring (VIP aqua)
+function drawRotatingRing(ctx, cx, cy, radius, t, color) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.globalCompositeOperation = 'lighter';
+
+  // Outer thin ring
+  ctx.rotate(t * Math.PI * 2);
+  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`;
+  ctx.lineWidth = 2;
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Inner dotted ring rotating opposite
+  ctx.save();
+  ctx.rotate(-t * Math.PI * 3);
+  ctx.fillStyle = `rgba(${color.r + 50}, ${color.g + 50}, ${color.b + 50}, 0.9)`;
+  for (let i = 0; i < 60; i++) {
+    const a = (i / 60) * Math.PI * 2;
+    const x = Math.cos(a) * radius * 0.92;
+    const y = Math.sin(a) * radius * 0.92;
+    const sz = (i % 6 === 0) ? 3 : 1.2;
+    ctx.beginPath();
+    ctx.arc(x, y, sz, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Tick marks (radial lines on ring)
+  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.7)`;
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 30; i++) {
+    const a = (i / 30) * Math.PI * 2;
+    const inner = radius * 0.95;
+    const outer = radius * 1.03;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+    ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+    ctx.stroke();
+  }
+
+  // 4 cardinal direction sparkle bursts
+  ctx.shadowBlur = 30;
+  const burstAngles = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
+  for (const a of burstAngles) {
+    const x = Math.cos(a) * radius * 1.05;
+    const y = Math.sin(a) * radius * 1.05;
+    const pulse = (Math.sin(t * Math.PI * 4 + a) + 1) / 2;
+    const sz = 8 + pulse * 10;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, sz);
+    grad.addColorStop(0, `rgba(255, 255, 255, ${0.9 * pulse})`);
+    grad.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.5 * pulse})`);
+    grad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, sz, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ─── Confetti particles (multicolored streaks shooting outward, SVIP gold) ───
+function makeConfetti(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const cx = W / 2, cy = H / 2;
+  const palette = [
+    { r: 255, g: 90, b: 130 },  // pink
+    { r: 100, g: 220, b: 255 }, // cyan
+    { r: 255, g: 215, b: 70 },  // yellow
+    { r: 140, g: 255, b: 130 }, // green
+    { r: 255, g: 150, b: 60 },  // orange
+    { r: 220, g: 130, b: 255 }  // purple
+  ];
+  const pieces = [];
+  for (let i = 0; i < count; i++) {
+    const angle = rng() * Math.PI * 2;
+    const speed = 0.5 + rng() * 1.5;
+    pieces.push({
+      cx, cy,
+      angle,
+      speed,
+      birth: rng() * 0.3,
+      life: 0.6 + rng() * 0.4,
+      length: 8 + rng() * 18,
+      width: 1.5 + rng() * 2.5,
+      color: palette[Math.floor(rng() * palette.length)],
+      spin: rng() * Math.PI * 2,
+      spinSpeed: (rng() - 0.5) * 4
+    });
+  }
+  return pieces;
+}
+
+function drawConfetti(ctx, pieces, t, W, H) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const p of pieces) {
+    const local = (t - p.birth) / p.life;
+    if (local < 0 || local > 1) continue;
+    const dist = local * p.speed * Math.max(W, H) * 0.7;
+    const x = p.cx + Math.cos(p.angle) * dist;
+    const y = p.cy + Math.sin(p.angle) * dist;
+    const a = local < 0.15 ? local / 0.15 : 1 - (local - 0.15) / 0.85;
+    if (a <= 0) continue;
+    const angle = p.spin + t * p.spinSpeed;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    const c = p.color;
+    // Trailing streak
+    const grad = ctx.createLinearGradient(-p.length, 0, 0, 0);
+    grad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+    grad.addColorStop(1, `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(-p.length, -p.width/2, p.length, p.width);
+    // Hot tip
+    ctx.fillStyle = `rgba(255, 255, 255, ${a * 0.8})`;
+    ctx.fillRect(-p.width, -p.width/2, p.width * 1.5, p.width);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// ─── Pixel rain (SVIP purple — vertical glowing squares cascading down) ───
+function makePixelRain(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const drops = [];
+  // Two distinct color sets for variety
+  for (let i = 0; i < count; i++) {
+    const purple = rng() < 0.6;
+    drops.push({
+      x: Math.floor(rng() * W / 8) * 8,  // grid-aligned for pixel feel
+      offset: rng(),
+      speed: 0.4 + rng() * 1.2,
+      length: 30 + Math.floor(rng() * 6) * 12,
+      cellH: 6 + Math.floor(rng() * 3) * 2,
+      brightness: 0.4 + rng() * 0.6,
+      color: purple
+        ? { r: 160, g: 130, b: 255 }
+        : { r: 100, g: 200, b: 255 }
+    });
+  }
+  return drops;
+}
+
+function drawPixelRain(ctx, drops, t, W, H) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const d of drops) {
+    const totalH = H + d.length;
+    const yHead = ((t * d.speed + d.offset) % 1) * totalH - d.length;
+    const cellCount = Math.floor(d.length / d.cellH);
+    for (let i = 0; i < cellCount; i++) {
+      const cy = yHead + i * d.cellH;
+      if (cy < -d.cellH || cy > H) continue;
+      // Fade toward the tail
+      const fadeIn = (cellCount - i) / cellCount;
+      const a = d.brightness * fadeIn * fadeIn;
+      // Head is brightest (white)
+      if (i === cellCount - 1) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${a})`;
+      } else {
+        ctx.fillStyle = `rgba(${d.color.r}, ${d.color.g}, ${d.color.b}, ${a})`;
+      }
+      ctx.fillRect(d.x, cy, 6, d.cellH - 1);
+    }
+  }
+  ctx.restore();
+}
+
+// ─── Lens flare / star burst (VIP aqua — central radiant cross of light) ───
+function drawLensFlare(ctx, cx, cy, W, H, t, color) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.globalCompositeOperation = 'lighter';
+  const pulse = (Math.sin(t * Math.PI * 2) + 1) / 2;
+
+  // Long horizontal & vertical streaks (like camera lens flare cross)
+  const reach = Math.max(W, H) * 0.7;
+  for (let pass = 0; pass < 2; pass++) {
+    ctx.save();
+    if (pass === 1) ctx.rotate(Math.PI / 4); // diagonal cross also
+    const horiz = ctx.createLinearGradient(-reach, 0, reach, 0);
+    const a = pass === 0 ? 0.7 : 0.35;
+    horiz.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    horiz.addColorStop(0.5, `rgba(255, 255, 255, ${a * (0.6 + pulse * 0.4)})`);
+    horiz.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    ctx.fillStyle = horiz;
+    ctx.fillRect(-reach, -1.5, reach * 2, 3);
+    // Vertical
+    const vert = ctx.createLinearGradient(0, -reach, 0, reach);
+    vert.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    vert.addColorStop(0.5, `rgba(255, 255, 255, ${a * (0.6 + pulse * 0.4)})`);
+    vert.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    ctx.fillStyle = vert;
+    ctx.fillRect(-1.5, -reach, 3, reach * 2);
+    ctx.restore();
+  }
+
+  // Central hot point
+  const coreSz = 30 + pulse * 20;
+  const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreSz);
+  coreGrad.addColorStop(0, `rgba(255, 255, 255, ${0.9 * (0.5 + pulse * 0.5)})`);
+  coreGrad.addColorStop(0.3, `rgba(${color.r + 80}, ${color.g + 30}, ${color.b}, ${0.6 * (0.5 + pulse * 0.5)})`);
+  coreGrad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, coreSz, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// Dark gradient background for SVIP/VIP effects (deeper than texture)
+function drawColoredBackground(ctx, W, H, baseColor) {
+  // baseColor is a dim rgb
+  ctx.save();
+  // Deep gradient
+  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+  grad.addColorStop(0, `rgb(${baseColor.r * 0.6}, ${baseColor.g * 0.6}, ${baseColor.b * 0.6})`);
+  grad.addColorStop(1, `rgb(${baseColor.r * 0.15}, ${baseColor.g * 0.15}, ${baseColor.b * 0.15})`);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+// Color presets for each preset
+const FX_PRESETS = {
+  'svip-gold':   { ray: { r: 255, g: 200, b: 60 },  star: { r: 255, g: 230, b: 100 }, bg: { r: 80, g: 50, b: 20 } },
+  'svip-purple': { ray: { r: 140, g: 100, b: 240 }, star: { r: 180, g: 160, b: 255 }, bg: { r: 30, g: 20, b: 70 } },
+  'vip-aqua':    { ray: { r: 80, g: 220, b: 240 },  star: { r: 150, g: 240, b: 255 }, bg: { r: 10, g: 30, b: 60 } }
+};
+
+
 // Cement / dark texture procedural background
 let cachedTexture = null;
 function getDarkTexture(W, H) {
@@ -2068,29 +3000,22 @@ function renderStaticWithEffects(srcCanvas) {
   const W = srcCanvas.width, H = srcCanvas.height;
   const fx = getEffectsState();
   if (isTransparent(fx)) {
-    // No effects → return as-is for transparent PNG
     return srcCanvas;
   }
   const out = document.createElement('canvas');
   out.width = W; out.height = H;
   const ctx = out.getContext('2d');
 
+  const cache = buildParticleCache(W, H, fx, 12345);
+  const t = 0.7; // pleasant mid-animation snapshot
+
   paintBackground(ctx, W, H, fx);
-  if (fx.effect === 'cinematic') drawSpotlight(ctx, W, H, 0.7);
+  applyBackEffects(ctx, W, H, t, fx, cache);
 
-  const seed = 12345;
-  if (fx.effect === 'cinematic') {
-    const dust = makeDustSystem(W, H, 80, seed + 1);
-    drawDust(ctx, dust, 0.6, W, H);
-  }
-
-  const inkToUse = (fx.inkStyle === 'chrome') ? renderChromeInk(srcCanvas, W, H) : srcCanvas;
+  const inkToUse = renderStyledInk(srcCanvas, W, H, fx.inkStyle);
   ctx.drawImage(inkToUse, 0, 0);
 
-  if (fx.effect === 'sparks' || fx.effect === 'cinematic') {
-    const sparks = makeSparkSystem(W, H, 60, seed);
-    drawSparks(ctx, sparks, 0.85, W, H);
-  }
+  applyFrontEffects(ctx, W, H, t, fx, cache);
   return out;
 }
 
@@ -2105,18 +3030,21 @@ function renderStaticWithEffects(srcCanvas) {
  */
 
 function getEffectsState() {
-  return {
+  const effect = $('#fxEffect').value;
+  const fx = {
     background: $('#fxBackground').value,
     bgImage: window._fxBgImage || null,
-    effect: $('#fxEffect').value,
-    inkStyle: $('#fxEffect').value === 'cinematic' ? 'chrome' : 'plain'
+    effect,
+    inkStyle: 'plain'
   };
+  fx.inkStyle = inkStyleFor(fx);
+  return fx;
 }
 
 // Resolve background → draw onto ctx
 function paintBackground(ctx, W, H, opts) {
   if (opts.background === 'image' && opts.bgImage) {
-    // Cover fit
+    // Cover fit — only when user explicitly provides an image
     const img = opts.bgImage;
     const ar = img.width / img.height;
     const car = W / H;
@@ -2127,18 +3055,192 @@ function paintBackground(ctx, W, H, opts) {
       dw = W; dh = W / ar; dx = 0; dy = (H - dh) / 2;
     }
     ctx.drawImage(img, dx, dy, dw, dh);
-  } else if (opts.background === 'texture' || opts.effect === 'cinematic') {
-    ctx.drawImage(getDarkTexture(W, H), 0, 0);
-  } else {
-    // Transparent → fill with green key
-    ctx.fillStyle = '#00ff00';
-    ctx.fillRect(0, 0, W, H);
+    return;
   }
+  // Effect-driven backgrounds override "texture" / "transparent" choices
+  if (opts.effect === 'svip-gold' || opts.effect === 'svip-purple' || opts.effect === 'vip-aqua') {
+    drawColoredBackground(ctx, W, H, FX_PRESETS[opts.effect].bg);
+    return;
+  }
+  if (opts.background === 'texture' || opts.effect === 'cinematic') {
+    ctx.drawImage(getDarkTexture(W, H), 0, 0);
+    return;
+  }
+  // Transparent → fill with green key
+  ctx.fillStyle = '#00ff00';
+  ctx.fillRect(0, 0, W, H);
 }
 
 // Whether the GIF should use transparency
 function isTransparent(opts) {
   return opts.background === 'transparent' && opts.effect === 'none';
+}
+
+/* Apply BEHIND-ink effects (background, spotlight, dust, rays).
+ * Call this AFTER paintBackground but BEFORE drawing the ink. */
+function applyBackEffects(ctx, W, H, t, fx, particleCache) {
+  if (fx.effect === 'cinematic') {
+    drawSpotlight(ctx, W, H, 0.7);
+    if (particleCache.dust) drawDust(ctx, particleCache.dust, t, W, H);
+  } else if (fx.effect === 'svip-gold') {
+    // Burst rays from center — bigger, faster rotating for fanfare
+    drawRadialBurst(ctx, W/2, H/2, W, H, t, {
+      color: FX_PRESETS['svip-gold'].ray, count: 36, intensity: 1.0
+    });
+    // Soft inner glow
+    const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.min(W,H)*0.5);
+    grad.addColorStop(0, 'rgba(255, 230, 130, 0.55)');
+    grad.addColorStop(1, 'rgba(255, 230, 130, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    // Giant star outline behind the ink
+    drawGiantStar(ctx, W/2, H/2, Math.min(W,H) * 0.42, t, {
+      color: FX_PRESETS['svip-gold'].star, glow: 30
+    });
+  } else if (fx.effect === 'svip-purple') {
+    // Pixel rain cascade (signature look)
+    if (particleCache.pixels) drawPixelRain(ctx, particleCache.pixels, t, W, H);
+    // Vertical streaks for depth
+    if (particleCache.streaks) drawVerticalStreaks(ctx, particleCache.streaks, t, W, H, FX_PRESETS['svip-purple'].ray);
+    // Center glow
+    const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.min(W,H)*0.55);
+    grad.addColorStop(0, 'rgba(160, 130, 255, 0.45)');
+    grad.addColorStop(1, 'rgba(160, 130, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  } else if (fx.effect === 'vip-aqua') {
+    // Subtle radial burst behind
+    drawRadialBurst(ctx, W/2, H/2, W, H, t, {
+      color: FX_PRESETS['vip-aqua'].ray, count: 20, intensity: 0.45
+    });
+    // Center glow
+    const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.min(W,H)*0.55);
+    grad.addColorStop(0, 'rgba(100, 230, 255, 0.45)');
+    grad.addColorStop(1, 'rgba(100, 230, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+/* Apply IN-FRONT-of-ink effects (sparks, stars, ring, confetti).
+ * Call this AFTER drawing the ink. */
+function applyFrontEffects(ctx, W, H, t, fx, particleCache) {
+  if (fx.effect === 'sparks' || fx.effect === 'cinematic') {
+    if (particleCache.sparks) drawSparks(ctx, particleCache.sparks, t, W, H);
+  } else if (fx.effect === 'svip-gold') {
+    if (particleCache.confetti) drawConfetti(ctx, particleCache.confetti, t, W, H);
+    if (particleCache.stars) drawStarSprites(ctx, particleCache.stars, t, FX_PRESETS['svip-gold'].star);
+  } else if (fx.effect === 'svip-purple') {
+    if (particleCache.stars) drawStarSprites(ctx, particleCache.stars, t, FX_PRESETS['svip-purple'].star);
+  } else if (fx.effect === 'vip-aqua') {
+    // Lens flare cross over center
+    drawLensFlare(ctx, W/2, H/2, W, H, t, FX_PRESETS['vip-aqua'].ray);
+    if (particleCache.stars) drawStarSprites(ctx, particleCache.stars, t, FX_PRESETS['vip-aqua'].star);
+    // Rotating ring centered on the canvas
+    const radius = Math.min(W, H) * 0.36;
+    drawRotatingRing(ctx, W/2, H/2, radius, t, FX_PRESETS['vip-aqua'].ray);
+  }
+}
+
+/* Build a fresh particle cache for the entire animation. */
+function buildParticleCache(W, H, fx, seed) {
+  const cache = {};
+  if (fx.effect === 'sparks' || fx.effect === 'cinematic') {
+    cache.sparks = makeSparkSystem(W, H, 60, seed);
+  }
+  if (fx.effect === 'cinematic') {
+    cache.dust = makeDustSystem(W, H, 80, seed + 1);
+  }
+  if (fx.effect === 'svip-gold' || fx.effect === 'svip-purple' || fx.effect === 'vip-aqua') {
+    cache.stars = makeStarSprites(W, H, 60, seed + 2);
+  }
+  if (fx.effect === 'svip-gold') {
+    cache.confetti = makeConfetti(W, H, 80, seed + 4);
+  }
+  if (fx.effect === 'svip-purple') {
+    cache.streaks = makeVerticalStreaks(W, H, 30, seed + 3);
+    cache.pixels = makePixelRain(W, H, 50, seed + 5);
+  }
+  return cache;
+}
+
+/* Determine ink style for an effect (chrome, gold, etc). */
+function inkStyleFor(fx) {
+  if (fx.effect === 'cinematic') return 'chrome';
+  if (fx.effect === 'svip-gold') return 'gold';
+  if (fx.effect === 'svip-purple') return 'purple-chrome';
+  if (fx.effect === 'vip-aqua') return 'aqua-chrome';
+  return 'plain';
+}
+
+/* Render ink with the chosen metallic/themed style */
+function renderStyledInk(srcCanvas, W, H, style) {
+  if (style === 'plain') return srcCanvas;
+  if (style === 'chrome') return renderChromeInk(srcCanvas, W, H);
+
+  // Themed metallic — kept BRIGHT throughout so the ink stays legible
+  // against its themed (dark, same-hue) background. No dark gradient stops.
+  const stops = {
+    'gold':          [['#ffffff',0],['#fff7c0',0.3],['#ffe066',0.55],['#fffce8',0.75],['#ffd24a',1]],
+    'purple-chrome': [['#ffffff',0],['#f0e6ff',0.3],['#c8b0ff',0.55],['#ffffff',0.75],['#e8d8ff',1]],
+    'aqua-chrome':   [['#ffffff',0],['#e0fbff',0.3],['#7ee8ff',0.55],['#ffffff',0.75],['#aef0ff',1]]
+  };
+
+  // 1. Build the themed gradient fill on the ink shape
+  const tinted = document.createElement('canvas');
+  tinted.width = W; tinted.height = H;
+  const tctx = tinted.getContext('2d');
+  tctx.drawImage(srcCanvas, 0, 0);
+
+  const grad = tctx.createLinearGradient(0, 0, 0, H);
+  for (const [c, p] of stops[style]) grad.addColorStop(p, c);
+  tctx.globalCompositeOperation = 'source-in';
+  tctx.fillStyle = grad;
+  tctx.fillRect(0, 0, W, H);
+  tctx.globalCompositeOperation = 'source-over';
+
+  // 2. Build a dark outline by blurring the source and tinting it black,
+  //    then erasing the inner ink shape to leave only the rim.
+  const outline = document.createElement('canvas');
+  outline.width = W; outline.height = H;
+  const octx = outline.getContext('2d');
+  octx.filter = 'blur(2px)';
+  octx.drawImage(srcCanvas, 0, 0);
+  octx.filter = 'none';
+  octx.globalCompositeOperation = 'source-in';
+  octx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+  octx.fillRect(0, 0, W, H);
+
+  // 3. Build a bright outer glow (softer, larger blur) to push the ink
+  //    away from the background.
+  const glow = document.createElement('canvas');
+  glow.width = W; glow.height = H;
+  const gctx = glow.getContext('2d');
+  gctx.filter = 'blur(6px)';
+  gctx.drawImage(srcCanvas, 0, 0);
+  gctx.filter = 'none';
+  gctx.globalCompositeOperation = 'source-in';
+  const glowColor = style === 'gold' ? 'rgba(255, 230, 140, 0.85)'
+                  : style === 'purple-chrome' ? 'rgba(200, 170, 255, 0.85)'
+                  : 'rgba(150, 240, 255, 0.85)';
+  gctx.fillStyle = glowColor;
+  gctx.fillRect(0, 0, W, H);
+
+  // 4. Compose layers bottom-to-top:
+  //    glow → black outline → tinted ink → bright highlight
+  const combined = document.createElement('canvas');
+  combined.width = W; combined.height = H;
+  const cctx = combined.getContext('2d');
+  // Outer glow first (softens edges, lights the surroundings)
+  cctx.drawImage(glow, 0, 0);
+  // Twice for stronger glow
+  cctx.drawImage(glow, 0, 0);
+  // Dark rim outline so ink edge is clearly separated from any same-hue background
+  cctx.drawImage(outline, 0, 0);
+  // The tinted ink itself
+  cctx.drawImage(tinted, 0, 0);
+
+  return combined;
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -2276,18 +3378,16 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
     }
     if (minX > maxX) { reject(new Error('빈 이미지')); return; }
 
-    // Apply chrome ink style if cinematic
-    const inkSource = (fx.inkStyle === 'chrome') ? renderChromeInk(srcCanvas, W, H) : srcCanvas;
+    // Apply themed ink style
+    const inkSource = renderStyledInk(srcCanvas, W, H, fx.inkStyle);
 
     const tmp = document.createElement('canvas');
     tmp.width = W;
     tmp.height = H;
     const tctx = tmp.getContext('2d');
 
-    // Prepare particle systems if needed
-    const seed = 12345;
-    const sparks = (fx.effect === 'sparks' || fx.effect === 'cinematic') ? makeSparkSystem(W, H, 60, seed) : null;
-    const dust = (fx.effect === 'cinematic') ? makeDustSystem(W, H, 80, seed + 1) : null;
+    // Build particle cache once for the full animation
+    const cache = buildParticleCache(W, H, fx, 12345);
 
     const totalFrames = frames;
 
@@ -2297,25 +3397,19 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
       // 1. Background
       paintBackground(tctx, W, H, fx);
 
-      // 2. Spotlight (cinematic only, drawn before ink so it lights everything)
-      if (fx.effect === 'cinematic') {
-        drawSpotlight(tctx, W, H, 0.7);
-      }
+      // 2. Behind-ink effects
+      applyBackEffects(tctx, W, H, t, fx, cache);
 
-      // 3. Falling dust (behind ink for depth)
-      if (dust) drawDust(tctx, dust, t, W, H);
-
-      // 4. Reveal ink up to writeProgress
+      // 3. Reveal ink up to writeProgress
       const writeProgress = t;
       const revealX = minX + (maxX - minX + 1) * writeProgress;
       const revealRight = Math.min(W, Math.max(0, Math.ceil(revealX) + 1));
       if (revealRight > 0) {
-        // Use the (possibly chrome-styled) ink canvas — has transparency, so drawImage composites correctly
         tctx.drawImage(inkSource, 0, 0, revealRight, H, 0, 0, revealRight, H);
       }
 
-      // 5. Sparks (in front for embers feel)
-      if (sparks) drawSparks(tctx, sparks, t, W, H);
+      // 4. In-front effects
+      applyFrontEffects(tctx, W, H, t, fx, cache);
 
       const isLast = (f === totalFrames - 1);
       gif.addFrame(tctx, { copy: true, delay: isLast ? 1400 : delay });
@@ -2371,10 +3465,8 @@ function generateGifFromStrokes(strokes, W, H, options = {}) {
     tmp.height = H;
     const tctx = tmp.getContext('2d');
 
-    // Particle systems if needed
-    const seed = 54321;
-    const sparks = (fx.effect === 'sparks' || fx.effect === 'cinematic') ? makeSparkSystem(W, H, 60, seed) : null;
-    const dust = (fx.effect === 'cinematic') ? makeDustSystem(W, H, 80, seed + 1) : null;
+    // Build particle cache once
+    const cache = buildParticleCache(W, H, fx, 54321);
 
     const totalFrames = frames;
 
@@ -2384,15 +3476,10 @@ function generateGifFromStrokes(strokes, W, H, options = {}) {
       // 1. Background
       paintBackground(tctx, W, H, fx);
 
-      // 2. Spotlight
-      if (fx.effect === 'cinematic') {
-        drawSpotlight(tctx, W, H, 0.7);
-      }
+      // 2. Behind-ink effects
+      applyBackEffects(tctx, W, H, t, fx, cache);
 
-      // 3. Dust behind ink
-      if (dust) drawDust(tctx, dust, t, W, H);
-
-      // 4. Render ink up to current point count
+      // 3. Render ink up to current point count
       const targetPts = Math.round(totalPts * t);
       const inkCanvas = document.createElement('canvas');
       inkCanvas.width = W; inkCanvas.height = H;
@@ -2424,12 +3511,12 @@ function generateGifFromStrokes(strokes, W, H, options = {}) {
         drawnPts += stroke.points.length;
       }
 
-      // Apply chrome styling if needed
-      const inkToUse = (fx.inkStyle === 'chrome') ? renderChromeInk(inkCanvas, W, H) : inkCanvas;
+      // Apply themed ink style
+      const inkToUse = renderStyledInk(inkCanvas, W, H, fx.inkStyle);
       tctx.drawImage(inkToUse, 0, 0);
 
-      // 5. Sparks in front
-      if (sparks) drawSparks(tctx, sparks, t, W, H);
+      // 4. In-front effects
+      applyFrontEffects(tctx, W, H, t, fx, cache);
 
       const isLast = (f === totalFrames - 1);
       gif.addFrame(tctx, { copy: true, delay: isLast ? 1400 : delay });
