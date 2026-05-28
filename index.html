@@ -243,8 +243,8 @@ body.sidebar-collapsed .sidebar-toggle {
 }
 
 @media (max-width: 768px) {
-  .sidebar-toggle-mobile { display: grid; }
-  .sidebar-toggle { display: none; }
+  .sidebar-toggle-mobile { display: none; }
+  .sidebar-toggle { display: grid; }
 }
 
 .brand {
@@ -289,13 +289,23 @@ body.sidebar-collapsed .tab > .num {
   display: none;
 }
 
+/* Collapsed: keep tabs as single-line, no text overflow */
+body.sidebar-collapsed .tab,
+body.sidebar-collapsed .theme-toggle-label {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 body.sidebar-collapsed .tab.active::before {
   left: -8px;
 }
 
 body.sidebar-collapsed .theme-toggle {
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: var(--s-3) 0;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-2);
 }
 
 body.sidebar-collapsed .theme-toggle-label > svg + * {
@@ -604,6 +614,30 @@ body.sidebar-collapsed #todayDate {
 
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Two-line action button: main label on top, small format hint below */
+.btn-stacked {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  height: auto;
+  min-height: 48px;
+  padding: var(--s-2) var(--s-3);
+  line-height: 1.15;
+}
+.btn-stacked .btn-main {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.btn-stacked .btn-sub {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
 .btn-primary {
   background: var(--toonation-blue);
   color: white;
@@ -685,17 +719,47 @@ body.sidebar-collapsed #todayDate {
   border-radius: var(--r-xl);
   padding: var(--s-5);
   margin-bottom: var(--s-6);
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  display: flex;
+  flex-direction: column;
   gap: var(--s-5);
-  align-items: end;
-}
-
-@media (max-width: 900px) {
-  .fx-bar { grid-template-columns: 1fr; }
 }
 
 .fx-section { min-width: 0; }
+.fx-section-effects { min-width: 0; }
+
+.fx-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: 8px;
+}
+
+.fx-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid var(--line-normal);
+  border-radius: var(--r-sm);
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--label-normal);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.fx-toggle:hover {
+  border-color: var(--toonation-blue);
+  color: var(--toonation-blue);
+}
+.fx-toggle-arrow {
+  transition: transform 0.2s ease;
+}
+.fx-toggle[aria-expanded="true"] .fx-toggle-arrow {
+  transform: rotate(180deg);
+}
 
 .fx-label {
   font-size: 12px;
@@ -737,20 +801,113 @@ body.sidebar-collapsed #todayDate {
 
 .fx-file input { display: none; }
 
-#fxPreview {
-  width: 240px;
-  height: 64px;
+/* ─── Effect card grid ─── */
+.fx-grid {
+  display: grid;
+  /* Fixed column count so cards fit on a single horizontal row.
+     6 cards per row works well across desktop widths. */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+/* Collapsed: only the first 6 cards (one row) are visible */
+.fx-grid.fx-grid-collapsed .fx-card:nth-child(n+7) {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .fx-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .fx-grid.fx-grid-collapsed .fx-card:nth-child(n+6) { display: none; }
+}
+@media (max-width: 900px) {
+  .fx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .fx-grid.fx-grid-collapsed .fx-card:nth-child(n+5) { display: none; }
+}
+@media (max-width: 700px) {
+  .fx-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fx-grid.fx-grid-collapsed .fx-card:nth-child(n+4) { display: none; }
+}
+@media (max-width: 500px) {
+  .fx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fx-grid.fx-grid-collapsed .fx-card:nth-child(n+3) { display: none; }
+}
+
+.fx-card {
+  position: relative;
+  background: var(--bg-alternative);
+  border: 2px solid var(--line-normal);
   border-radius: var(--r-md);
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.15s;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.fx-card:hover {
+  border-color: var(--label-alternative);
+  transform: translateY(-1px);
+  box-shadow: var(--elev-1);
+}
+
+.fx-card.active {
+  border-color: var(--toonation-blue);
+  box-shadow: 0 0 0 2px rgba(75, 150, 255, 0.18);
+}
+
+.fx-card-canvas {
+  display: block;
+  width: 100%;
+  height: 64px;
   background:
     linear-gradient(45deg, var(--fill-alternative) 25%, transparent 25%),
     linear-gradient(-45deg, var(--fill-alternative) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, var(--fill-alternative) 75%),
     linear-gradient(-45deg, transparent 75%, var(--fill-alternative) 75%);
-  background-size: 12px 12px;
-  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
   background-color: var(--bg-alternative);
+}
+
+.fx-card-name {
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--label-normal);
+  text-align: center;
+  line-height: 1.3;
+  background: var(--bg-normal);
+  border-top: 1px solid var(--line-normal);
+}
+
+.fx-card-name small {
   display: block;
-  border: 1px solid var(--line-alternative);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--label-alternative);
+  margin-top: 1px;
+}
+
+.fx-card-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background: var(--toonation-blue);
+  color: white;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.fx-card.active .fx-card-check {
+  display: flex;
 }
 
 /* Hide effects bar on Gallery tab */
@@ -769,6 +926,10 @@ body.gallery-mode .fx-bar { display: none; }
 
 @media (max-width: 1100px) {
   .workspace { grid-template-columns: 1fr; }
+  /* On narrow screens, show the canvas (stage) first, then the settings
+     panel beneath it — makes it easier to see the result while scrolling. */
+  .workspace > .stage { order: 1; }
+  .workspace > .panel { order: 2; }
 }
 
 /* ─── Cards (panels) ─── */
@@ -968,6 +1129,40 @@ body.gallery-mode .fx-bar { display: none; }
 
 [data-theme="dark"] .font-chip[data-color].active::after {
   box-shadow: 0 0 0 2px var(--bg-normal), 0 0 0 4px var(--toonation-blue);
+}
+
+/* White/very-light ink swatches get a visible outline so the chip itself is visible */
+.font-chip[data-color="#FFFFFF"]::after,
+.font-chip[data-color="#ffffff"]::after,
+.font-chip[data-color="#fff"]::after {
+  box-shadow: inset 0 0 0 1.5px #c8cdd4;
+}
+[data-theme="dark"] .font-chip[data-color="#FFFFFF"]::after,
+[data-theme="dark"] .font-chip[data-color="#ffffff"]::after,
+[data-theme="dark"] .font-chip[data-color="#fff"]::after {
+  box-shadow: inset 0 0 0 1.5px #5a6068;
+}
+/* Keep the active highlight together with the outline */
+.font-chip[data-color="#FFFFFF"].active::after,
+.font-chip[data-color="#ffffff"].active::after,
+.font-chip[data-color="#fff"].active::after {
+  box-shadow: inset 0 0 0 1.5px #c8cdd4, 0 0 0 2px white, 0 0 0 4px var(--toonation-blue);
+}
+[data-theme="dark"] .font-chip[data-color="#FFFFFF"].active::after,
+[data-theme="dark"] .font-chip[data-color="#ffffff"].active::after,
+[data-theme="dark"] .font-chip[data-color="#fff"].active::after {
+  box-shadow: inset 0 0 0 1.5px #5a6068, 0 0 0 2px var(--bg-normal), 0 0 0 4px var(--toonation-blue);
+}
+
+/* When the currently selected ink is white, give the draw canvas a slightly
+   darker backdrop so the white strokes remain visible while drawing. */
+body.ink-is-white #drawCanvas,
+body.photo-ink-is-white #photoCanvas {
+  background: #e8ecf1;
+}
+[data-theme="dark"] body.ink-is-white #drawCanvas,
+[data-theme="dark"] body.photo-ink-is-white #photoCanvas {
+  background: #2a2e35;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1216,6 +1411,21 @@ canvas {
   border-color: var(--status-negative);
 }
 
+.icon-btn.req {
+  background: var(--toonation-blue);
+  color: white;
+  border-color: var(--toonation-blue);
+}
+.icon-btn.req:hover {
+  background: #3b86ef;
+  border-color: #3b86ef;
+}
+.icon-btn.req:disabled {
+  background: #9ca3af;
+  border-color: #9ca3af;
+  cursor: wait;
+}
+
 /* ═══════════════════════════════════════════════════════════
    TOAST
    ═══════════════════════════════════════════════════════════ */
@@ -1247,6 +1457,10 @@ canvas {
    ═══════════════════════════════════════════════════════════ */
 
 .file-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border: 1.5px dashed var(--line-solid-normal);
   border-radius: var(--r-lg);
   padding: var(--s-8) var(--s-4);
@@ -1262,8 +1476,11 @@ canvas {
 }
 
 .file-drop .icon {
+  flex: 0 0 auto;
   width: 44px;
   height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   background: var(--bg-normal);
   margin: 0 auto var(--s-3);
@@ -1419,30 +1636,46 @@ footer.app-footer {
 /* Mode tabs inside modal */
 .modal-tabs {
   display: flex;
-  gap: 2px;
-  padding: var(--s-3) var(--s-6) 0;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-6) 0;
   background: var(--bg-alternative);
   border-bottom: 1px solid var(--line-normal);
 }
 
 .modal-tab {
-  padding: var(--s-3) var(--s-4);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--s-3) var(--s-5);
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--label-alternative);
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
   margin-bottom: -1px;
+  border-radius: 8px 8px 0 0;
   transition: all 0.15s;
+  letter-spacing: -0.01em;
 }
 
-.modal-tab:hover { color: var(--label-normal); }
+.modal-tab:hover {
+  color: var(--label-normal);
+  background: var(--bg-normal);
+}
 
 .modal-tab.active {
   color: var(--toonation-blue);
+  background: var(--bg-normal);
   border-bottom-color: var(--toonation-blue);
+  box-shadow: 0 -2px 8px rgba(75, 150, 255, 0.08);
+}
+
+.modal-tab .modal-tab-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .modal-body {
@@ -1557,42 +1790,42 @@ footer.app-footer {
 }
 
 /* Phase 1 · signature only (fullscreen) */
-.sim-phase-sig {
+
+
+/* Phase 1 · signature (fullscreen) — identical container to Phase 2 */
+/* Both phase containers are fixed to the same 70% horizontal slot of the scene,
+   so any image inside them is bounded to the exact same width regardless of
+   the image's intrinsic aspect ratio. */
+.sim-phase-sig,
+.sim-phase-gif {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--s-8);
-  z-index: 2;
   pointer-events: none;
   opacity: 0;
+}
+
+.sim-phase-sig { z-index: 2; }
+.sim-phase-gif { z-index: 1; }
+
+.sim-phase-sig img,
+.sim-phase-gif img {
+  /* Fill the fixed-width phase container; height auto preserves aspect ratio. */
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .sim-phase-sig img {
-  max-width: 70%;
-  max-height: 60%;
   filter: drop-shadow(0 6px 24px rgba(75, 150, 255, 0.4));
-}
-
-/* Phase 2 · donation GIF only (fullscreen) */
-.sim-phase-gif {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-}
-
-.sim-phase-gif img {
-  /* Match the signature image width exactly */
-  width: 70%;
-  max-width: 70%;
-  height: auto;
-  display: block;
 }
 
 /* ─── Sequence animation (only when .playing is set) ───
@@ -1669,12 +1902,12 @@ footer.app-footer {
   .brand-text, .nav-section-label, #todayDate { display: none; }
   .brand { padding: var(--s-3) 0 var(--s-6); justify-content: center; padding-right: 0; }
   .sidebar-toggle { right: 50%; transform: translateX(50%); }
-  .tab { justify-content: center; padding: var(--s-3) 0; }
+  .tab { justify-content: center; padding: var(--s-3) 0; white-space: nowrap; overflow: hidden; }
   .tab > svg + *, .tab > .num { display: none; }
   .tab.active::before { left: -8px; }
-  .theme-toggle { justify-content: center; padding: var(--s-3) 0; }
+  .theme-toggle { flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-3) var(--s-2); }
+  .theme-toggle-label { white-space: nowrap; overflow: hidden; }
   .theme-toggle-label > svg + * { display: none; }
-  /* When user manually expands on tablet width */
   body.sidebar-force-open .app { grid-template-columns: 260px 1fr; }
   body.sidebar-force-open .sidebar { padding: var(--s-5) var(--s-4); }
   body.sidebar-force-open .brand-text,
@@ -1686,24 +1919,60 @@ footer.app-footer {
   body.sidebar-force-open .tab > svg + *,
   body.sidebar-force-open .tab > .num { display: inline; }
   body.sidebar-force-open .tab.active::before { left: -16px; }
-  body.sidebar-force-open .theme-toggle { justify-content: space-between; padding: var(--s-3); }
+  body.sidebar-force-open .theme-toggle { flex-direction: row; gap: 0; justify-content: space-between; padding: var(--s-3); }
   body.sidebar-force-open .theme-toggle-label > svg + * { display: inline; }
 }
 
-/* Mobile: sidebar becomes a drawer */
+/* Mobile: sidebar stays as an icon-only collapsed rail, expands on toggle */
 @media (max-width: 768px) {
-  .app { grid-template-columns: 1fr; }
+  /* Always reserve narrow column for icon rail */
+  .app { grid-template-columns: 64px 1fr; }
   .sidebar {
+    position: sticky;
+    top: 0;
+    left: auto;
+    width: auto;
+    padding: var(--s-5) var(--s-2);
+    box-shadow: none;
+    transition: none;
+    z-index: 150;
+  }
+  /* Hide text-y content by default — icons only */
+  .brand-text, .nav-section-label, #todayDate { display: none; }
+  .brand { padding: var(--s-3) 0 var(--s-6); justify-content: center; padding-right: 0; }
+  .sidebar-toggle { right: 50%; transform: translateX(50%); display: grid; }
+  .tab { justify-content: center; padding: var(--s-3) 0; white-space: nowrap; overflow: hidden; }
+  .tab > svg + *, .tab > .num { display: none; }
+  .tab.active::before { left: -8px; }
+  .theme-toggle { flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-3) var(--s-2); }
+  .theme-toggle-label { white-space: nowrap; overflow: hidden; }
+  .theme-toggle-label > svg + * { display: none; }
+
+  /* When user taps the toggle, sidebar overlays expanded above content */
+  .sidebar.open {
     position: fixed;
     top: 0;
-    left: -280px;
+    left: 0;
     width: 260px;
-    transition: left 0.3s;
-    z-index: 150;
+    padding: var(--s-5) var(--s-4);
     box-shadow: var(--elev-3);
+    background: var(--bg-normal);
+    height: 100vh;
+    overflow-y: auto;
   }
-  .sidebar.open { left: 0; }
-  .main { padding: var(--s-4); padding-top: var(--s-16); }
+  .sidebar.open .brand-text,
+  .sidebar.open .nav-section-label,
+  .sidebar.open #todayDate { display: block; }
+  .sidebar.open .brand { padding: var(--s-3) var(--s-2) var(--s-6); padding-right: 44px; justify-content: flex-start; }
+  .sidebar.open .sidebar-toggle { right: 12px; transform: none; }
+  .sidebar.open .tab { justify-content: flex-start; padding: var(--s-3); }
+  .sidebar.open .tab > svg + *,
+  .sidebar.open .tab > .num { display: inline; }
+  .sidebar.open .tab.active::before { left: -16px; }
+  .sidebar.open .theme-toggle { flex-direction: row; gap: 0; justify-content: space-between; padding: var(--s-3); }
+  .sidebar.open .theme-toggle-label > svg + * { display: inline; }
+
+  .main { padding: var(--s-4); }
   .hero-banner {
     flex-direction: column;
     text-align: center;
@@ -1731,6 +2000,7 @@ footer.app-footer {
 </style>
 </head>
 <body>
+
 
 <div class="app">
 
@@ -1770,28 +2040,24 @@ footer.app-footer {
   </button>
 
   <nav class="sidebar-nav">
-    <div class="nav-section-label">SIGNATURE</div>
+    <div class="nav-section-label">시그니처</div>
     <button class="tab active" data-view="draw">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 15L4 11L12 3L15 6L7 14L3 15Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 5L13 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Draw
-      <span class="num">01</span>
+      <span class="tab-label">Draw</span>
     </button>
     <button class="tab" data-view="type">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4h10M9 4v10M6 14h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Type
-      <span class="num">02</span>
+      <span class="tab-label">Type</span>
     </button>
     <button class="tab" data-view="photo">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4.5" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 4.5L7.5 2.5h3l1 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Photograph
-      <span class="num">03</span>
+      <span class="tab-label">Photograph</span>
     </button>
 
-    <div class="nav-section-label">LIBRARY</div>
+    <div class="nav-section-label">보관함</div>
     <button class="tab" data-view="gallery">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="2.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9.5" y="2.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="2.5" y="9.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9.5" y="9.5" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.6"/></svg>
-      Gallery
-      <span class="num">04</span>
+      <span class="tab-label">보관함</span>
     </button>
   </nav>
 
@@ -1799,7 +2065,7 @@ footer.app-footer {
     <div class="theme-toggle" id="themeToggle">
       <div class="theme-toggle-label">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 9.5A5.5 5.5 0 016.5 3 5.5 5.5 0 1013 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        다크 모드
+        <span class="theme-label-text">다크 모드</span>
       </div>
       <div class="toggle-switch"></div>
     </div>
@@ -1821,6 +2087,7 @@ footer.app-footer {
 
 <!-- ═══════════ Effects Bar (shared across Type/Draw/Photo) ═══════════ -->
 <div class="fx-bar" id="fxBar">
+  <!-- TOP: background -->
   <div class="fx-section">
     <div class="fx-label">배경</div>
     <div class="fx-row">
@@ -1836,21 +2103,32 @@ footer.app-footer {
     </div>
   </div>
 
-  <div class="fx-section">
-    <div class="fx-label">특수 효과</div>
-    <select class="select fx-select" id="fxEffect">
+  <!-- BOTTOM: effect cards — one row visible, rest behind accordion -->
+  <div class="fx-section fx-section-effects">
+    <div class="fx-header-row">
+      <div class="fx-label" style="margin:0;">특수 효과 — 카드를 클릭해서 선택</div>
+      <button type="button" class="fx-toggle" id="fxToggle" aria-expanded="false">
+        <span class="fx-toggle-text">더 보기</span>
+        <svg class="fx-toggle-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fx-grid fx-grid-collapsed" id="fxGrid">
+      <!-- Cards injected by JS -->
+    </div>
+    <!-- Hidden select kept as the source of truth (existing code reads from it) -->
+    <select id="fxEffect" style="display:none;">
       <option value="none" selected>— 없음</option>
+      <option value="stamp">Stamp · 도장 · 낙관</option>
+      <option value="epic-fire">Epic Fire · 불꽃 시네마틱</option>
+      <option value="matrix">Matrix · 디지털 레인</option>
       <option value="sparks">Sparks · 불꽃</option>
       <option value="cinematic">Cinematic · 시네마틱</option>
       <option value="svip-gold">SVIP Gold · 황금 별빛</option>
       <option value="svip-purple">SVIP Purple · 보랏빛 광선</option>
       <option value="vip-aqua">VIP Aqua · 청록 링</option>
     </select>
-  </div>
-
-  <div class="fx-section fx-preview-wrap">
-    <div class="fx-label">미리보기</div>
-    <canvas id="fxPreview" width="240" height="80"></canvas>
   </div>
 </div>
 
@@ -1911,8 +2189,8 @@ footer.app-footer {
       </button>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" id="exportTypePNG">PNG 저장</button>
-      <button class="btn btn-svip" id="exportTypeGIF">GIF 저장</button>
+      <button class="btn btn-primary btn-stacked" id="exportTypePNG"><span class="btn-main">이미지 다운로드</span><span class="btn-sub">PNG</span></button>
+      <button class="btn btn-svip btn-stacked" id="exportTypeGIF"><span class="btn-main">애니메이션 다운로드</span><span class="btn-sub">GIF · MP4 · WebM</span></button>
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" id="saveTypeGallery">보관함에 저장</button>
@@ -1951,19 +2229,20 @@ footer.app-footer {
 
     <div class="field">
       <label>잉크 색상</label>
-      <div class="font-grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="font-grid" style="grid-template-columns: repeat(5, 1fr);">
         <button class="font-chip active" data-color="#0f0e0c" style="--chip-color:#0f0e0c;"></button>
         <button class="font-chip" data-color="#4B96FF" style="--chip-color:#4B96FF;"></button>
         <button class="font-chip" data-color="#FF4949" style="--chip-color:#FF4949;"></button>
         <button class="font-chip" data-color="#00B843" style="--chip-color:#00B843;"></button>
+        <button class="font-chip" data-color="#FFFFFF" style="--chip-color:#FFFFFF;"></button>
       </div>
     </div>
 
     <div class="field">
       <label>굵기</label>
       <div class="range-row">
-        <input type="range" id="drawStroke" min="1" max="10" value="3.5" step="0.5">
-        <span class="val" id="drawStrokeVal">3.5</span>
+        <input type="range" id="drawStroke" min="1" max="20" value="10" step="0.5">
+        <span class="val" id="drawStrokeVal">10</span>
       </div>
     </div>
 
@@ -1981,10 +2260,6 @@ footer.app-footer {
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" id="drawApplySmooth">곡선 다듬기</button>
-    </div>
-
-    <div class="btn-row">
       <button class="btn btn-secondary" id="previewDraw">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7s2-4 6-4 6 4 6 4-2 4-6 4-6-4-6-4z" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
         미리보기
@@ -1992,8 +2267,8 @@ footer.app-footer {
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" id="exportDrawPNG">PNG 저장</button>
-      <button class="btn btn-svip" id="exportDrawGIF">GIF 저장</button>
+      <button class="btn btn-primary btn-stacked" id="exportDrawPNG"><span class="btn-main">이미지 다운로드</span><span class="btn-sub">PNG</span></button>
+      <button class="btn btn-svip btn-stacked" id="exportDrawGIF"><span class="btn-main">애니메이션 다운로드</span><span class="btn-sub">GIF · MP4 · WebM</span></button>
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" id="saveDrawGallery">보관함에 저장</button>
@@ -2001,7 +2276,7 @@ footer.app-footer {
 
     <div class="hint">
       <strong>SVIP TIP</strong>
-      마우스·트랙패드·애플펜슬로 그린 후 "곡선 다듬기"를 누르면 떨림이 부드럽게 정돈됩니다. 곡선 보정 값이 높을수록 더 매끄러워집니다.
+      마우스·트랙패드·애플펜슬로 그린 후 곡선 보정 값을 조절하면 떨림이 실시간으로 부드럽게 정돈됩니다. 값이 높을수록 더 매끄러워집니다.
     </div>
   </div>
 
@@ -2040,37 +2315,27 @@ footer.app-footer {
         <p>JPG · PNG · WEBP</p>
         <input type="file" id="photoInput" accept="image/*">
       </label>
-    </div>
-
-    <div class="field">
-      <label>임계값</label>
-      <div class="range-row">
-        <input type="range" id="photoThreshold" min="80" max="220" value="150">
-        <span class="val" id="photoThresholdVal">150</span>
-      </div>
+      <button class="btn btn-outline" id="photoClear" style="margin-top:10px; display:none;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:-2px;"><path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        사진 삭제
+      </button>
     </div>
 
     <div class="field">
       <label>잉크 색상</label>
-      <select class="select" id="photoInkColor">
-        <option value="#0f0e0c" selected>Black / 검정</option>
-        <option value="#1a3a8a">Blue / 파랑</option>
-        <option value="#8b2a2a">Red / 빨강</option>
-        <option value="#3d5544">Green / 초록</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>정리</label>
-      <div class="range-row">
-        <input type="range" id="photoCleanup" min="0" max="10" value="3">
-        <span class="val" id="photoCleanupVal">3</span>
+      <div class="font-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <button class="font-chip photo-chip active" data-color="#0f0e0c" data-photo-color="#0f0e0c" style="--chip-color:#0f0e0c;"></button>
+        <button class="font-chip photo-chip" data-color="#1a3a8a" data-photo-color="#1a3a8a" style="--chip-color:#1a3a8a;"></button>
+        <button class="font-chip photo-chip" data-color="#8b2a2a" data-photo-color="#8b2a2a" style="--chip-color:#8b2a2a;"></button>
+        <button class="font-chip photo-chip" data-color="#3d5544" data-photo-color="#3d5544" style="--chip-color:#3d5544;"></button>
+        <button class="font-chip photo-chip" data-color="#FFFFFF" data-photo-color="#FFFFFF" style="--chip-color:#FFFFFF;"></button>
       </div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-primary" id="photoProcess">변환 시작</button>
-    </div>
+    <!-- Hidden inputs preserving original IDs so the rest of the code keeps working -->
+    <input type="hidden" id="photoThreshold" value="150">
+    <input type="hidden" id="photoCleanup" value="3">
+    <input type="hidden" id="photoInkColor" value="#0f0e0c">
 
     <div class="btn-row">
       <button class="btn btn-secondary" id="previewPhoto">
@@ -2080,8 +2345,8 @@ footer.app-footer {
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" id="exportPhotoPNG">PNG 저장</button>
-      <button class="btn btn-svip" id="exportPhotoGIF">GIF 저장</button>
+      <button class="btn btn-primary btn-stacked" id="exportPhotoPNG"><span class="btn-main">이미지 다운로드</span><span class="btn-sub">PNG</span></button>
+      <button class="btn btn-svip btn-stacked" id="exportPhotoGIF"><span class="btn-main">애니메이션 다운로드</span><span class="btn-sub">GIF · MP4 · WebM</span></button>
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" id="savePhotoGallery">보관함에 저장</button>
@@ -2154,8 +2419,20 @@ footer.app-footer {
     </div>
 
     <div class="modal-tabs">
-      <button class="modal-tab active" data-modal-tab="full">전체 미리보기</button>
-      <button class="modal-tab" data-modal-tab="donation">후원 알림 시뮬레이션</button>
+      <button class="modal-tab active" data-modal-tab="full">
+        <svg class="modal-tab-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 4.5L4 2.5h8L14 4.5M2 4.5v8.5a.5.5 0 00.5.5h11a.5.5 0 00.5-.5V4.5M2 4.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 8.5l1.5 1.5L10.5 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        시그니처 미리보기
+      </button>
+      <button class="modal-tab" data-modal-tab="donation">
+        <svg class="modal-tab-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6.5a5 5 0 0110 0v2.8c0 .4.2.8.5 1l1 .9c.3.3.1.8-.3.8H1.8c-.4 0-.6-.5-.3-.8l1-.9c.3-.2.5-.6.5-1V6.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M6.5 13.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        알림 위젯 시뮬레이션
+      </button>
     </div>
 
     <div class="modal-body">
@@ -2212,6 +2489,142 @@ footer.app-footer {
   </div>
 </div>
 
+<!-- ═══════════ Animation format picker modal ═══════════ -->
+<div id="fmtPickerBackdrop">
+  <div class="fmt-modal">
+    <div class="fmt-head">
+      <h3>애니메이션 포맷 선택</h3>
+      <button class="fmt-close" id="fmtClose" aria-label="닫기">×</button>
+    </div>
+    <div class="fmt-body">
+      <button class="fmt-option" data-fmt="mp4">
+        <div class="fmt-badge">MP4</div>
+        <div class="fmt-info">
+          <div class="fmt-title">MP4 영상 <span class="fmt-tag">권장</span></div>
+          <div class="fmt-desc">고화질 풀컬러. 투네이션 위젯 권장. 불투명 배경.</div>
+        </div>
+      </button>
+      <button class="fmt-option" data-fmt="webm">
+        <div class="fmt-badge fmt-badge-webm">WebM</div>
+        <div class="fmt-info">
+          <div class="fmt-title">WebM 영상 <span class="fmt-tag">투명</span></div>
+          <div class="fmt-desc">고화질 + 진짜 투명 배경. 채팅 오버레이용.</div>
+        </div>
+      </button>
+      <button class="fmt-option" data-fmt="gif">
+        <div class="fmt-badge fmt-badge-gif">GIF</div>
+        <div class="fmt-info">
+          <div class="fmt-title">GIF 애니메이션</div>
+          <div class="fmt-desc">호환성 좋음(256색). 어느 플랫폼이든 동작.</div>
+        </div>
+      </button>
+    </div>
+    <div class="fmt-progress" id="fmtProgress" style="display:none;">
+      <div class="fmt-progress-text" id="fmtProgressText">준비 중...</div>
+      <div class="fmt-progress-bar"><div class="fmt-progress-fill" id="fmtProgressFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #fmtPickerBackdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.55);
+    z-index: 9100;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  #fmtPickerBackdrop.show { display: flex; }
+  .fmt-modal {
+    width: 100%; max-width: 460px;
+    background: var(--bg-normal);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    font-family: var(--font-body, system-ui, sans-serif);
+  }
+  .fmt-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line-normal);
+  }
+  .fmt-head h3 { margin: 0; font-size: 16px; color: var(--label-normal); }
+  .fmt-close {
+    background: transparent; border: 0;
+    font-size: 22px; line-height: 1;
+    color: var(--label-alternative); cursor: pointer;
+  }
+  .fmt-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .fmt-option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-alternative);
+    border: 1px solid var(--line-normal);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .fmt-option:hover {
+    border-color: var(--toonation-blue);
+    background: var(--primary-bg-weak);
+    transform: translateY(-1px);
+  }
+  .fmt-option:disabled {
+    opacity: 0.5; cursor: wait;
+    transform: none;
+  }
+  .fmt-badge {
+    flex-shrink: 0;
+    background: var(--toonation-blue);
+    color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.06em;
+    min-width: 48px; text-align: center;
+  }
+  .fmt-badge-webm { background: #8b5cf6; }
+  .fmt-badge-gif { background: #6b7280; }
+  .fmt-info { flex: 1; min-width: 0; }
+  .fmt-title {
+    font-size: 14px; font-weight: 700;
+    color: var(--label-normal);
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .fmt-tag {
+    font-size: 10px; font-weight: 600;
+    background: #fff7e6; color: #d97706;
+    padding: 1px 6px; border-radius: 4px;
+  }
+  .fmt-badge-webm + .fmt-info .fmt-tag { background: #f3e8ff; color: #7c3aed; }
+  .fmt-desc {
+    font-size: 12px; color: var(--label-alternative);
+    line-height: 1.4;
+  }
+  .fmt-progress {
+    margin: 0 12px 14px;
+    padding: 12px 14px;
+    background: var(--bg-alternative);
+    border-radius: 8px;
+  }
+  .fmt-progress-text {
+    font-size: 12px; color: var(--label-normal);
+    margin-bottom: 8px;
+  }
+  .fmt-progress-bar {
+    height: 4px; background: var(--line-normal);
+    border-radius: 2px; overflow: hidden;
+  }
+  .fmt-progress-fill {
+    height: 100%; background: var(--toonation-blue);
+    width: 0%; transition: width 0.2s;
+  }
+</style>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2261,7 +2674,7 @@ const $$ = (s) => document.querySelectorAll(s);
   const backdrop = $('#sidebarBackdrop');
   const body = document.body;
 
-  // Desktop/tablet: collapse/expand
+  // Desktop/tablet/mobile: collapse/expand
   if (toggle) {
     toggle.addEventListener('click', () => {
       const w = window.innerWidth;
@@ -2271,6 +2684,10 @@ const $$ = (s) => document.querySelectorAll(s);
       } else if (w > 768) {
         // Tablet: toggle force-open
         body.classList.toggle('sidebar-force-open');
+      } else {
+        // Mobile: toggle expanded overlay
+        sidebar.classList.toggle('open');
+        body.classList.toggle('sidebar-open');
       }
     });
   }
@@ -2365,7 +2782,7 @@ window._fxBgImage = null;
 
 $('#fxBackground').addEventListener('change', (e) => {
   $('#fxBgUpload').style.display = e.target.value === 'image' ? 'flex' : 'none';
-  drawFxPreview();
+  if (typeof rebuildEffectGalleryStates === 'function') rebuildEffectGalleryStates();
 });
 
 $('#fxBgInput').addEventListener('change', (e) => {
@@ -2377,48 +2794,237 @@ $('#fxBgInput').addEventListener('change', (e) => {
     img.onload = () => {
       window._fxBgImage = img;
       $('#fxBgName').textContent = file.name.length > 16 ? file.name.slice(0, 14) + '…' : file.name;
-      drawFxPreview();
+      if (typeof rebuildEffectGalleryStates === 'function') rebuildEffectGalleryStates();
     };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 });
 
-$('#fxEffect').addEventListener('change', drawFxPreview);
+/* ═══════════════════════════════════════════════════════════
+   EFFECT GALLERY · Animated card grid for choosing FX
+   ─────────────────────────────────────────────────────────────
+   Each card renders its effect on a small canvas with a global
+   looping rAF clock. Click selects → updates hidden #fxEffect
+   <select> which is the existing source of truth.
+   ═══════════════════════════════════════════════════════════ */
 
-/* Tiny live preview of current effect setup */
-function drawFxPreview() {
-  const c = $('#fxPreview');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
-  ctx.clearRect(0, 0, W, H);
+const FX_CARD_META = [
+  { id: 'none',         label: '— 없음',         sub: '효과 끄기' },
+  { id: 'stamp',        label: 'Stamp',          sub: '도장 · 낙관' },
+  { id: 'epic-fire',    label: 'Epic Fire',      sub: '불꽃 시네마틱' },
+  { id: 'matrix',       label: 'Matrix',         sub: '디지털 레인' },
+  { id: 'sparks',       label: 'Sparks',         sub: '불꽃' },
+  { id: 'cinematic',    label: 'Cinematic',      sub: '시네마틱' },
+  { id: 'svip-gold',    label: 'SVIP Gold',      sub: '황금 별빛' },
+  { id: 'svip-purple',  label: 'SVIP Purple',    sub: '보랏빛 광선' },
+  { id: 'vip-aqua',     label: 'VIP Aqua',       sub: '청록 링' }
+];
 
-  const fx = getEffectsState();
-  const cache = buildParticleCache(W, H, fx, 99);
-  const t = 0.65;
+// Card descriptors filled in by initEffectGallery()
+let _fxCards = [];      // [{ effectId, canvas, ctx, fx, cache, themedInk }]
+let _fxClockStart = 0;  // performance.now() base
+let _fxRafId = null;
 
-  paintBackground(ctx, W, H, fx);
-  applyBackEffects(ctx, W, H, t, fx, cache);
-
-  // Sample text "Signature" on a transparent canvas, then theme it
+function _buildFxCardThemedInk(W, H, fx) {
   const tmpC = document.createElement('canvas');
   tmpC.width = W; tmpC.height = H;
   const tctx = tmpC.getContext('2d');
-  tctx.font = "italic 28px 'Caveat', cursive";
+  tctx.font = "italic 22px 'Caveat', cursive";
   tctx.textAlign = 'center';
   tctx.textBaseline = 'middle';
-  tctx.fillStyle = isTransparent(fx) ? '#0f0e0c' : '#f0f0f0';
+  tctx.fillStyle = (fx.background === 'transparent' && fx.effect === 'none') ? '#0f0e0c' : '#f0f0f0';
   tctx.fillText('Signature', W/2, H/2);
+  return renderStyledInk(tmpC, W, H, fx.inkStyle);
+}
 
-  const themed = renderStyledInk(tmpC, W, H, fx.inkStyle);
-  ctx.drawImage(themed, 0, 0);
-
+function _renderFxCardFrame(card, t) {
+  const { canvas, ctx, fx, cache, themedInk } = card;
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  paintBackground(ctx, W, H, fx);
+  applyBackEffects(ctx, W, H, t, fx, cache);
+  if (fx.effect === 'stamp') {
+    drawStampFrame(ctx, themedInk, t, W, H, cache);
+  } else {
+    ctx.drawImage(themedInk, 0, 0);
+  }
   applyFrontEffects(ctx, W, H, t, fx, cache);
 }
 
-// Initial preview
-setTimeout(drawFxPreview, 100);
-document.fonts.ready.then(drawFxPreview);
+function _fxLoop(nowMs) {
+  if (_fxClockStart === 0) _fxClockStart = nowMs;
+  // 4-second loop for most effects
+  const loopMs = 4000;
+  const t = ((nowMs - _fxClockStart) % loopMs) / loopMs;
+  for (const card of _fxCards) {
+    _renderFxCardFrame(card, t);
+  }
+  _fxRafId = requestAnimationFrame(_fxLoop);
+}
+
+function initEffectGallery() {
+  const grid = document.getElementById('fxGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  _fxCards = [];
+
+  for (const meta of FX_CARD_META) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'fx-card';
+    card.dataset.effect = meta.id;
+    card.innerHTML = `
+      <canvas class="fx-card-canvas" width="280" height="128"></canvas>
+      <div class="fx-card-name">${meta.label}<small>${meta.sub}</small></div>
+      <div class="fx-card-check">✓</div>
+    `;
+    card.addEventListener('click', () => selectEffect(meta.id));
+    grid.appendChild(card);
+
+    const canvas = card.querySelector('.fx-card-canvas');
+    const ctx = canvas.getContext('2d');
+    // Build fx state for this card (background respects user selection)
+    const baseBackground = document.getElementById('fxBackground').value;
+    const fx = {
+      background: baseBackground,
+      bgImage: window._fxBgImage || null,
+      effect: meta.id,
+      inkStyle: 'plain'
+    };
+    fx.inkStyle = inkStyleFor(fx);
+
+    const cache = buildParticleCache(canvas.width, canvas.height, fx, 12345);
+    // For stamp: pre-compute bbox using themed ink so animation works
+    if (fx.effect === 'stamp') {
+      const inkPreview = _buildFxCardThemedInk(canvas.width, canvas.height, fx);
+      // Use the source (pre-styled text) for bbox so layout is correct
+      const tmpForBBox = document.createElement('canvas');
+      tmpForBBox.width = canvas.width; tmpForBBox.height = canvas.height;
+      const tctx = tmpForBBox.getContext('2d');
+      tctx.font = "italic 22px 'Caveat', cursive";
+      tctx.textAlign = 'center'; tctx.textBaseline = 'middle';
+      tctx.fillStyle = '#000';
+      tctx.fillText('Signature', canvas.width/2, canvas.height/2);
+      const bbox = computeInkBBox(tmpForBBox);
+      if (bbox) cache.stampBBox = bbox;
+      _fxCards.push({
+        effectId: meta.id, canvas, ctx, fx, cache,
+        themedInk: inkPreview
+      });
+    } else {
+      const themedInk = _buildFxCardThemedInk(canvas.width, canvas.height, fx);
+      _fxCards.push({ effectId: meta.id, canvas, ctx, fx, cache, themedInk });
+    }
+  }
+
+  // Highlight currently-selected
+  highlightSelectedFxCard();
+
+  // Kick off the global animation loop (single rAF for all cards)
+  if (_fxRafId === null) {
+    _fxClockStart = 0;
+    _fxRafId = requestAnimationFrame(_fxLoop);
+  }
+}
+
+/* Rebuild all card render contexts — call when fxBackground or bg image changes */
+function rebuildEffectGalleryStates() {
+  for (const card of _fxCards) {
+    const W = card.canvas.width, H = card.canvas.height;
+    const baseBackground = document.getElementById('fxBackground').value;
+    card.fx = {
+      background: baseBackground,
+      bgImage: window._fxBgImage || null,
+      effect: card.effectId,
+      inkStyle: 'plain'
+    };
+    card.fx.inkStyle = inkStyleFor(card.fx);
+    card.cache = buildParticleCache(W, H, card.fx, 12345);
+    if (card.fx.effect === 'stamp') {
+      const tmpForBBox = document.createElement('canvas');
+      tmpForBBox.width = W; tmpForBBox.height = H;
+      const tctx = tmpForBBox.getContext('2d');
+      tctx.font = "italic 22px 'Caveat', cursive";
+      tctx.textAlign = 'center'; tctx.textBaseline = 'middle';
+      tctx.fillStyle = '#000';
+      tctx.fillText('Signature', W/2, H/2);
+      const bbox = computeInkBBox(tmpForBBox);
+      if (bbox) card.cache.stampBBox = bbox;
+    }
+    card.themedInk = _buildFxCardThemedInk(W, H, card.fx);
+  }
+}
+
+function highlightSelectedFxCard() {
+  const selected = document.getElementById('fxEffect').value;
+  document.querySelectorAll('.fx-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.effect === selected);
+  });
+}
+
+function selectEffect(effectId) {
+  const sel = document.getElementById('fxEffect');
+  sel.value = effectId;
+  // Dispatch change so any existing listeners on fxEffect still fire
+  sel.dispatchEvent(new Event('change'));
+  highlightSelectedFxCard();
+}
+
+/* If the currently-selected card is hidden by the collapsed grid,
+   expand the grid so the user can see it. Called on initial load
+   in case a non-default effect was already selected. */
+function ensureSelectedVisible() {
+  const grid = document.getElementById('fxGrid');
+  const toggle = document.getElementById('fxToggle');
+  if (!grid || !toggle) return;
+  if (!grid.classList.contains('fx-grid-collapsed')) return;
+  const selectedId = document.getElementById('fxEffect').value;
+  const card = grid.querySelector(`.fx-card[data-effect="${selectedId}"]`);
+  if (!card) return;
+  // Check if the selected card is currently visible (display !== none)
+  if (window.getComputedStyle(card).display === 'none') {
+    grid.classList.remove('fx-grid-collapsed');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.querySelector('.fx-toggle-text').textContent = '접기';
+  }
+}
+
+/* Accordion toggle: collapsed = one row only, expanded = all cards */
+function setupFxToggle() {
+  const toggle = document.getElementById('fxToggle');
+  const grid = document.getElementById('fxGrid');
+  if (!toggle || !grid) return;
+  toggle.addEventListener('click', () => {
+    const collapsed = grid.classList.toggle('fx-grid-collapsed');
+    toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    toggle.querySelector('.fx-toggle-text').textContent =
+      collapsed ? '더 보기' : '접기';
+  });
+}
+
+// Wire up: when background changes, rebuild card states so they reflect it
+document.getElementById('fxBackground').addEventListener('change', () => {
+  rebuildEffectGalleryStates();
+});
+
+// Initialize gallery on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initEffectGallery();
+    setupFxToggle();
+    ensureSelectedVisible();
+  });
+} else {
+  initEffectGallery();
+  setupFxToggle();
+  ensureSelectedVisible();
+}
+
+// Re-render gallery cards once webfonts are ready (so 'Signature' uses Caveat)
+document.fonts.ready.then(() => {
+  if (typeof rebuildEffectGalleryStates === 'function') rebuildEffectGalleryStates();
+});
 
 /* ═══════════════════════════════════════════════════════════
    PART A · TYPED SIGNATURE
@@ -2673,12 +3279,38 @@ let currentStroke = null;
 let undoStack = [];
 
 // Color chips
-$$('.font-chip[data-color]').forEach(chip => {
+function updateWhiteInkBackdrop(color) {
+  const isWhite = typeof color === 'string' && /^#?(ffffff|fff)$/i.test(color.replace(/^#/, ''));
+  document.body.classList.toggle('ink-is-white', isWhite);
+}
+
+$$('.font-chip[data-color]:not(.photo-chip)').forEach(chip => {
   chip.addEventListener('click', () => {
-    $$('.font-chip[data-color]').forEach(c => c.classList.remove('active'));
+    $$('.font-chip[data-color]:not(.photo-chip)').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     currentInkColor = chip.dataset.color;
+    updateWhiteInkBackdrop(currentInkColor);
     redrawAll();
+  });
+});
+
+/* Photo tab — own swatch group; updates the hidden #photoInkColor input
+   so the existing processPhoto() pipeline keeps reading from it. */
+$$('.photo-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    $$('.photo-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const color = chip.dataset.photoColor || chip.dataset.color;
+    const hidden = document.getElementById('photoInkColor');
+    if (hidden) hidden.value = color;
+    document.body.classList.toggle(
+      'photo-ink-is-white',
+      /^#?(ffffff|fff)$/i.test(color.replace(/^#/, ''))
+    );
+    // Re-process current photo if one is loaded
+    if (typeof photoImage !== 'undefined' && photoImage) {
+      processPhoto();
+    }
   });
 });
 
@@ -2715,9 +3347,28 @@ function endDraw(e) {
   if (!drawing) return;
   drawing = false;
   if (currentStroke && currentStroke.points.length > 1) {
+    // Preserve the raw, unsmoothed points so we can re-smooth from scratch
+    // whenever the smoothing slider changes (avoids cumulative smoothing).
+    currentStroke.rawPoints = currentStroke.points.slice();
+    // Apply current smoothing intensity to the just-finished stroke.
+    const intensity = parseFloat($('#drawSmooth').value);
+    currentStroke.points = smoothStroke(currentStroke.rawPoints, intensity);
     strokes.push(currentStroke);
+    redrawAll();
   }
   currentStroke = null;
+}
+
+/* Re-apply current smoothing intensity to every stroke, always starting
+   from the original raw points. This makes the slider behave like a live
+   control without compounding the smoothing each time. */
+function reapplySmoothingFromRaw() {
+  const intensity = parseFloat($('#drawSmooth').value);
+  strokes = strokes.map(s => {
+    const raw = s.rawPoints || s.points;
+    return { ...s, rawPoints: raw, points: smoothStroke(raw, intensity) };
+  });
+  redrawAll();
 }
 
 function drawSegment(stroke, i1, i2) {
@@ -2779,6 +3430,8 @@ $('#drawStroke').addEventListener('input', (e) => {
 
 $('#drawSmooth').addEventListener('input', (e) => {
   $('#drawSmoothVal').textContent = e.target.value + '%';
+  // Live-apply smoothing to all existing strokes from their raw points.
+  if (strokes.length > 0) reapplySmoothingFromRaw();
 });
 
 $('#drawUndo').addEventListener('click', () => {
@@ -2837,20 +3490,6 @@ function smoothStroke(points, intensity) {
   }
   return pts;
 }
-
-$('#drawApplySmooth').addEventListener('click', () => {
-  if (strokes.length === 0) {
-    toast('먼저 싸인을 그려주세요');
-    return;
-  }
-  const intensity = parseFloat($('#drawSmooth').value);
-  strokes = strokes.map(s => ({
-    ...s,
-    points: smoothStroke(s.points, intensity)
-  }));
-  redrawAll();
-  toast('곡선 보정 완료');
-});
 
 /* Export drawn signature with transparent background */
 function renderDrawToTransparent() {
@@ -2932,23 +3571,36 @@ function handlePhotoFile(file) {
     img.onload = () => {
       photoImage = img;
       processPhoto();
+      // Show clear button now that we have a photo loaded
+      const clearBtn = document.getElementById('photoClear');
+      if (clearBtn) clearBtn.style.display = '';
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-$('#photoThreshold').addEventListener('input', (e) => {
-  $('#photoThresholdVal').textContent = e.target.value;
-});
-$('#photoCleanup').addEventListener('input', (e) => {
-  $('#photoCleanupVal').textContent = e.target.value;
-});
-$('#photoProcess').addEventListener('click', () => {
-  if (!photoImage) { toast('먼저 사진을 업로드하세요'); return; }
-  processPhoto();
-});
-$('#photoInkColor').addEventListener('change', processPhoto);
+// Clear-photo button: remove the uploaded image and reset the canvas
+const photoClearBtn = document.getElementById('photoClear');
+if (photoClearBtn) {
+  photoClearBtn.addEventListener('click', () => {
+    photoImage = null;
+    photoProcessed = false;
+    // Reset file input so the same file can be re-uploaded if needed
+    const photoInputEl = document.getElementById('photoInput');
+    if (photoInputEl) photoInputEl.value = '';
+    // Clear and hide canvas, show empty state
+    photoCtx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
+    photoCanvas.style.display = 'none';
+    const emptyEl = document.getElementById('photoEmpty');
+    if (emptyEl) emptyEl.style.display = '';
+    // Reset metadata text if present
+    const metaEl = document.getElementById('photoMeta');
+    if (metaEl) metaEl.textContent = '';
+    photoClearBtn.style.display = 'none';
+    toast('사진을 삭제했습니다');
+  });
+}
 
 function processPhoto() {
   if (!photoImage) return;
@@ -2957,23 +3609,45 @@ function processPhoto() {
   $('#photoEmpty').style.display = 'none';
   photoCanvas.style.display = 'block';
 
-  // Fit image to canvas while keeping aspect
-  const maxW = 800, maxH = 380;
-  let w = photoImage.width, h = photoImage.height;
-  const scale = Math.min(maxW / w, maxH / h, 1);
-  w = w * scale;
-  h = h * scale;
+  /* Output canvas is always a fixed size, regardless of input photo
+     dimensions. The input photo is scaled to fit while preserving its
+     aspect ratio, then centered on the output canvas. This keeps the
+     signature size consistent in preview, GIF, and donation alerts. */
+  const CANVAS_W = 800;
+  const CANVAS_H = 380;
+  /* Target visible area inside the canvas (with margin so the signature
+     doesn't touch the edges). The photo fits within this box. */
+  const TARGET_MARGIN_X = 60;
+  const TARGET_MARGIN_Y = 40;
+  const targetW = CANVAS_W - TARGET_MARGIN_X * 2;
+  const targetH = CANVAS_H - TARGET_MARGIN_Y * 2;
 
-  photoCanvas.width = Math.round(w);
-  photoCanvas.height = Math.round(h);
-  $('#photoMeta').textContent = `${photoCanvas.width} × ${photoCanvas.height} px`;
+  const srcW = photoImage.width;
+  const srcH = photoImage.height;
+  // Scale to fit target box, preserving aspect ratio (contain).
+  const scale = Math.min(targetW / srcW, targetH / srcH);
+  const drawW = Math.max(1, Math.round(srcW * scale));
+  const drawH = Math.max(1, Math.round(srcH * scale));
+  const offsetX = Math.round((CANVAS_W - drawW) / 2);
+  const offsetY = Math.round((CANVAS_H - drawH) / 2);
 
-  // Draw original
-  photoCtx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
-  photoCtx.drawImage(photoImage, 0, 0, photoCanvas.width, photoCanvas.height);
+  photoCanvas.width = CANVAS_W;
+  photoCanvas.height = CANVAS_H;
+  $('#photoMeta').textContent = `${CANVAS_W} × ${CANVAS_H} px`;
 
-  // Get pixel data
-  const imgData = photoCtx.getImageData(0, 0, photoCanvas.width, photoCanvas.height);
+  // Use higher-quality scaling for small source images being enlarged
+  photoCtx.imageSmoothingEnabled = true;
+  photoCtx.imageSmoothingQuality = 'high';
+
+  // Clear the entire canvas (will remain transparent outside drawn region)
+  photoCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+  // Draw the scaled photo centered on the canvas
+  photoCtx.drawImage(photoImage, offsetX, offsetY, drawW, drawH);
+
+  // Get pixel data for the WHOLE canvas, but we only process the drawn region.
+  // Pixels outside the drawn region are transparent (alpha=0), so threshold
+  // logic will naturally skip them.
+  const imgData = photoCtx.getImageData(0, 0, CANVAS_W, CANVAS_H);
   const data = imgData.data;
   const threshold = parseInt($('#photoThreshold').value);
 
@@ -2984,8 +3658,10 @@ function processPhoto() {
   const inkB = parseInt(inkHex.slice(5, 7), 16);
 
   // Step 1: Threshold to binary mask
+  // Skip pixels outside the drawn photo region (those have alpha=0).
   const mask = new Uint8Array(photoCanvas.width * photoCanvas.height);
   for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+    if (data[i + 3] < 8) { mask[j] = 0; continue; }
     const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
     mask[j] = lum < threshold ? 1 : 0;
   }
@@ -3037,7 +3713,7 @@ function removeNoise(mask, w, h) {
 }
 
 $('#exportPhotoPNG').addEventListener('click', () => {
-  if (!photoProcessed) { toast('먼저 변환하세요'); return; }
+  if (!photoProcessed) { toast('먼저 사진을 업로드하세요'); return; }
   const c = renderStaticWithEffects(photoCanvas);
   downloadCanvas(c, `signature_photo_${Date.now()}.png`);
   toast('PNG 저장 완료');
@@ -3083,6 +3759,428 @@ function ensureGifLib() {
   if (typeof GIF === 'undefined') {
     throw new Error('GIF 라이브러리가 로드되지 않았습니다. 인터넷 연결을 확인하세요.');
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FFMPEG.WASM LOADER · for MP4 (H.264) encoding
+   ─────────────────────────────────────────────────────────────
+   ffmpeg.wasm is loaded lazily on first MP4 export. The library
+   is ~25MB but is cached by the browser after first load.
+   ═══════════════════════════════════════════════════════════ */
+
+let _ffmpegInstance = null;
+let _ffmpegLoading = null;
+
+async function ensureFFmpeg(onProgress) {
+  if (_ffmpegInstance) return _ffmpegInstance;
+  if (_ffmpegLoading) return _ffmpegLoading;
+
+  _ffmpegLoading = (async () => {
+    // Inject the ffmpeg umd script if not present
+    if (typeof FFmpegWASM === 'undefined' && typeof window.FFmpeg === 'undefined') {
+      if (onProgress) onProgress('FFmpeg 라이브러리 다운로드 중...', 0.05);
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@ffmpeg/[email protected]/dist/umd/ffmpeg.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('FFmpeg 스크립트 로드 실패'));
+        document.head.appendChild(script);
+      });
+    }
+    const FFmpeg = (window.FFmpegWASM || window.FFmpeg).FFmpeg;
+    const ffmpeg = new FFmpeg();
+    if (onProgress) {
+      ffmpeg.on('log', ({ message }) => {
+        // ffmpeg verbose logs — silent unless needed for debug
+      });
+      ffmpeg.on('progress', ({ progress }) => {
+        if (progress >= 0 && progress <= 1) {
+          onProgress('인코딩 중...', 0.4 + progress * 0.55);
+        }
+      });
+    }
+    if (onProgress) onProgress('FFmpeg 코어 로딩 중...', 0.15);
+    const coreBase = 'https://unpkg.com/@ffmpeg/[email protected]/dist/umd';
+    await ffmpeg.load({
+      coreURL: `${coreBase}/ffmpeg-core.js`,
+      wasmURL: `${coreBase}/ffmpeg-core.wasm`
+    });
+    _ffmpegInstance = ffmpeg;
+    return ffmpeg;
+  })();
+
+  return _ffmpegLoading;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FRAME RENDERER · Shared by GIF/MP4/WebM encoders
+   ─────────────────────────────────────────────────────────────
+   Renders each animation frame onto a given canvas context.
+   This is the SINGLE SOURCE OF TRUTH for what each frame looks
+   like — all three formats produce identical visuals.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Prepare a "frame plan" from a source canvas (typed text / photo signature).
+   Returns { renderFrame(tctx, t), totalFrames, W, H, outH }.
+   transparentMode: if true, no background or footer is drawn — useful for WebM/GIF
+   with alpha channel. */
+function makeFramePlanFromCanvas(srcCanvas, options = {}) {
+  const frames = options.frames || 36;
+  const W = srcCanvas.width, H = srcCanvas.height;
+  const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
+  const transparentMode = !!options.transparentMode;
+  // outputFormat hint lets paintBackground choose green-key (GIF) vs black (MP4)
+  const outputFormat = options.outputFormat || 'gif';
+
+  // Footer dimensions
+  const fh = Math.min(
+    SVIP_FOOTER.maxHeight,
+    Math.max(SVIP_FOOTER.minHeight, Math.round(W * SVIP_FOOTER.heightRatio))
+  );
+  // For transparent output, the canvas is just W×H — no footer strip
+  const outH = transparentMode ? H : H + fh;
+
+  // Compute ink bbox
+  const srcCtx = srcCanvas.getContext('2d');
+  const srcData = srcCtx.getImageData(0, 0, W, H);
+  let minX = W, maxX = 0, minY = H, maxY = 0;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const a = srcData.data[(y * W + x) * 4 + 3];
+      if (a > 10) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (minX > maxX) throw new Error('빈 이미지');
+
+  // For transparent mode, override fx so background/effects are minimal:
+  // we keep ink styling but drop background paint and most non-transparency-safe effects.
+  const effectiveFx = transparentMode
+    ? { ...fx, background: 'transparent', effect: 'none', inkStyle: 'plain', bgImage: null, _outputFormat: outputFormat }
+    : { ...fx, _outputFormat: outputFormat };
+
+  const inkSource = renderStyledInk(srcCanvas, W, H, effectiveFx.inkStyle);
+  const footerCanvas = transparentMode ? null : renderFooterStrip(W, fh);
+  const cache = buildParticleCache(W, H, effectiveFx, 12345);
+  if (effectiveFx.effect === 'stamp') {
+    const bbox = computeInkBBox(srcCanvas) || { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    cache.stampBBox = bbox;
+  }
+
+  function renderFrame(tctx, t) {
+    if (transparentMode) {
+      tctx.clearRect(0, 0, W, outH);
+    } else {
+      paintBackground(tctx, W, H, effectiveFx);
+      applyBackEffects(tctx, W, H, t, effectiveFx, cache);
+    }
+    if (effectiveFx.effect === 'stamp') {
+      drawStampFrame(tctx, inkSource, t, W, H, cache);
+    } else {
+      const revealX = minX + (maxX - minX + 1) * t;
+      const revealRight = Math.min(W, Math.max(0, Math.ceil(revealX) + 1));
+      if (revealRight > 0) {
+        tctx.drawImage(inkSource, 0, 0, revealRight, H, 0, 0, revealRight, H);
+      }
+    }
+    if (!transparentMode) {
+      applyFrontEffects(tctx, W, H, t, effectiveFx, cache);
+      if (footerCanvas) tctx.drawImage(footerCanvas, 0, H);
+    }
+  }
+
+  return { renderFrame, totalFrames: frames, W, H, outH };
+}
+
+/* Frame plan from stroke data (hand-drawn). Same interface. */
+function makeFramePlanFromStrokes(strokes, W, H, options = {}) {
+  const frames = options.frames || 40;
+  const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
+  const transparentMode = !!options.transparentMode;
+  const outputFormat = options.outputFormat || 'gif';
+
+  const fh = Math.min(
+    SVIP_FOOTER.maxHeight,
+    Math.max(SVIP_FOOTER.minHeight, Math.round(W * SVIP_FOOTER.heightRatio))
+  );
+  const outH = transparentMode ? H : H + fh;
+
+  const totalPts = strokes.reduce((sum, s) => sum + s.points.length, 0);
+  if (totalPts === 0) throw new Error('빈 이미지');
+
+  const effectiveFx = transparentMode
+    ? { ...fx, background: 'transparent', effect: 'none', inkStyle: 'plain', bgImage: null, _outputFormat: outputFormat }
+    : { ...fx, _outputFormat: outputFormat };
+
+  const footerCanvas = transparentMode ? null : renderFooterStrip(W, fh);
+  const cache = buildParticleCache(W, H, effectiveFx, 54321);
+
+  // Pre-render whole ink for stamp
+  let prerenderedInk = null;
+  if (effectiveFx.effect === 'stamp') {
+    const fullInk = document.createElement('canvas');
+    fullInk.width = W; fullInk.height = H;
+    const fctx = fullInk.getContext('2d');
+    for (const stroke of strokes) {
+      if (stroke.points.length < 2) continue;
+      fctx.strokeStyle = stroke.color;
+      fctx.lineWidth = stroke.width;
+      fctx.lineCap = 'round';
+      fctx.lineJoin = 'round';
+      fctx.beginPath();
+      fctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+      for (let i = 1; i < stroke.points.length - 1; i++) {
+        const xc = (stroke.points[i].x + stroke.points[i + 1].x) / 2;
+        const yc = (stroke.points[i].y + stroke.points[i + 1].y) / 2;
+        fctx.quadraticCurveTo(stroke.points[i].x, stroke.points[i].y, xc, yc);
+      }
+      const last = stroke.points[stroke.points.length - 1];
+      fctx.lineTo(last.x, last.y);
+      fctx.stroke();
+    }
+    prerenderedInk = renderStyledInk(fullInk, W, H, 'stamp');
+    const bbox = computeInkBBox(fullInk);
+    cache.stampBBox = bbox || { x: W * 0.2, y: H * 0.3, w: W * 0.6, h: H * 0.4 };
+  }
+
+  function renderFrame(tctx, t) {
+    if (transparentMode) {
+      tctx.clearRect(0, 0, W, outH);
+    } else {
+      paintBackground(tctx, W, H, effectiveFx);
+      applyBackEffects(tctx, W, H, t, effectiveFx, cache);
+    }
+    if (effectiveFx.effect === 'stamp') {
+      drawStampFrame(tctx, prerenderedInk, t, W, H, cache);
+    } else {
+      // Progressive stroke reveal
+      const targetPts = Math.round(totalPts * t);
+      const inkCanvas = document.createElement('canvas');
+      inkCanvas.width = W; inkCanvas.height = H;
+      const ictx = inkCanvas.getContext('2d');
+      let drawnPts = 0;
+      for (const stroke of strokes) {
+        const remaining = targetPts - drawnPts;
+        if (remaining <= 0) break;
+        const pointsToDraw = Math.min(stroke.points.length, remaining);
+        if (pointsToDraw < 2) { drawnPts += pointsToDraw; continue; }
+        ictx.strokeStyle = stroke.color;
+        ictx.lineWidth = stroke.width;
+        ictx.lineCap = 'round';
+        ictx.lineJoin = 'round';
+        ictx.beginPath();
+        ictx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < pointsToDraw - 1; i++) {
+          const xc = (stroke.points[i].x + stroke.points[i + 1].x) / 2;
+          const yc = (stroke.points[i].y + stroke.points[i + 1].y) / 2;
+          ictx.quadraticCurveTo(stroke.points[i].x, stroke.points[i].y, xc, yc);
+        }
+        if (pointsToDraw > 1) {
+          const last = stroke.points[pointsToDraw - 1];
+          ictx.lineTo(last.x, last.y);
+        }
+        ictx.stroke();
+        drawnPts += stroke.points.length;
+      }
+      const inkToUse = renderStyledInk(inkCanvas, W, H, effectiveFx.inkStyle);
+      tctx.drawImage(inkToUse, 0, 0);
+    }
+    if (!transparentMode) {
+      applyFrontEffects(tctx, W, H, t, effectiveFx, cache);
+      if (footerCanvas) tctx.drawImage(footerCanvas, 0, H);
+    }
+  }
+
+  return { renderFrame, totalFrames: frames, W, H, outH };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MP4 ENCODER · MediaRecorder first, ffmpeg.wasm fallback
+   ─────────────────────────────────────────────────────────────
+   Tries direct MP4 recording via MediaRecorder (Chrome 100+,
+   instant, high quality). Falls back to a WebM→MP4 transcode
+   via ffmpeg.wasm for browsers without MP4 MediaRecorder.
+   ═══════════════════════════════════════════════════════════ */
+async function encodeMp4FromFramePlan(plan, options = {}) {
+  const { fps = 24, onProgress } = options;
+  const { renderFrame, totalFrames, W, outH } = plan;
+
+  // Even dimensions required by H.264
+  const evenW = W % 2 === 0 ? W : W - 1;
+  const evenH = outH % 2 === 0 ? outH : outH - 1;
+
+  // ── PATH A: Native MP4 MediaRecorder (best when available) ──
+  const mp4Candidates = [
+    'video/mp4;codecs=h264',
+    'video/mp4;codecs=avc1',
+    'video/mp4'
+  ];
+  const nativeMp4Mime = mp4Candidates.find(m =>
+    typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(m)
+  );
+
+  if (nativeMp4Mime) {
+    if (onProgress) onProgress('MP4 녹화 중...', 0.05);
+    const tmp = document.createElement('canvas');
+    tmp.width = evenW; tmp.height = evenH;
+    const tctx = tmp.getContext('2d');
+    // Black background for opaque MP4 (compositor below paints over it)
+    const stream = tmp.captureStream(fps);
+    const recorder = new MediaRecorder(stream, {
+      mimeType: nativeMp4Mime,
+      videoBitsPerSecond: 6_000_000
+    });
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    recorder.start();
+    const frameInterval = 1000 / fps;
+    for (let f = 0; f < totalFrames; f++) {
+      const t = (f + 1) / totalFrames;
+      // Fill black behind every frame so flatten alpha cleanly
+      tctx.fillStyle = '#000000';
+      tctx.fillRect(0, 0, evenW, evenH);
+      renderFrame(tctx, t);
+      const track = stream.getVideoTracks()[0];
+      if (track && typeof track.requestFrame === 'function') track.requestFrame();
+      await new Promise(r => setTimeout(r, frameInterval));
+      if (onProgress) onProgress('MP4 녹화 중...', 0.05 + (f / totalFrames) * 0.90);
+    }
+    await new Promise(r => setTimeout(r, 300));
+    const blob = await new Promise(resolve => {
+      recorder.onstop = () => resolve(new Blob(chunks, { type: nativeMp4Mime }));
+      recorder.stop();
+    });
+    stream.getTracks().forEach(t => t.stop());
+    if (onProgress) onProgress('완료', 1.0);
+    return { url: URL.createObjectURL(blob), ext: 'mp4', mime: nativeMp4Mime };
+  }
+
+  // ── PATH B: Record WebM via MediaRecorder, transcode with ffmpeg.wasm ──
+  if (onProgress) onProgress('WebM 녹화 중 (트랜스코딩 준비)...', 0.05);
+  // Use the WebM encoder to get a stream
+  const webmCandidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  const webmMime = webmCandidates.find(m => MediaRecorder.isTypeSupported(m));
+  if (!webmMime) throw new Error('이 브라우저는 영상 녹화를 지원하지 않습니다.');
+
+  const tmp2 = document.createElement('canvas');
+  tmp2.width = evenW; tmp2.height = evenH;
+  const tctx2 = tmp2.getContext('2d');
+  const stream2 = tmp2.captureStream(fps);
+  const recorder2 = new MediaRecorder(stream2, {
+    mimeType: webmMime,
+    videoBitsPerSecond: 6_000_000
+  });
+  const chunks2 = [];
+  recorder2.ondataavailable = e => { if (e.data && e.data.size) chunks2.push(e.data); };
+  recorder2.start();
+  const frameInterval2 = 1000 / fps;
+  for (let f = 0; f < totalFrames; f++) {
+    const t = (f + 1) / totalFrames;
+    tctx2.fillStyle = '#000000';
+    tctx2.fillRect(0, 0, evenW, evenH);
+    renderFrame(tctx2, t);
+    const track = stream2.getVideoTracks()[0];
+    if (track && typeof track.requestFrame === 'function') track.requestFrame();
+    await new Promise(r => setTimeout(r, frameInterval2));
+    if (onProgress) onProgress('WebM 녹화 중...', 0.05 + (f / totalFrames) * 0.40);
+  }
+  await new Promise(r => setTimeout(r, 300));
+  const webmBlob = await new Promise(resolve => {
+    recorder2.onstop = () => resolve(new Blob(chunks2, { type: webmMime }));
+    recorder2.stop();
+  });
+  stream2.getTracks().forEach(t => t.stop());
+
+  // Transcode to MP4
+  if (onProgress) onProgress('FFmpeg 로딩...', 0.50);
+  const ffmpeg = await ensureFFmpeg((label, r) => {
+    if (onProgress) onProgress(label, 0.50 + r * 0.10);
+  });
+  const inputName = 'in.webm';
+  await ffmpeg.writeFile(inputName, new Uint8Array(await webmBlob.arrayBuffer()));
+  if (onProgress) onProgress('MP4로 변환 중...', 0.65);
+  await ffmpeg.exec([
+    '-i', inputName,
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    '-preset', 'medium',
+    '-crf', '20',
+    '-movflags', '+faststart',
+    'out.mp4'
+  ]);
+  try { await ffmpeg.deleteFile(inputName); } catch (_) {}
+  const data = await ffmpeg.readFile('out.mp4');
+  try { await ffmpeg.deleteFile('out.mp4'); } catch (_) {}
+  const blob = new Blob([data.buffer], { type: 'video/mp4' });
+  if (onProgress) onProgress('완료', 1.0);
+  return { url: URL.createObjectURL(blob), ext: 'mp4', mime: 'video/mp4' };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WEBM ENCODER (VP9 via MediaRecorder) — supports alpha
+   ═══════════════════════════════════════════════════════════ */
+async function encodeWebmFromFramePlan(plan, options = {}) {
+  const { fps = 18, onProgress } = options;
+  const { renderFrame, totalFrames, W, outH } = plan;
+
+  // Prefer VP9 with alpha — fall back to VP8 if VP9 not supported
+  const mimeCandidates = [
+    'video/webm;codecs=vp9',  // best, supports alpha on Chromium
+    'video/webm;codecs=vp8',
+    'video/webm'
+  ];
+  let chosenMime = '';
+  for (const m of mimeCandidates) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(m)) {
+      chosenMime = m; break;
+    }
+  }
+  if (!chosenMime) throw new Error('이 브라우저는 WebM 녹화를 지원하지 않습니다.');
+
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = outH;
+  const tctx = tmp.getContext('2d');
+
+  // captureStream is the bridge from canvas → MediaRecorder
+  const stream = tmp.captureStream(fps);
+  const recorder = new MediaRecorder(stream, {
+    mimeType: chosenMime,
+    videoBitsPerSecond: 5_000_000
+  });
+
+  const chunks = [];
+  recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+
+  if (onProgress) onProgress('녹화 중...', 0.05);
+
+  recorder.start();
+
+  const frameInterval = 1000 / fps;
+  for (let f = 0; f < totalFrames; f++) {
+    const t = (f + 1) / totalFrames;
+    renderFrame(tctx, t);
+    // Force the captureStream to grab a fresh frame from the canvas
+    const track = stream.getVideoTracks()[0];
+    if (track && typeof track.requestFrame === 'function') {
+      track.requestFrame();
+    }
+    await new Promise(r => setTimeout(r, frameInterval));
+    if (onProgress) onProgress('녹화 중...', 0.05 + (f / totalFrames) * 0.90);
+  }
+  // Hold the last frame briefly so the video doesn't cut abruptly
+  await new Promise(r => setTimeout(r, 400));
+
+  const blob = await new Promise(resolve => {
+    recorder.onstop = () => resolve(new Blob(chunks, { type: chosenMime }));
+    recorder.stop();
+  });
+  stream.getTracks().forEach(t => t.stop());
+  if (onProgress) onProgress('완료', 1.0);
+  return { url: URL.createObjectURL(blob), ext: 'webm', mime: chosenMime };
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -3587,6 +4685,1140 @@ const FX_PRESETS = {
   'vip-aqua':    { ray: { r: 80, g: 220, b: 240 },  star: { r: 150, g: 240, b: 255 }, bg: { r: 10, g: 30, b: 60 } }
 };
 
+/* ═══════════════════════════════════════════════════════════
+   STAMP EFFECT · 도장 / 낙관
+   ─────────────────────────────────────────────────────────────
+   Static look : red ink stamp with weathered noise + box border
+   Animation   : antic → accelerating fall (with motion blur)
+                 → impact (flash + shake + double shockwave + debris)
+                 → small secondary bounce → settle
+   ═══════════════════════════════════════════════════════════ */
+
+const STAMP_PALETTE = {
+  ink:        '#b21e22',   // classic Korean dojang red (Inchu)
+  inkDeep:    '#7d0e12',   // shadowed parts
+  borderInk:  '#a01a1d',
+  paper:      '#f3e9d2',   // ivory / aged paper backdrop
+  paperEdge:  '#dccaa2'
+};
+
+/* Seeded RNG for reproducible noise patterns across frames. */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function() {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* Procedural noise mask that simulates the irregular ink coverage of
+   a hand-pressed stamp. Returns a canvas the same size as ink, with
+   transparent "missing ink" patches eaten out. */
+let _stampNoiseCache = null;
+function getStampNoiseMask(W, H) {
+  if (_stampNoiseCache && _stampNoiseCache.width === W && _stampNoiseCache.height === H) {
+    return _stampNoiseCache;
+  }
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+
+  // Eat-out random transparent patches (varying sizes for natural look)
+  const rng = mulberry32(91173);
+  const erase = ctx;
+  erase.globalCompositeOperation = 'destination-out';
+
+  // 1) Many small specks (fine grain)
+  for (let i = 0; i < Math.floor(W * H / 60); i++) {
+    const x = rng() * W, y = rng() * H;
+    const r = 0.5 + rng() * 2.0;
+    erase.beginPath();
+    erase.arc(x, y, r, 0, Math.PI * 2);
+    erase.fillStyle = `rgba(0,0,0,${0.3 + rng() * 0.7})`;
+    erase.fill();
+  }
+  // 2) A few medium "skipped" patches
+  for (let i = 0; i < 14; i++) {
+    const x = rng() * W, y = rng() * H;
+    const r = 4 + rng() * 10;
+    erase.beginPath();
+    erase.arc(x, y, r, 0, Math.PI * 2);
+    erase.fillStyle = `rgba(0,0,0,${0.15 + rng() * 0.3})`;
+    erase.fill();
+  }
+  // 3) A long curved scratch or two
+  for (let i = 0; i < 3; i++) {
+    erase.beginPath();
+    erase.lineCap = 'round';
+    erase.lineWidth = 1.4;
+    erase.strokeStyle = 'rgba(0,0,0,0.4)';
+    const x0 = rng() * W, y0 = rng() * H;
+    const x1 = x0 + (rng() - 0.5) * W * 0.3;
+    const y1 = y0 + (rng() - 0.5) * H * 0.3;
+    erase.moveTo(x0, y0); erase.lineTo(x1, y1); erase.stroke();
+  }
+
+  erase.globalCompositeOperation = 'source-over';
+  _stampNoiseCache = c;
+  return c;
+}
+
+/* Convert the input transparent signature canvas into a red stamp:
+   red ink fill + noise mask eaten out + slight darker edges + rect border. */
+function renderStampInk(srcCanvas, W, H) {
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // ── Ink layer: red fill + noise eat-out ──
+  const inkLayer = document.createElement('canvas');
+  inkLayer.width = W; inkLayer.height = H;
+  const ictx = inkLayer.getContext('2d');
+  ictx.drawImage(srcCanvas, 0, 0);
+  ictx.globalCompositeOperation = 'source-in';
+  ictx.fillStyle = STAMP_PALETTE.ink;
+  ictx.fillRect(0, 0, W, H);
+  ictx.globalCompositeOperation = 'destination-in';
+  ictx.drawImage(getStampNoiseMask(W, H), 0, 0);
+
+  // ── Border layer: noisy rounded rect around bbox of ink ──
+  const bbox = computeInkBBox(srcCanvas);
+  if (bbox) {
+    drawStampBorder(ctx, bbox, W, H, 1);
+  }
+  ctx.drawImage(inkLayer, 0, 0);
+
+  // Slight overall multiply for the deep-pressed look
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
+  return c;
+}
+
+/* Compute the tight bounding box of the inked pixels on srcCanvas.
+   Used so the stamp border wraps the signature, not the whole canvas. */
+function computeInkBBox(srcCanvas, threshold = 16) {
+  const W = srcCanvas.width, H = srcCanvas.height;
+  const ctx = srcCanvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, W, H).data;
+  let minX = W, minY = H, maxX = -1, maxY = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (data[(y * W + x) * 4 + 3] > threshold) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return null;
+  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+}
+
+/* Draw the rectangular stamp border with the same noise treatment.
+   The border surrounds the ink bbox with some padding. */
+function drawStampBorder(ctx, bbox, W, H, alpha = 1) {
+  if (!bbox) return;
+  const padX = Math.max(14, bbox.w * 0.07);
+  const padY = Math.max(14, bbox.h * 0.15);
+  const x = Math.max(4, bbox.x - padX);
+  const y = Math.max(4, bbox.y - padY);
+  const w = Math.min(W - x - 4, bbox.w + padX * 2);
+  const h = Math.min(H - y - 4, bbox.h + padY * 2);
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Build a border-only mask: draw rect twice, eraser pattern between
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = H;
+  const tctx = tmp.getContext('2d');
+  tctx.strokeStyle = STAMP_PALETTE.borderInk;
+  tctx.lineWidth = Math.max(3, Math.min(w, h) * 0.025);
+  // Outer rounded rect
+  const r = 4;
+  tctx.beginPath();
+  tctx.moveTo(x + r, y);
+  tctx.lineTo(x + w - r, y);
+  tctx.arcTo(x + w, y, x + w, y + r, r);
+  tctx.lineTo(x + w, y + h - r);
+  tctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  tctx.lineTo(x + r, y + h);
+  tctx.arcTo(x, y + h, x, y + h - r, r);
+  tctx.lineTo(x, y + r);
+  tctx.arcTo(x, y, x + r, y, r);
+  tctx.closePath();
+  tctx.stroke();
+
+  // Apply noise mask so the border looks hand-pressed
+  tctx.globalCompositeOperation = 'destination-in';
+  tctx.drawImage(getStampNoiseMask(W, H), 0, 0);
+
+  ctx.drawImage(tmp, 0, 0);
+  ctx.restore();
+}
+
+/* Make a system of small debris particles that fly outward from the
+   impact point. Used at the moment the stamp hits. */
+function makeStampDebris(W, H, bbox, seed = 31337) {
+  const rng = mulberry32(seed);
+  const debris = [];
+  if (!bbox) return debris;
+  const cx = bbox.x + bbox.w / 2;
+  const cy = bbox.y + bbox.h * 0.92;     // born along bottom edge
+  const count = 26;
+  for (let i = 0; i < count; i++) {
+    const angle = -Math.PI + rng() * Math.PI;   // upper hemisphere bias
+    const speed = 60 + rng() * 180;
+    debris.push({
+      x: cx + (rng() - 0.5) * bbox.w * 0.5,
+      y: cy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed * 0.6,         // less vertical so dust spreads out
+      r: 1.2 + rng() * 2.6,
+      life: 0.6 + rng() * 0.4,
+      color: rng() < 0.55 ? STAMP_PALETTE.ink : '#5a3920'
+    });
+  }
+  return debris;
+}
+
+/* Draw debris at impact progress u in [0,1]. */
+function drawStampDebris(ctx, debris, u, W, H) {
+  if (!debris || debris.length === 0) return;
+  ctx.save();
+  for (const d of debris) {
+    const lt = Math.min(1, u / d.life);
+    const ease = 1 - Math.pow(1 - lt, 2);
+    const x = d.x + d.vx * ease * 0.35;
+    const y = d.y + d.vy * ease * 0.35 + ease * ease * 60; // gravity pulls back down
+    const alpha = Math.max(0, 1 - lt);
+    ctx.fillStyle = d.color;
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.arc(x, y, d.r * (1 - lt * 0.5), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Shockwave ring at impact. Used briefly around t ≈ 0.30-0.45 */
+function drawStampShockwave(ctx, bbox, t, W, H) {
+  if (!bbox) return;
+  const cx = bbox.x + bbox.w / 2;
+  const cy = bbox.y + bbox.h / 2;
+  const maxR = Math.max(bbox.w, bbox.h) * 1.4;
+  const r = maxR * t;
+  const alpha = (1 - t) * 0.55;
+  ctx.save();
+  ctx.strokeStyle = `rgba(178, 30, 34, ${alpha})`;
+  ctx.lineWidth = 2 + (1 - t) * 4;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EPIC FIRE EFFECT · 불꽃 시네마틱
+   ─────────────────────────────────────────────────────────────
+   Dark backdrop + chrome ink + raging fire from the bottom up,
+   floating embers, central back-glow. Modeled after movie title
+   "epic trailer" style with flames eating the lower half.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Build a large set of fire "blobs" arranged along the bottom that
+   each oscillate, rise, and fade. Each blob is a radial gradient
+   in lighter blend mode — when stacked they integrate into a body
+   of moving flame. */
+function makeFireBlobs(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const blobs = [];
+  for (let i = 0; i < count; i++) {
+    blobs.push({
+      // born along the bottom 60% of canvas width
+      baseX: 0.05 * W + rng() * 0.9 * W,
+      // born just below visible area so they rise into view
+      baseY: H * (0.85 + rng() * 0.20),
+      // rise speed differs per blob
+      vy: 30 + rng() * 90,
+      // horizontal sway
+      swayMag: 8 + rng() * 18,
+      swayFreq: 0.6 + rng() * 1.6,
+      phase: rng() * Math.PI * 2,
+      // radius
+      r: 26 + rng() * 60,
+      // life cycle (each blob has its own time offset)
+      lifeOffset: rng(),
+      // hue: 0 = yellow core, 1 = red tip
+      hueShift: rng()
+    });
+  }
+  return blobs;
+}
+
+function drawFireBlobs(ctx, blobs, t, W, H, intensity = 1.0) {
+  if (!blobs) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const b of blobs) {
+    // Each blob's local life cycle (0..1), wraps around
+    const localT = ((t * 0.8 + b.lifeOffset) % 1);
+    // Rises from baseY upward, only goes up by ~55% of canvas height
+    const rise = localT * H * 0.55;
+    const sway = Math.sin(t * b.swayFreq * 6 + b.phase) * b.swayMag;
+    const x = b.baseX + sway;
+    const y = b.baseY - rise;
+    // Radius shrinks slightly as the blob rises and dies
+    const r = b.r * (1.0 - localT * 0.45) * intensity;
+    // Fade out by the end of the local cycle
+    const alpha = (1 - localT) * 0.75 * intensity;
+
+    // Yellow core / orange mid / red tip / transparent edge
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    if (b.hueShift < 0.5) {
+      g.addColorStop(0,    `rgba(255, 235, 130, ${0.95 * alpha})`);
+      g.addColorStop(0.25, `rgba(255, 170, 60,  ${0.80 * alpha})`);
+      g.addColorStop(0.55, `rgba(230, 80, 30,   ${0.55 * alpha})`);
+    } else {
+      g.addColorStop(0,    `rgba(255, 200, 90,  ${0.85 * alpha})`);
+      g.addColorStop(0.35, `rgba(240, 110, 40,  ${0.70 * alpha})`);
+      g.addColorStop(0.65, `rgba(190, 40, 20,   ${0.45 * alpha})`);
+    }
+    g.addColorStop(1, 'rgba(80, 5, 0, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Floating embers: small bright orange dots that rise upward with
+   gentle drift, used in front of and around the text. */
+function makeEmbers(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const embers = [];
+  for (let i = 0; i < count; i++) {
+    embers.push({
+      x: rng() * W,
+      y: H * (0.5 + rng() * 0.5),       // born in lower half
+      vy: 20 + rng() * 80,
+      vx: (rng() - 0.5) * 30,
+      r: 0.6 + rng() * 1.6,
+      lifeOffset: rng(),
+      blinkPhase: rng() * Math.PI * 2,
+      blinkFreq: 2 + rng() * 6
+    });
+  }
+  return embers;
+}
+
+function drawEmbers(ctx, embers, t, W, H, intensity = 1.0) {
+  if (!embers) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const e of embers) {
+    const localT = ((t * 0.6 + e.lifeOffset) % 1);
+    const rise = localT * H * 0.75;
+    const drift = Math.sin(t * 4 + e.blinkPhase) * 8;
+    const x = e.x + drift + e.vx * localT * 0.3;
+    const y = e.y - rise;
+    // Twinkle
+    const twinkle = 0.6 + 0.4 * Math.sin(t * e.blinkFreq * 6 + e.blinkPhase);
+    const alpha = (1 - localT) * twinkle * intensity;
+    // Bright glow center
+    const gr = e.r * 4;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, gr);
+    g.addColorStop(0, `rgba(255, 240, 180, ${0.95 * alpha})`);
+    g.addColorStop(0.3, `rgba(255, 170, 60, ${0.6 * alpha})`);
+    g.addColorStop(1, 'rgba(255, 100, 30, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, gr, 0, Math.PI * 2);
+    ctx.fill();
+    // Hot core dot
+    ctx.fillStyle = `rgba(255, 250, 220, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, e.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Cool back-glow behind the text — soft blue/cyan light spilling
+   from the upper center. Adds the cinematic separation between
+   warm fire and cool key-light. */
+function drawBackGlow(ctx, W, H, t, intensity = 1.0) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  // Subtle breathing animation
+  const breath = 0.85 + 0.15 * Math.sin(t * Math.PI * 2);
+  const cx = W * 0.5;
+  const cy = H * 0.35;
+  const r = Math.max(W, H) * 0.6;
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  g.addColorStop(0, `rgba(180, 220, 255, ${0.30 * breath * intensity})`);
+  g.addColorStop(0.4, `rgba(110, 160, 230, ${0.14 * breath * intensity})`);
+  g.addColorStop(1, 'rgba(20, 30, 60, 0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+/* Vignette: darken the edges of the canvas slightly to focus the
+   eye on the center. Static — applied as the final layer. */
+function drawVignette(ctx, W, H, strength = 0.55) {
+  ctx.save();
+  const g = ctx.createRadialGradient(
+    W / 2, H / 2, Math.min(W, H) * 0.3,
+    W / 2, H / 2, Math.max(W, H) * 0.75
+  );
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(1, `rgba(0,0,0,${strength})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+/* Heat haze: subtle warm orange wash overlay on the bottom 60%
+   to color-grade the lower flames area. */
+function drawHeatWash(ctx, W, H, intensity = 1.0) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  const g = ctx.createLinearGradient(0, H * 0.4, 0, H);
+  g.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  g.addColorStop(0.5, `rgba(255, 180, 130, ${0.55 * intensity})`);
+  g.addColorStop(1, `rgba(220, 90, 40, ${0.65 * intensity})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MATRIX EFFECT · 디지털 레인
+   ─────────────────────────────────────────────────────────────
+   Classic "Matrix" green digital rain: vertical columns of
+   characters drop from top to bottom. Each column has a bright
+   "leader" glyph at the bottom and a fading trail above.
+   ═══════════════════════════════════════════════════════════ */
+
+const MATRIX_GLYPHS = [
+  '○','△','□','×','◇','◯','◎','⬡',
+  '0','1','7','9','3','5',
+  'A','E','F','I','K','M','S','T','X','Z',
+  '+','-','*','/','=','<','>','{','}','[',']',
+  'ｱ','ｲ','ｳ','ｴ','ｶ','ｸ','ｺ','ﾅ','ﾆ','ﾑ','ﾐ','ﾒ','ﾗ','ﾘ','ﾙ','ﾜ'
+];
+
+const MATRIX_PALETTE = {
+  bg:        '#000d05',
+  bgGrad:    '#001d10',
+  trail:     [0, 230, 80],
+  leader:    [180, 255, 200],
+  glow:      [0, 255, 110]
+};
+
+/* Build matrix columns. */
+function makeMatrixColumns(W, H, seed) {
+  const rng = mulberry32(seed);
+  const targetCols = 26;
+  const cellW = Math.max(14, Math.round(W / targetCols));
+  const cellH = Math.max(16, Math.round(cellW * 1.05));
+  const cols = Math.ceil(W / cellW) + 1;
+  const rows = Math.ceil(H / cellH) + 2;
+
+  const columns = [];
+  for (let c = 0; c < cols; c++) {
+    columns.push({
+      x: c * cellW,
+      cellW,
+      cellH,
+      trailLen: 8 + Math.floor(rng() * 14),
+      speed: 0.5 + rng() * 1.2,
+      offset: rng() * rows * 2,
+      brightness: 0.55 + rng() * 0.45,
+      seed: Math.floor(rng() * 2147483647),
+      flickerPhase: rng() * Math.PI * 2
+    });
+  }
+  return { columns, cellW, cellH, rows, cols };
+}
+
+function matrixGlyphAt(col, cellIdx, tSlice) {
+  const k = (col.seed ^ (cellIdx * 73856093) ^ (tSlice * 19349663)) >>> 0;
+  return MATRIX_GLYPHS[k % MATRIX_GLYPHS.length];
+}
+
+function drawMatrixRain(ctx, columnsData, t, W, H) {
+  if (!columnsData) return;
+  const { columns, cellH, rows } = columnsData;
+  const tSlice = Math.floor(t * 8);
+
+  ctx.save();
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+
+  for (const col of columns) {
+    const headCells = col.offset + t * col.speed * (rows + col.trailLen) * 2;
+    const headCellInt = Math.floor(headCells);
+    const subY = (headCells - headCellInt) * col.cellH;
+    const flicker = 0.88 + 0.12 * Math.sin(t * 16 + col.flickerPhase);
+
+    ctx.font = `bold ${Math.round(col.cellH * 0.78)}px "Consolas", "Menlo", "JetBrains Mono", monospace`;
+
+    for (let i = col.trailLen - 1; i >= 0; i--) {
+      const cellIdx = headCellInt - i;
+      const y = (cellIdx * col.cellH) - subY + col.cellH / 2;
+      if (y < -col.cellH || y > H + col.cellH) continue;
+
+      const x = col.x + col.cellW / 2;
+      const glyph = matrixGlyphAt(col, cellIdx, tSlice);
+      const fade = Math.pow(1 - i / col.trailLen, 1.6);
+      const intensity = fade * flicker * col.brightness;
+
+      if (i === 0) {
+        ctx.shadowColor = `rgba(${MATRIX_PALETTE.glow.join(',')}, ${0.9 * intensity})`;
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = `rgba(${MATRIX_PALETTE.leader.join(',')}, ${Math.min(1, intensity + 0.2)})`;
+      } else if (i < 3) {
+        ctx.shadowColor = `rgba(${MATRIX_PALETTE.glow.join(',')}, ${0.55 * intensity})`;
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = `rgba(${MATRIX_PALETTE.trail.join(',')}, ${intensity})`;
+      } else {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = `rgba(${MATRIX_PALETTE.trail.join(',')}, ${intensity * 0.85})`;
+      }
+      ctx.fillText(glyph, x, y);
+    }
+  }
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+/* Paint the matrix-style dark green vignette background. */
+function paintMatrixBackground(ctx, W, H) {
+  const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+  g.addColorStop(0, MATRIX_PALETTE.bgGrad);
+  g.addColorStop(1, MATRIX_PALETTE.bg);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BLACK HOLE EFFECT · 블랙홀
+   ─────────────────────────────────────────────────────────────
+   Cosmic black hole with a glowing accretion disk and a curved
+   light ring above/below (gravitational lensing). Signature
+   sits in front of (or beside) the event horizon.
+   Inspired by the "Gargantua" visual style.
+   ═══════════════════════════════════════════════════════════ */
+
+const BLACK_HOLE_PALETTE = {
+  bgInner:   '#0a0a14',
+  bgOuter:   '#000000',
+  diskHot:   [255, 250, 235],   // hottest part — white-yellow
+  diskMid:   [255, 195, 110],   // warm orange-yellow
+  diskCool:  [180, 80, 25],     // outer orange
+  starDust:  [220, 220, 240]
+};
+
+/* Paint deep-space background with subtle nebula tint. */
+function paintBlackHoleBackground(ctx, W, H) {
+  const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.8);
+  g.addColorStop(0, BLACK_HOLE_PALETTE.bgInner);
+  g.addColorStop(1, BLACK_HOLE_PALETTE.bgOuter);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+/* Pre-generate static star dots for the deep-space backdrop. */
+function makeStarfield(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: rng() * W,
+      y: rng() * H,
+      r: 0.3 + rng() * 1.2,
+      alpha: 0.3 + rng() * 0.7,
+      twinklePhase: rng() * Math.PI * 2,
+      twinkleSpeed: 1 + rng() * 3
+    });
+  }
+  return stars;
+}
+
+function drawStarfield(ctx, stars, t, W, H) {
+  if (!stars) return;
+  ctx.save();
+  for (const s of stars) {
+    const tw = 0.7 + 0.3 * Math.sin(t * s.twinkleSpeed * 4 + s.twinklePhase);
+    ctx.fillStyle = `rgba(${BLACK_HOLE_PALETTE.starDust.join(',')}, ${s.alpha * tw})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Make particles that orbit along the accretion disk. */
+function makeAccretionParticles(W, H, count, seed, baseRadius) {
+  const rng = mulberry32(seed);
+  const parts = [];
+  for (let i = 0; i < count; i++) {
+    parts.push({
+      angle: rng() * Math.PI * 2,
+      angularVel: 0.4 + rng() * 0.9,      // rotations per cycle
+      // Orbital radius offset: most near base, some farther out
+      rOffset: (rng() - 0.5) * baseRadius * 0.7,
+      // Vertical thickness — disk is flat-ish
+      vScale: 0.06 + rng() * 0.12,
+      size: 0.6 + rng() * 1.8,
+      alpha: 0.4 + rng() * 0.6,
+      // Color along yellow→orange ramp
+      tint: rng()
+    });
+  }
+  return parts;
+}
+
+function drawAccretionParticles(ctx, parts, t, geo) {
+  if (!parts) return;
+  const { cx, cy, disk, hole } = geo;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const p of parts) {
+    const angle = p.angle + p.angularVel * t * Math.PI * 2;
+    const r = disk + p.rOffset;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r * p.vScale;
+    const c = p.tint < 0.5 ? BLACK_HOLE_PALETTE.diskHot : BLACK_HOLE_PALETTE.diskMid;
+    ctx.fillStyle = `rgba(${c.join(',')}, ${p.alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Draw the horizontal accretion disk as a soft glowing band. */
+function drawAccretionDisk(ctx, t, geo) {
+  const { cx, cy, disk, hole } = geo;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  const layers = [
+    { rx: disk * 1.9, ry: disk * 0.30, alpha: 0.10, color: BLACK_HOLE_PALETTE.diskCool },
+    { rx: disk * 1.5, ry: disk * 0.22, alpha: 0.18, color: BLACK_HOLE_PALETTE.diskCool },
+    { rx: disk * 1.25, ry: disk * 0.16, alpha: 0.30, color: BLACK_HOLE_PALETTE.diskMid },
+    { rx: disk * 1.05, ry: disk * 0.10, alpha: 0.50, color: BLACK_HOLE_PALETTE.diskMid },
+    { rx: disk * 0.95, ry: disk * 0.05, alpha: 0.70, color: BLACK_HOLE_PALETTE.diskHot }
+  ];
+  const shimmer = 0.92 + 0.08 * Math.sin(t * Math.PI * 4);
+  for (const L of layers) {
+    const g = ctx.createRadialGradient(cx, cy, hole * 0.6, cx, cy, L.rx);
+    g.addColorStop(0, `rgba(${L.color.join(',')}, 0)`);
+    g.addColorStop(0.30, `rgba(${L.color.join(',')}, ${L.alpha * shimmer})`);
+    g.addColorStop(0.60, `rgba(${L.color.join(',')}, ${L.alpha * 0.6 * shimmer})`);
+    g.addColorStop(1, `rgba(${L.color.join(',')}, 0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, L.rx, L.ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Draw the gravitationally lensed arcs ABOVE and BELOW the hole. */
+function drawLensingArcs(ctx, t, geo) {
+  const { cx, cy, hole } = geo;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  const arcRadius = hole * 1.18;
+  const arcThickness = hole * 0.15;
+  const pulse = 0.9 + 0.1 * Math.sin(t * Math.PI * 3);
+
+  // Top arc
+  ctx.strokeStyle = `rgba(${BLACK_HOLE_PALETTE.diskHot.join(',')}, ${0.85 * pulse})`;
+  ctx.lineWidth = arcThickness;
+  ctx.shadowColor = `rgba(${BLACK_HOLE_PALETTE.diskMid.join(',')}, ${0.7 * pulse})`;
+  ctx.shadowBlur = 20;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, arcRadius, arcRadius * 0.95, 0,
+              Math.PI * 1.10, Math.PI * 1.90);
+  ctx.stroke();
+
+  // Bottom arc — slightly thinner
+  ctx.strokeStyle = `rgba(${BLACK_HOLE_PALETTE.diskHot.join(',')}, ${0.70 * pulse})`;
+  ctx.lineWidth = arcThickness * 0.85;
+  ctx.shadowColor = `rgba(${BLACK_HOLE_PALETTE.diskMid.join(',')}, ${0.6 * pulse})`;
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, arcRadius, arcRadius * 0.95, 0,
+              Math.PI * 0.10, Math.PI * 0.90);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+/* Draw the event horizon — a solid black sphere with a subtle rim glow. */
+function drawEventHorizon(ctx, geo) {
+  const { cx, cy, hole } = geo;
+  ctx.save();
+  // Outer photon ring glow
+  const ringGlow = ctx.createRadialGradient(cx, cy, hole * 0.85,
+                                             cx, cy, hole * 1.15);
+  ringGlow.addColorStop(0, 'rgba(255, 220, 160, 0)');
+  ringGlow.addColorStop(0.5, 'rgba(255, 220, 160, 0.35)');
+  ringGlow.addColorStop(1, 'rgba(255, 180, 100, 0)');
+  ctx.fillStyle = ringGlow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, hole * 1.15, 0, Math.PI * 2);
+  ctx.fill();
+
+  // The black hole itself
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(cx, cy, hole, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* Compute the base radii and center for the current canvas.
+   The hole is positioned slightly below center so the signature
+   (which sits horizontally centered) can be read above it. */
+function blackHoleGeometry(W, H) {
+  const minDim = Math.min(W, H);
+  return {
+    cx: W / 2,
+    cy: H * 0.72,                // pushed below center
+    hole: minDim * 0.16,
+    disk: minDim * 0.38
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FIRE RING EFFECT · 화염 링 인트로
+   ─────────────────────────────────────────────────────────────
+   Cinematic title intro: a ring of fire blossoms in the center,
+   text appears inside, then the fire calms into a glowing
+   orange ring while sparks settle. Models the dramatic "logo
+   reveal" trailer template.
+   ═══════════════════════════════════════════════════════════ */
+
+const FIRE_RING_PALETTE = {
+  bgInner:    '#2a160a',
+  bgOuter:    '#0a0604',
+  ringHot:    [255, 235, 140],
+  ringMid:    [255, 145, 40],
+  ringDeep:   [200, 60, 20]
+};
+
+/* Background paint: dark vignetted warm gradient. */
+function paintFireRingBackground(ctx, W, H, t) {
+  // The background subtly warms during the explosion phase
+  const burn = Math.min(1, t < 0.6 ? t * 1.5 : (1 - t) * 1.2);
+  const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.75);
+  g.addColorStop(0, `rgb(${Math.round(40 + burn * 50)}, ${Math.round(20 + burn * 20)}, ${Math.round(10 + burn * 5)})`);
+  g.addColorStop(1, FIRE_RING_PALETTE.bgOuter);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+/* Generate fire blobs that orbit around the ring center, producing
+   a churning, swirling halo of flame. */
+function makeFireRingBlobs(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const blobs = [];
+  for (let i = 0; i < count; i++) {
+    blobs.push({
+      // Angular position around the ring (0..2π), with some spread
+      angle: rng() * Math.PI * 2,
+      // Angular velocity (rad/cycle) — different per blob so they swirl
+      angularVel: (rng() - 0.5) * 1.4,
+      // Radial offset from the base ring radius (some inside, some outside)
+      radialOffset: (rng() - 0.5) * 30,
+      // Radial pulsing
+      radialPulseMag: 4 + rng() * 10,
+      radialPulseFreq: 0.8 + rng() * 1.6,
+      phase: rng() * Math.PI * 2,
+      // Blob size
+      r: 22 + rng() * 50,
+      // Per-blob life offset for flicker
+      lifeOffset: rng(),
+      // Hue: 0 yellow-core, 1 red-tip
+      hueShift: rng()
+    });
+  }
+  return blobs;
+}
+
+/* Draw the swirling fire ring blobs.
+   intensity 0..1 controls overall brightness/size (used to fade ring). */
+function drawFireRingBlobs(ctx, blobs, t, W, H, baseRadius, intensity) {
+  if (!blobs || intensity <= 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const cx = W / 2;
+  const cy = H / 2;
+  for (const b of blobs) {
+    const angle = b.angle + b.angularVel * t * Math.PI * 2;
+    const radialPulse = Math.sin(t * b.radialPulseFreq * 6 + b.phase) * b.radialPulseMag;
+    const r = baseRadius + b.radialOffset + radialPulse;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    const blobR = b.r * intensity * (0.85 + 0.15 * Math.sin(t * 12 + b.phase));
+    const alpha = intensity * 0.85;
+
+    const g = ctx.createRadialGradient(x, y, 0, x, y, blobR);
+    if (b.hueShift < 0.5) {
+      g.addColorStop(0,    `rgba(255, 235, 130, ${0.95 * alpha})`);
+      g.addColorStop(0.30, `rgba(255, 165, 55,  ${0.80 * alpha})`);
+      g.addColorStop(0.60, `rgba(225, 75, 25,   ${0.50 * alpha})`);
+    } else {
+      g.addColorStop(0,    `rgba(255, 205, 95,  ${0.85 * alpha})`);
+      g.addColorStop(0.40, `rgba(235, 105, 35,  ${0.70 * alpha})`);
+      g.addColorStop(0.70, `rgba(185, 40, 20,   ${0.40 * alpha})`);
+    }
+    g.addColorStop(1, 'rgba(70, 5, 0, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, blobR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Draw the static glowing ring (the calm "halo" remaining after the
+   explosion subsides). alpha controls visibility. */
+function drawGlowRing(ctx, W, H, radius, t, alpha) {
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const cx = W / 2, cy = H / 2;
+  // Thin bright core ring
+  ctx.strokeStyle = `rgba(${FIRE_RING_PALETTE.ringHot.join(',')}, ${0.9 * alpha})`;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = `rgba(${FIRE_RING_PALETTE.ringMid.join(',')}, ${0.8 * alpha})`;
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.stroke();
+  // Outer mid-glow ring
+  ctx.strokeStyle = `rgba(${FIRE_RING_PALETTE.ringMid.join(',')}, ${0.45 * alpha})`;
+  ctx.lineWidth = 5;
+  ctx.shadowBlur = 22;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 4, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+/* Outward burst sparks that fly from the ring at the moment of full
+   ignition (t ≈ 0.35..0.55). */
+function makeFireRingSparks(W, H, count, seed) {
+  const rng = mulberry32(seed);
+  const sparks = [];
+  for (let i = 0; i < count; i++) {
+    const angle = rng() * Math.PI * 2;
+    const speed = 80 + rng() * 240;
+    sparks.push({
+      angle,
+      speed,
+      r: 1.2 + rng() * 2.5,
+      lifeOffset: rng(),
+      hot: rng() < 0.5
+    });
+  }
+  return sparks;
+}
+
+function drawFireRingSparks(ctx, sparks, t, W, H, baseRadius, intensity) {
+  if (!sparks || intensity <= 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const cx = W / 2, cy = H / 2;
+  for (const s of sparks) {
+    const localT = Math.min(1, (t + s.lifeOffset * 0.3));
+    const dist = baseRadius * 0.6 + localT * s.speed * 0.8;
+    const x = cx + Math.cos(s.angle) * dist;
+    const y = cy + Math.sin(s.angle) * dist + localT * localT * 30; // light gravity
+    const alpha = (1 - localT) * intensity;
+    if (alpha <= 0) continue;
+    // Bright core dot
+    ctx.fillStyle = s.hot
+      ? `rgba(255, 240, 180, ${alpha})`
+      : `rgba(255, 170, 70, ${alpha * 0.9})`;
+    ctx.beginPath();
+    ctx.arc(x, y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+    // Soft glow
+    const g = ctx.createRadialGradient(x, y, 0, x, y, s.r * 5);
+    g.addColorStop(0, `rgba(255, 200, 90, ${0.6 * alpha})`);
+    g.addColorStop(1, 'rgba(255, 100, 30, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, s.r * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* Compose one frame of the fire-ring intro.
+   Layers (back to front):
+     1. Background (painted by paintBackground)
+     2. Back half of the swirling fire ring (orbit angle behind center)
+     3. The text/ink (faded in over time)
+     4. Front half of the swirling fire ring (orbit angle in front)
+     5. Outward burst sparks
+     6. Calm glowing ring overlay
+   Timeline by t ∈ [0,1]:
+     0.00 .. 0.20 — Ring radius grows from 0 to full; flames build up.
+     0.20 .. 0.55 — Peak inferno; sparks burst outward. Ink starts to
+                    fade in at t≈0.35.
+     0.55 .. 0.85 — Ink fully visible. Fire calms.
+     0.85 .. 1.00 — Only calm glow ring + ink remain.
+*/
+function drawFireRingFrame(ctx, inkSource, t, W, H, cache) {
+  const blobs = cache.fireRingBlobs;
+  const sparks = cache.fireRingSparks;
+  // Final ring radius scales with canvas — fits ~70% of min dimension
+  const finalRadius = Math.min(W, H) * 0.32;
+
+  // Ring scale: 0→1 by t=0.20 (ease out)
+  const ringGrowU = Math.min(1, t / 0.20);
+  const ringGrowEase = 1 - Math.pow(1 - ringGrowU, 3);
+  const ringRadius = finalRadius * ringGrowEase;
+
+  // Inferno intensity: peaks at t ≈ 0.35, fades to 0 by t ≈ 0.85
+  let infernoIntensity;
+  if (t < 0.20) {
+    infernoIntensity = ringGrowEase;                   // ramp up
+  } else if (t < 0.55) {
+    infernoIntensity = 1.0;                            // full
+  } else if (t < 0.85) {
+    infernoIntensity = 1.0 - (t - 0.55) / 0.30;        // fade out
+  } else {
+    infernoIntensity = 0;
+  }
+
+  // Ink visibility: fade in 0.35 → 0.60, then full
+  let inkAlpha;
+  if (t < 0.35) inkAlpha = 0;
+  else if (t < 0.60) inkAlpha = (t - 0.35) / 0.25;
+  else inkAlpha = 1.0;
+
+  // Calm glow ring: visible from t ≈ 0.55 onward, intensifies as inferno dies
+  const glowAlpha = t < 0.55 ? 0 : Math.min(1, (t - 0.55) / 0.30);
+
+  // ── Back-pass of fire blobs (behind ink) ──
+  // Use half the blobs to fake "behind" — they get drawn first
+  if (blobs && infernoIntensity > 0 && ringRadius > 0) {
+    const half = blobs.slice(0, Math.floor(blobs.length / 2));
+    drawFireRingBlobs(ctx, half, t, W, H, ringRadius, infernoIntensity);
+  }
+
+  // ── Ink with fade ──
+  if (inkAlpha > 0) {
+    ctx.save();
+    ctx.globalAlpha = inkAlpha;
+    ctx.drawImage(inkSource, 0, 0);
+    ctx.restore();
+  }
+
+  // ── Front-pass of fire blobs (in front of ink) ──
+  if (blobs && infernoIntensity > 0 && ringRadius > 0) {
+    const half = blobs.slice(Math.floor(blobs.length / 2));
+    drawFireRingBlobs(ctx, half, t, W, H, ringRadius, infernoIntensity);
+  }
+
+  // ── Sparks ──
+  // Sparks burst from t=0.30 onward; their internal lifeOffset spreads them
+  if (sparks && t > 0.25) {
+    const sparkProgress = (t - 0.25) / 0.55;       // 0..1 across full burst window
+    drawFireRingSparks(ctx, sparks, sparkProgress, W, H, finalRadius,
+      Math.max(0, 1 - sparkProgress));
+  }
+
+  // ── Calm glow ring (after inferno) ──
+  if (glowAlpha > 0) {
+    drawGlowRing(ctx, W, H, finalRadius, t, glowAlpha);
+  }
+}
+
+/* Main stamp composition for one animation frame.
+   Stages by t ∈ [0,1]:
+     0.00 .. 0.10 — Antic: stamp hovers high, slightly settling (a breath).
+     0.10 .. 0.30 — Accelerating fall with vertical motion blur.
+     0.30 .. 0.36 — Impact: white flash, double shockwave, camera shake,
+                    debris burst, slight vertical squash on the stamp.
+     0.36 .. 0.50 — Second small bounce (1.02 → 1.00).
+     0.50 .. 1.00 — Settled: stamp stays static till the end.
+*/
+function drawStampFrame(ctx, inkSource, t, W, H, cache) {
+  const bbox = cache.stampBBox;
+  const cx = (bbox ? bbox.x + bbox.w / 2 : W / 2);
+  const cy = (bbox ? bbox.y + bbox.h / 2 : H / 2);
+
+  // ── Stage 1: antic (0.00 .. 0.10) ──
+  if (t < 0.10) {
+    const u = t / 0.10;
+    const offsetY = -H * 0.55 + u * 8;            // tiny settle (8px)
+    const alpha = 0.55 + u * 0.10;
+    const scale = 1.40;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy + offsetY);
+    ctx.scale(scale, scale);
+    ctx.translate(-cx, -cy);
+    ctx.drawImage(inkSource, 0, 0);
+    ctx.restore();
+    // Faint approaching shadow
+    if (bbox) {
+      ctx.save();
+      ctx.globalAlpha = 0.12 + u * 0.05;
+      const sr = bbox.w * 1.05;
+      const sx = cx, sy = bbox.y + bbox.h * 0.95;
+      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+      g.addColorStop(0, 'rgba(20,10,5,0.5)');
+      g.addColorStop(1, 'rgba(20,10,5,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy, sr, sr * 0.32, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    return;
+  }
+
+  // ── Stage 2: accelerating fall (0.10 .. 0.30) ──
+  if (t < 0.30) {
+    const u = (t - 0.10) / 0.20;                  // 0 → 1
+    const eased = u * u * u * u * u;              // easeInQuint (sharp acceleration)
+    const startScale = 1.40;
+    const endScale = 1.05;                        // overshoots a hair before impact
+    const scale = startScale + (endScale - startScale) * eased;
+    const startOffsetY = -H * 0.55 + 8;
+    const offsetY = startOffsetY * (1 - eased);
+    const alpha = 0.65 + 0.35 * eased;
+    // Tightening shadow under the landing point
+    if (bbox) {
+      ctx.save();
+      ctx.globalAlpha = 0.17 + 0.40 * eased;
+      const sx = cx, sy = bbox.y + bbox.h * 0.95;
+      const sr = bbox.w * (1.10 - 0.45 * eased);
+      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+      g.addColorStop(0, 'rgba(15,8,4,0.65)');
+      g.addColorStop(1, 'rgba(15,8,4,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy, sr, sr * 0.32, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    // Motion blur via stacked semi-transparent copies along the fall axis
+    ctx.save();
+    const blurSteps = 4;
+    for (let i = 0; i < blurSteps; i++) {
+      const k = i / blurSteps;
+      const trailOffset = offsetY - eased * 24 * k;  // copies above the main
+      ctx.globalAlpha = alpha * (0.30 - k * 0.06);
+      ctx.translate(cx, cy + trailOffset);
+      ctx.scale(scale, scale);
+      ctx.translate(-cx, -cy);
+      ctx.drawImage(inkSource, 0, 0);
+      // reset transform between trail layers
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+    ctx.restore();
+    // Main falling stamp
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy + offsetY);
+    ctx.scale(scale, scale);
+    ctx.translate(-cx, -cy);
+    ctx.drawImage(inkSource, 0, 0);
+    ctx.restore();
+    return;
+  }
+
+  // ── Stage 3: impact (0.30 .. 0.36) ──
+  if (t < 0.36) {
+    const u = (t - 0.30) / 0.06;                  // 0 → 1
+    // Vertical squash: scale.y compresses sharply on hit, recovers fast
+    const squashY = 1.0 - (1 - Math.abs(2 * u - 1)) * 0.12;   // dip then return
+    const squashX = 1.0 + (1 - Math.abs(2 * u - 1)) * 0.08;
+    // Camera shake — strongest right at u=0, fades by u=1
+    const shakeMag = (1 - u) * 6;
+    const shakeX = (Math.random() - 0.5) * shakeMag;
+    const shakeY = (Math.random() - 0.5) * shakeMag;
+
+    // The stamp itself
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+    ctx.translate(cx, cy);
+    ctx.scale(squashX, squashY);
+    ctx.translate(-cx, -cy);
+    ctx.drawImage(inkSource, 0, 0);
+    ctx.restore();
+
+    // Two shockwave rings: a fast small one and a slower bigger one
+    drawStampShockwave(ctx, bbox, Math.min(1, u * 1.6), W, H);
+    drawStampShockwave(ctx, bbox, Math.min(1, u * 0.9), W, H);
+
+    // Debris burst (lazy init)
+    if (!cache.stampDebris && bbox) {
+      cache.stampDebris = makeStampDebris(W, H, bbox, cache.stampSeed || 31337);
+    }
+    drawStampDebris(ctx, cache.stampDebris, u, W, H);
+
+    // White flash — strongest at impact start, decays quickly
+    const flashAlpha = Math.pow(1 - u, 2) * 0.7;
+    if (flashAlpha > 0.01) {
+      ctx.save();
+      ctx.fillStyle = `rgba(255,255,255,${flashAlpha})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+    return;
+  }
+
+  // ── Stage 4: second small bounce (0.36 .. 0.50) ──
+  if (t < 0.50) {
+    const u = (t - 0.36) / 0.14;                  // 0 → 1
+    // Soft sinusoidal bounce that decays to 1.0
+    const bounce = Math.sin(u * Math.PI) * 0.025 * (1 - u);
+    const scale = 1.0 + bounce;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    ctx.translate(-cx, -cy);
+    ctx.drawImage(inkSource, 0, 0);
+    ctx.restore();
+
+    // Lingering debris (tail end)
+    if (cache.stampDebris) {
+      drawStampDebris(ctx, cache.stampDebris, 1 + u * 0.5, W, H);
+    }
+    return;
+  }
+
+  // ── Stage 5: settled (0.50 .. 1.00) — static ──
+  ctx.drawImage(inkSource, 0, 0);
+}
+
 
 // Cement / dark texture procedural background
 let cachedTexture = null;
@@ -3690,7 +5922,7 @@ function renderStaticWithEffects(srcCanvas) {
     const ctx = out.getContext('2d');
 
     const cache = buildParticleCache(W, H, fx, 12345);
-    const t = 0.7; // pleasant mid-animation snapshot
+    const t = 0.7;
 
     paintBackground(ctx, W, H, fx);
     applyBackEffects(ctx, W, H, t, fx, cache);
@@ -3841,12 +6073,38 @@ function paintBackground(ctx, W, H, opts) {
     drawColoredBackground(ctx, W, H, FX_PRESETS[opts.effect].bg);
     return;
   }
-  if (opts.background === 'texture' || opts.effect === 'cinematic') {
+  if (opts.effect === 'matrix') {
+    paintMatrixBackground(ctx, W, H);
+    return;
+  }
+  if (opts.effect === 'stamp') {
+    // Aged paper backdrop — radial vignette from ivory to soft tan
+    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
+    g.addColorStop(0, STAMP_PALETTE.paper);
+    g.addColorStop(1, STAMP_PALETTE.paperEdge);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    // Subtle paper grain
+    const rng = mulberry32(7777);
+    ctx.save();
+    ctx.globalAlpha = 0.06;
+    for (let i = 0; i < 800; i++) {
+      ctx.fillStyle = rng() < 0.5 ? '#000' : '#fff';
+      ctx.fillRect(rng() * W, rng() * H, 1, 1);
+    }
+    ctx.restore();
+    return;
+  }
+  if (opts.background === 'texture' || opts.effect === 'cinematic' || opts.effect === 'epic-fire') {
     ctx.drawImage(getDarkTexture(W, H), 0, 0);
     return;
   }
-  // Transparent → fill with green key
-  ctx.fillStyle = '#00ff00';
+  // Transparent → fill with green key (GIF) or black (MP4)
+  if (opts._outputFormat === 'mp4') {
+    ctx.fillStyle = '#000000';
+  } else {
+    ctx.fillStyle = '#00ff00';
+  }
   ctx.fillRect(0, 0, W, H);
 }
 
@@ -3898,6 +6156,18 @@ function applyBackEffects(ctx, W, H, t, fx, particleCache) {
     grad.addColorStop(1, 'rgba(100, 230, 255, 0)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
+  } else if (fx.effect === 'epic-fire') {
+    // Cool blue back-glow behind the text (cinematic separation)
+    drawBackGlow(ctx, W, H, t, 1.0);
+    // First (background) pass of fire blobs — lower intensity to layer
+    // behind the ink. Uses ~half the blobs so we don't over-paint.
+    if (particleCache.fireBlobs) {
+      const half = particleCache.fireBlobs.slice(0, Math.floor(particleCache.fireBlobs.length / 2));
+      drawFireBlobs(ctx, half, t, W, H, 0.85);
+    }
+  } else if (fx.effect === 'matrix') {
+    // Full matrix rain behind the ink so the signature reads on top.
+    if (particleCache.matrix) drawMatrixRain(ctx, particleCache.matrix, t, W, H);
   }
 }
 
@@ -3918,6 +6188,19 @@ function applyFrontEffects(ctx, W, H, t, fx, particleCache) {
     // Rotating ring centered on the canvas
     const radius = Math.min(W, H) * 0.36;
     drawRotatingRing(ctx, W/2, H/2, radius, t, FX_PRESETS['vip-aqua'].ray);
+  } else if (fx.effect === 'epic-fire') {
+    // Second (foreground) pass of fire blobs — covers the lower portion
+    // of the ink and creates the "flames eating the text" look.
+    if (particleCache.fireBlobs) {
+      const half = particleCache.fireBlobs.slice(Math.floor(particleCache.fireBlobs.length / 2));
+      drawFireBlobs(ctx, half, t, W, H, 1.0);
+    }
+    // Floating embers in front of everything
+    if (particleCache.embers) {
+      drawEmbers(ctx, particleCache.embers, t, W, H, 1.0);
+    }
+    // Soft vignette to focus center
+    drawVignette(ctx, W, H, 0.5);
   }
 }
 
@@ -3940,15 +6223,29 @@ function buildParticleCache(W, H, fx, seed) {
     cache.streaks = makeVerticalStreaks(W, H, 30, seed + 3);
     cache.pixels = makePixelRain(W, H, 50, seed + 5);
   }
+  if (fx.effect === 'stamp') {
+    // bbox computed lazily inside applyBack/Front because it depends on srcCanvas
+    cache.stampSeed = seed + 6;
+  }
+  if (fx.effect === 'epic-fire') {
+    cache.fireBlobs = makeFireBlobs(W, H, 60, seed + 7);
+    cache.embers = makeEmbers(W, H, 50, seed + 8);
+  }
+  if (fx.effect === 'matrix') {
+    cache.matrix = makeMatrixColumns(W, H, seed + 9);
+  }
   return cache;
 }
 
 /* Determine ink style for an effect (chrome, gold, etc). */
 function inkStyleFor(fx) {
   if (fx.effect === 'cinematic') return 'chrome';
+  if (fx.effect === 'epic-fire') return 'chrome';
   if (fx.effect === 'svip-gold') return 'gold';
   if (fx.effect === 'svip-purple') return 'purple-chrome';
   if (fx.effect === 'vip-aqua') return 'aqua-chrome';
+  if (fx.effect === 'stamp') return 'stamp';
+  if (fx.effect === 'matrix') return 'matrix-green';
   return 'plain';
 }
 
@@ -3956,13 +6253,15 @@ function inkStyleFor(fx) {
 function renderStyledInk(srcCanvas, W, H, style) {
   if (style === 'plain') return srcCanvas;
   if (style === 'chrome') return renderChromeInk(srcCanvas, W, H);
+  if (style === 'stamp') return renderStampInk(srcCanvas, W, H);
 
   // Themed metallic — kept BRIGHT throughout so the ink stays legible
   // against its themed (dark, same-hue) background. No dark gradient stops.
   const stops = {
     'gold':          [['#ffffff',0],['#fff7c0',0.3],['#ffe066',0.55],['#fffce8',0.75],['#ffd24a',1]],
     'purple-chrome': [['#ffffff',0],['#f0e6ff',0.3],['#c8b0ff',0.55],['#ffffff',0.75],['#e8d8ff',1]],
-    'aqua-chrome':   [['#ffffff',0],['#e0fbff',0.3],['#7ee8ff',0.55],['#ffffff',0.75],['#aef0ff',1]]
+    'aqua-chrome':   [['#ffffff',0],['#e0fbff',0.3],['#7ee8ff',0.55],['#ffffff',0.75],['#aef0ff',1]],
+    'matrix-green':  [['#eaffea',0],['#bdf5bd',0.3],['#5cee7a',0.55],['#dafadc',0.75],['#46d966',1]]
   };
 
   // 1. Build the themed gradient fill on the ink shape
@@ -4001,6 +6300,7 @@ function renderStyledInk(srcCanvas, W, H, style) {
   gctx.globalCompositeOperation = 'source-in';
   const glowColor = style === 'gold' ? 'rgba(255, 230, 140, 0.85)'
                   : style === 'purple-chrome' ? 'rgba(200, 170, 255, 0.85)'
+                  : style === 'matrix-green' ? 'rgba(120, 255, 150, 0.85)'
                   : 'rgba(150, 240, 255, 0.85)';
   gctx.fillStyle = glowColor;
   gctx.fillRect(0, 0, W, H);
@@ -4178,6 +6478,12 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
     // Build particle cache once for the full animation
     const cache = buildParticleCache(W, H, fx, 12345);
 
+    // Stamp-specific cache: bbox sized to the actual ink
+    if (fx.effect === 'stamp') {
+      const bbox = computeInkBBox(srcCanvas) || { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+      cache.stampBBox = bbox;
+    }
+
     const totalFrames = frames;
 
     for (let f = 0; f < totalFrames; f++) {
@@ -4189,12 +6495,18 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
       // 2. Behind-ink effects
       applyBackEffects(tctx, W, H, t, fx, cache);
 
-      // 3. Reveal ink up to writeProgress
-      const writeProgress = t;
-      const revealX = minX + (maxX - minX + 1) * writeProgress;
-      const revealRight = Math.min(W, Math.max(0, Math.ceil(revealX) + 1));
-      if (revealRight > 0) {
-        tctx.drawImage(inkSource, 0, 0, revealRight, H, 0, 0, revealRight, H);
+      // 3. Reveal ink
+      if (fx.effect === 'stamp') {
+        // Stamp owns the entire ink-compositing stage so it can animate
+        // the falling/impact/bounce stages.
+        drawStampFrame(tctx, inkSource, t, W, H, cache);
+      } else {
+        const writeProgress = t;
+        const revealX = minX + (maxX - minX + 1) * writeProgress;
+        const revealRight = Math.min(W, Math.max(0, Math.ceil(revealX) + 1));
+        if (revealRight > 0) {
+          tctx.drawImage(inkSource, 0, 0, revealRight, H, 0, 0, revealRight, H);
+        }
       }
 
       // 4. In-front effects
@@ -4270,6 +6582,34 @@ function generateGifFromStrokes(strokes, W, H, options = {}) {
     // Build particle cache once
     const cache = buildParticleCache(W, H, fx, 54321);
 
+    // For stamp: pre-render the entire signature ink and prepare bbox
+    let stampInkSource = null;
+    if (fx.effect === 'stamp') {
+      const fullInk = document.createElement('canvas');
+      fullInk.width = W; fullInk.height = H;
+      const fctx = fullInk.getContext('2d');
+      for (const stroke of strokes) {
+        if (stroke.points.length < 2) continue;
+        fctx.strokeStyle = stroke.color;
+        fctx.lineWidth = stroke.width;
+        fctx.lineCap = 'round';
+        fctx.lineJoin = 'round';
+        fctx.beginPath();
+        fctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length - 1; i++) {
+          const xc = (stroke.points[i].x + stroke.points[i + 1].x) / 2;
+          const yc = (stroke.points[i].y + stroke.points[i + 1].y) / 2;
+          fctx.quadraticCurveTo(stroke.points[i].x, stroke.points[i].y, xc, yc);
+        }
+        const last = stroke.points[stroke.points.length - 1];
+        fctx.lineTo(last.x, last.y);
+        fctx.stroke();
+      }
+      stampInkSource = renderStyledInk(fullInk, W, H, 'stamp');
+      const bbox = computeInkBBox(fullInk);
+      cache.stampBBox = bbox || { x: W * 0.2, y: H * 0.3, w: W * 0.6, h: H * 0.4 };
+    }
+
     const totalFrames = frames;
 
     for (let f = 0; f < totalFrames; f++) {
@@ -4281,41 +6621,47 @@ function generateGifFromStrokes(strokes, W, H, options = {}) {
       // 2. Behind-ink effects
       applyBackEffects(tctx, W, H, t, fx, cache);
 
-      // 3. Render ink up to current point count
-      const targetPts = Math.round(totalPts * t);
-      const inkCanvas = document.createElement('canvas');
-      inkCanvas.width = W; inkCanvas.height = H;
-      const ictx = inkCanvas.getContext('2d');
+      // 3. Render ink
+      if (fx.effect === 'stamp') {
+        // Stamp branch: animate the complete pre-rendered stamp.
+        drawStampFrame(tctx, stampInkSource, t, W, H, cache);
+      } else {
+        // Default: progressively reveal up to point count
+        const targetPts = Math.round(totalPts * t);
+        const inkCanvas = document.createElement('canvas');
+        inkCanvas.width = W; inkCanvas.height = H;
+        const ictx = inkCanvas.getContext('2d');
 
-      let drawnPts = 0;
-      for (const stroke of strokes) {
-        const remaining = targetPts - drawnPts;
-        if (remaining <= 0) break;
-        const pointsToDraw = Math.min(stroke.points.length, remaining);
-        if (pointsToDraw < 2) { drawnPts += pointsToDraw; continue; }
+        let drawnPts = 0;
+        for (const stroke of strokes) {
+          const remaining = targetPts - drawnPts;
+          if (remaining <= 0) break;
+          const pointsToDraw = Math.min(stroke.points.length, remaining);
+          if (pointsToDraw < 2) { drawnPts += pointsToDraw; continue; }
 
-        ictx.strokeStyle = stroke.color;
-        ictx.lineWidth = stroke.width;
-        ictx.lineCap = 'round';
-        ictx.lineJoin = 'round';
-        ictx.beginPath();
-        ictx.moveTo(stroke.points[0].x, stroke.points[0].y);
-        for (let i = 1; i < pointsToDraw - 1; i++) {
-          const xc = (stroke.points[i].x + stroke.points[i + 1].x) / 2;
-          const yc = (stroke.points[i].y + stroke.points[i + 1].y) / 2;
-          ictx.quadraticCurveTo(stroke.points[i].x, stroke.points[i].y, xc, yc);
+          ictx.strokeStyle = stroke.color;
+          ictx.lineWidth = stroke.width;
+          ictx.lineCap = 'round';
+          ictx.lineJoin = 'round';
+          ictx.beginPath();
+          ictx.moveTo(stroke.points[0].x, stroke.points[0].y);
+          for (let i = 1; i < pointsToDraw - 1; i++) {
+            const xc = (stroke.points[i].x + stroke.points[i + 1].x) / 2;
+            const yc = (stroke.points[i].y + stroke.points[i + 1].y) / 2;
+            ictx.quadraticCurveTo(stroke.points[i].x, stroke.points[i].y, xc, yc);
+          }
+          if (pointsToDraw > 1) {
+            const last = stroke.points[pointsToDraw - 1];
+            ictx.lineTo(last.x, last.y);
+          }
+          ictx.stroke();
+          drawnPts += stroke.points.length;
         }
-        if (pointsToDraw > 1) {
-          const last = stroke.points[pointsToDraw - 1];
-          ictx.lineTo(last.x, last.y);
-        }
-        ictx.stroke();
-        drawnPts += stroke.points.length;
+
+        // Apply themed ink style
+        const inkToUse = renderStyledInk(inkCanvas, W, H, fx.inkStyle);
+        tctx.drawImage(inkToUse, 0, 0);
       }
-
-      // Apply themed ink style
-      const inkToUse = renderStyledInk(inkCanvas, W, H, fx.inkStyle);
-      tctx.drawImage(inkToUse, 0, 0);
 
       // 4. In-front effects
       applyFrontEffects(tctx, W, H, t, fx, cache);
@@ -4359,49 +6705,151 @@ function hideLoading(btn) {
   btn.disabled = false;
 }
 
-$('#exportTypeGIF').addEventListener('click', async (e) => {
-  const btn = e.currentTarget;
-  showLoading(btn, 'GIF...');
+/* ═══════════════════════════════════════════════════════════
+   ANIMATION DOWNLOAD · Format picker modal + dispatch
+   ═══════════════════════════════════════════════════════════ */
+
+// Pending download context (set when user clicks an animation button)
+let _pendingDownload = null;
+
+function openFormatPicker(planFactory, baseName) {
+  _pendingDownload = { planFactory, baseName };
+  const bd = document.getElementById('fmtPickerBackdrop');
+  const prog = document.getElementById('fmtProgress');
+  prog.style.display = 'none';
+  document.querySelectorAll('.fmt-option').forEach(o => { o.disabled = false; });
+  bd.classList.add('show');
+}
+
+function closeFormatPicker() {
+  document.getElementById('fmtPickerBackdrop').classList.remove('show');
+  _pendingDownload = null;
+}
+
+function setFmtProgress(text, ratio) {
+  const prog = document.getElementById('fmtProgress');
+  const txt = document.getElementById('fmtProgressText');
+  const fill = document.getElementById('fmtProgressFill');
+  prog.style.display = 'block';
+  txt.textContent = text;
+  fill.style.width = `${Math.round(ratio * 100)}%`;
+}
+
+async function runFormatExport(fmt) {
+  if (!_pendingDownload) return;
+  const { planFactory, baseName } = _pendingDownload;
+
+  // Disable options during work
+  document.querySelectorAll('.fmt-option').forEach(o => { o.disabled = true; });
+  setFmtProgress('준비 중...', 0.02);
+
   try {
-    const c = renderTypeToTransparentCanvas();
-    const url = await generateGifFromCanvas(c, { frames: 28, fx: getEffectsState() });
-    downloadURL(url, `signature_${Date.now()}.gif`);
-    toast('GIF 저장 완료');
+    if (fmt === 'gif') {
+      // Use legacy GIF code path (already optimized for transparency)
+      const plan = planFactory({ transparentMode: false, outputFormat: 'gif' });
+      setFmtProgress('GIF 프레임 생성 중...', 0.10);
+      const url = await renderGifFromPlan(plan, {
+        onProgress: (label, r) => setFmtProgress(label, r)
+      });
+      setFmtProgress('완료', 1.0);
+      downloadURL(url, `${baseName}_${Date.now()}.gif`);
+      toast('GIF 저장 완료');
+    } else if (fmt === 'mp4') {
+      const plan = planFactory({ transparentMode: false, frames: 48, outputFormat: 'mp4' });
+      const out = await encodeMp4FromFramePlan(plan, {
+        fps: 24,
+        onProgress: (label, r) => setFmtProgress(label, r)
+      });
+      downloadURL(out.url, `${baseName}_${Date.now()}.${out.ext}`);
+      toast('MP4 저장 완료');
+    } else if (fmt === 'webm') {
+      const plan = planFactory({ transparentMode: true, frames: 48, outputFormat: 'webm' });
+      const out = await encodeWebmFromFramePlan(plan, {
+        fps: 24,
+        onProgress: (label, r) => setFmtProgress(label, r)
+      });
+      downloadURL(out.url, `${baseName}_${Date.now()}.${out.ext}`);
+      toast('WebM 저장 완료');
+    }
+    closeFormatPicker();
   } catch (err) {
-    console.error('Type GIF 실패:', err);
-    toast('GIF 실패: ' + (err.message || err));
+    console.error('Export failed:', err);
+    toast(`${fmt.toUpperCase()} 실패: ` + (err.message || err));
+    // Re-enable options on failure
+    document.querySelectorAll('.fmt-option').forEach(o => { o.disabled = false; });
+    setFmtProgress('실패 — 다시 시도해 주세요', 0);
   }
-  hideLoading(btn);
+}
+
+/* New GIF encoder using FramePlan (replaces old generateGifFromCanvas).
+   We keep the old functions for the preview modal which still uses them. */
+async function renderGifFromPlan(plan, options = {}) {
+  ensureGifLib();
+  const { onProgress } = options;
+  const { renderFrame, totalFrames, W, outH } = plan;
+  const workerURL = await getWorkerBlobURL();
+  const gif = new GIF({
+    workers: 2, quality: 10, width: W, height: outH,
+    workerScript: workerURL
+  });
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = outH;
+  const tctx = tmp.getContext('2d');
+  const delay = 55;
+  for (let f = 0; f < totalFrames; f++) {
+    const t = (f + 1) / totalFrames;
+    renderFrame(tctx, t);
+    const isLast = (f === totalFrames - 1);
+    gif.addFrame(tctx, { copy: true, delay: isLast ? 1400 : delay });
+    if (onProgress) onProgress('프레임 생성 중...', 0.10 + (f / totalFrames) * 0.40);
+  }
+  return new Promise((resolve, reject) => {
+    gif.on('progress', p => {
+      if (onProgress) onProgress('GIF 인코딩 중...', 0.50 + p * 0.45);
+    });
+    gif.on('finished', blob => {
+      if (!blob || blob.size === 0) { reject(new Error('빈 GIF')); return; }
+      resolve(URL.createObjectURL(blob));
+    });
+    gif.on('abort', () => reject(new Error('GIF 생성 중단')));
+    gif.render();
+  });
+}
+
+// Wire up the three animation-download buttons → format picker
+$('#exportTypeGIF').addEventListener('click', () => {
+  openFormatPicker(
+    (opts) => makeFramePlanFromCanvas(renderTypeToTransparentCanvas(), { frames: 28, fx: getEffectsState(), ...opts }),
+    'signature'
+  );
 });
 
-$('#exportDrawGIF').addEventListener('click', async (e) => {
+$('#exportDrawGIF').addEventListener('click', () => {
   if (strokes.length === 0) { toast('먼저 싸인을 그려주세요'); return; }
-  const btn = e.currentTarget;
-  showLoading(btn, 'GIF...');
-  try {
-    const url = await generateGifFromStrokes(strokes, drawCanvas.width, drawCanvas.height, { fx: getEffectsState() });
-    downloadURL(url, `signature_drawn_${Date.now()}.gif`);
-    toast('GIF 저장 완료');
-  } catch (err) {
-    console.error('Draw GIF 실패:', err);
-    toast('GIF 실패: ' + (err.message || err));
-  }
-  hideLoading(btn);
+  openFormatPicker(
+    (opts) => makeFramePlanFromStrokes(strokes, drawCanvas.width, drawCanvas.height, { fx: getEffectsState(), ...opts }),
+    'signature_drawn'
+  );
 });
 
-$('#exportPhotoGIF').addEventListener('click', async (e) => {
-  if (!photoProcessed) { toast('먼저 변환하세요'); return; }
-  const btn = e.currentTarget;
-  showLoading(btn, 'GIF...');
-  try {
-    const url = await generateGifFromCanvas(photoCanvas, { frames: 30, fx: getEffectsState() });
-    downloadURL(url, `signature_photo_${Date.now()}.gif`);
-    toast('GIF 저장 완료');
-  } catch (err) {
-    console.error('Photo GIF 실패:', err);
-    toast('GIF 실패: ' + (err.message || err));
-  }
-  hideLoading(btn);
+$('#exportPhotoGIF').addEventListener('click', () => {
+  if (!photoProcessed) { toast('먼저 사진을 업로드하세요'); return; }
+  openFormatPicker(
+    (opts) => makeFramePlanFromCanvas(photoCanvas, { frames: 30, fx: getEffectsState(), ...opts }),
+    'signature_photo'
+  );
+});
+
+// Modal close + format option clicks
+document.getElementById('fmtClose').addEventListener('click', closeFormatPicker);
+document.getElementById('fmtPickerBackdrop').addEventListener('click', e => {
+  if (e.target.id === 'fmtPickerBackdrop' && _pendingDownload) closeFormatPicker();
+});
+document.querySelectorAll('.fmt-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.disabled) return;
+    runFormatExport(btn.dataset.fmt);
+  });
 });
 
 /* ═══════════════════════════════════════════════════════════
@@ -4485,6 +6933,7 @@ async function renderGallery() {
         <div class="gallery-date">${dateStr}</div>
       </div>
       <div class="gallery-actions">
+        <button class="icon-btn req" data-action="request">사용요청</button>
         <button class="icon-btn" data-action="download">PNG</button>
         <button class="icon-btn del" data-action="delete">Del</button>
       </div>
@@ -4498,8 +6947,127 @@ async function renderGallery() {
     item.querySelector('[data-action="delete"]').addEventListener('click', () => {
       if (confirm('이 싸인을 삭제할까요?')) deleteGallery(entry.id);
     });
+    item.querySelector('[data-action="request"]').addEventListener('click', () => {
+      requestSignatureUse(entry);
+    });
     grid.appendChild(item);
   });
+}
+
+/* ───────── Slack 사용요청 알림 ─────────
+ * Incoming Webhook URL을 아래 SLACK_WEBHOOK_URL 에 붙여넣으면 작동합니다.
+ * 형태: https://hooks.slack.com/services/T.../B.../...
+ * URL이 비어있거나 placeholder면 모의 모드(콘솔/토스트)로 동작합니다.
+ */
+const SLACK_WEBHOOK_URL = 'PASTE_SLACK_WEBHOOK_URL_HERE';
+/* 스튜디오 접속 링크 (슬랙 메시지에 첨부됨)
+ * 배포된 URL이 정해지면 아래를 그 주소로 바꾸세요. 비워두면 현재 페이지 location을 씁니다. */
+const STUDIO_PUBLIC_URL = '';
+
+function getStudioLink() {
+  if (STUDIO_PUBLIC_URL && STUDIO_PUBLIC_URL.trim()) return STUDIO_PUBLIC_URL.trim();
+  try { return location.href.split('#')[0]; } catch (_) { return ''; }
+}
+
+function getCurrentSessionForSlack() {
+  /* TODO: 투네이션 세션 연동 시 이 함수에서 실제 후원자/사용자 정보를 반환하세요.
+   * 예: window.toonationSession?.nickname 등.
+   * 연동 전까지는 URL 쿼리(?user=닉네임) 또는 익명으로 폴백합니다. */
+  try {
+    // 1) 투네이션 세션이 주입되어 있으면 사용
+    if (typeof window !== 'undefined' && window.toonationSession && window.toonationSession.nickname) {
+      return { id: String(window.toonationSession.nickname), role: 'toonation' };
+    }
+    // 2) URL ?user=닉네임 으로 전달된 경우 사용 (테스트/임시용)
+    const params = new URLSearchParams(location.search);
+    const u = params.get('user') || params.get('nickname');
+    if (u) return { id: u, role: 'guest' };
+  } catch (_) {}
+  // 3) 폴백
+  return { id: '익명 사용자', role: '' };
+}
+
+async function requestSignatureUse(entry) {
+  // disable the specific clicked button to prevent double-send
+  const allReqBtns = document.querySelectorAll('[data-action="request"]');
+  let targetBtn = null;
+  allReqBtns.forEach(b => {
+    const img = b.closest('.gallery-item')?.querySelector('img');
+    if (img && img.src === entry.dataURL) targetBtn = b;
+  });
+  if (targetBtn) {
+    targetBtn.disabled = true;
+    targetBtn.textContent = '전송 중...';
+  }
+
+  const session = getCurrentSessionForSlack();
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const studioLink = getStudioLink();
+
+  // Slack message payload (Block Kit)
+  const payload = {
+    text: `🖋️ 시그니처 사용요청: ${entry.name} (요청자: ${session.id})`,
+    blocks: [
+      {
+        type: 'header',
+        text: { type: 'plain_text', text: '🖋️ 시그니처 사용요청', emoji: true }
+      },
+      {
+        type: 'section',
+        fields: [
+          { type: 'mrkdwn', text: `*요청자*\n${session.id}` },
+          { type: 'mrkdwn', text: `*시그니처 이름*\n${entry.name}` },
+          { type: 'mrkdwn', text: `*요청 시각*\n${timeStr}` },
+          { type: 'mrkdwn', text: `*시그니처 ID*\n\`${entry.id}\`` }
+        ]
+      },
+      ...(studioLink ? [{
+        type: 'actions',
+        elements: [
+          { type: 'button',
+            text: { type: 'plain_text', text: '스튜디오 열기', emoji: true },
+            url: studioLink, style: 'primary' }
+        ]
+      }] : [])
+    ]
+  };
+
+  // Mock mode if webhook not configured
+  const isPlaceholder = !SLACK_WEBHOOK_URL ||
+    SLACK_WEBHOOK_URL === 'PASTE_SLACK_WEBHOOK_URL_HERE' ||
+    !SLACK_WEBHOOK_URL.startsWith('https://hooks.slack.com/');
+  if (isPlaceholder) {
+    console.warn('[Slack mock] webhook not configured. Payload:', payload);
+    setTimeout(() => {
+      if (targetBtn) {
+        targetBtn.disabled = false;
+        targetBtn.textContent = '사용요청';
+      }
+      toast('⚠️ Slack 웹훅 미설정 (콘솔에 모의 출력)');
+    }, 400);
+    return;
+  }
+
+  try {
+    // Slack Incoming Webhook requires 'no-cors' mode for browser fetch;
+    // the response is opaque but the message is delivered.
+    await fetch(SLACK_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    toast(`✅ "${entry.name}" 사용요청을 슬랙으로 전송했어요`);
+  } catch (err) {
+    console.error('Slack send error', err);
+    toast('⚠️ 슬랙 전송 실패 — 잠시 후 다시 시도해주세요');
+  } finally {
+    if (targetBtn) {
+      targetBtn.disabled = false;
+      targetBtn.textContent = '사용요청';
+    }
+  }
 }
 
 $('#saveTypeGallery').addEventListener('click', () => {
@@ -4515,7 +7083,7 @@ $('#saveDrawGallery').addEventListener('click', () => {
 });
 
 $('#savePhotoGallery').addEventListener('click', () => {
-  if (!photoProcessed) { toast('먼저 변환하세요'); return; }
+  if (!photoProcessed) { toast('먼저 사진을 업로드하세요'); return; }
   const c = renderStaticWithEffects(photoCanvas);
   addToGallery('Photo', c.toDataURL('image/png'));
 });
@@ -4554,7 +7122,7 @@ function openPreview(sourceTab) {
     previewState.signatureName = '나만의 시그니처';
     previewState.rawCanvas = renderDrawToTransparent();
   } else if (sourceTab === 'photo') {
-    if (!photoProcessed) { toast('먼저 사진을 변환하세요'); return; }
+    if (!photoProcessed) { toast('먼저 사진을 업로드하세요'); return; }
     previewState.signatureName = '나만의 시그니처';
     previewState.rawCanvas = photoCanvas;
   } else {
@@ -4826,6 +7394,14 @@ $('#previewSave').addEventListener('click', () => {
 
 // Initial render
 renderGallery();
+
+// 이전 버전에서 로그인 기능이 잠시 도입되었다가 제거되었습니다.
+// 남아있을 수 있는 localStorage 잔여 데이터를 한 번 정리합니다.
+try {
+  localStorage.removeItem('sigstudio.users.v1');
+  localStorage.removeItem('sigstudio.session.v1');
+} catch (_) {}
+
 </script>
 </body>
 </html>
