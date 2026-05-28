@@ -735,28 +735,61 @@ body.sidebar-collapsed #todayDate {
   margin-bottom: 8px;
 }
 
+/* Accordion-style toggle that sits below the grid.
+   Visual: full-width divider line with a centered pill button on top. */
 .fx-toggle {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
   background: transparent;
-  border: 1px solid var(--line-normal);
-  border-radius: var(--r-sm);
-  padding: 5px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--label-normal);
+  border: 0;
+  padding: 0;
+  width: 100%;
+  margin-top: 14px;
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.15s;
 }
-.fx-toggle:hover {
+
+.fx-toggle-line {
+  flex: 1;
+  height: 1px;
+  background: var(--line-normal);
+  transition: background 0.15s;
+}
+
+.fx-toggle-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-normal);
+  border: 1px solid var(--line-normal);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--label-normal);
+  transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.fx-toggle:hover .fx-toggle-pill {
   border-color: var(--toonation-blue);
   color: var(--toonation-blue);
+  background: var(--primary-bg-weak);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(75,150,255,0.15);
 }
+
+.fx-toggle:hover .fx-toggle-line {
+  background: var(--toonation-blue);
+  opacity: 0.4;
+}
+
 .fx-toggle-arrow {
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease;
 }
+
 .fx-toggle[aria-expanded="true"] .fx-toggle-arrow {
   transform: rotate(180deg);
 }
@@ -2105,18 +2138,20 @@ footer.app-footer {
 
   <!-- BOTTOM: effect cards — one row visible, rest behind accordion -->
   <div class="fx-section fx-section-effects">
-    <div class="fx-header-row">
-      <div class="fx-label" style="margin:0;">특수 효과 — 카드를 클릭해서 선택</div>
-      <button type="button" class="fx-toggle" id="fxToggle" aria-expanded="false">
-        <span class="fx-toggle-text">더 보기</span>
-        <svg class="fx-toggle-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
+    <div class="fx-label">특수 효과 — 카드를 클릭해서 선택</div>
     <div class="fx-grid fx-grid-collapsed" id="fxGrid">
       <!-- Cards injected by JS -->
     </div>
+    <button type="button" class="fx-toggle" id="fxToggle" aria-expanded="false">
+      <span class="fx-toggle-line"></span>
+      <span class="fx-toggle-pill">
+        <span class="fx-toggle-text">더 보기</span>
+        <svg class="fx-toggle-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="fx-toggle-line"></span>
+    </button>
     <!-- Hidden select kept as the source of truth (existing code reads from it) -->
     <select id="fxEffect" style="display:none;">
       <option value="none" selected>— 없음</option>
