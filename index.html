@@ -2120,22 +2120,6 @@ footer.app-footer {
 
 <!-- ═══════════ Effects Bar (shared across Type/Draw/Photo) ═══════════ -->
 <div class="fx-bar" id="fxBar">
-  <!-- TOP: background -->
-  <div class="fx-section">
-    <div class="fx-label">배경</div>
-    <div class="fx-row">
-      <select class="select fx-select" id="fxBackground">
-        <option value="transparent" selected>투명</option>
-        <option value="texture">어두운 질감</option>
-        <option value="image">이미지 업로드</option>
-      </select>
-      <label class="fx-file" id="fxBgUpload" style="display:none;">
-        <span id="fxBgName">파일 선택</span>
-        <input type="file" id="fxBgInput" accept="image/*">
-      </label>
-    </div>
-  </div>
-
   <!-- BOTTOM: effect cards — one row visible, rest behind accordion -->
   <div class="fx-section fx-section-effects">
     <div class="fx-label">특수 효과 — 카드를 클릭해서 선택</div>
@@ -2815,26 +2799,6 @@ $$('.tab').forEach(tab => {
 /* ─── Effects controls ─── */
 window._fxBgImage = null;
 
-$('#fxBackground').addEventListener('change', (e) => {
-  $('#fxBgUpload').style.display = e.target.value === 'image' ? 'flex' : 'none';
-  if (typeof rebuildEffectGalleryStates === 'function') rebuildEffectGalleryStates();
-});
-
-$('#fxBgInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => {
-      window._fxBgImage = img;
-      $('#fxBgName').textContent = file.name.length > 16 ? file.name.slice(0, 14) + '…' : file.name;
-      if (typeof rebuildEffectGalleryStates === 'function') rebuildEffectGalleryStates();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
 
 /* ═══════════════════════════════════════════════════════════
    EFFECT GALLERY · Animated card grid for choosing FX
@@ -2920,7 +2884,7 @@ function initEffectGallery() {
     const canvas = card.querySelector('.fx-card-canvas');
     const ctx = canvas.getContext('2d');
     // Build fx state for this card (background respects user selection)
-    const baseBackground = document.getElementById('fxBackground').value;
+    const baseBackground = 'transparent';
     const fx = {
       background: baseBackground,
       bgImage: window._fxBgImage || null,
@@ -2967,7 +2931,7 @@ function initEffectGallery() {
 function rebuildEffectGalleryStates() {
   for (const card of _fxCards) {
     const W = card.canvas.width, H = card.canvas.height;
-    const baseBackground = document.getElementById('fxBackground').value;
+    const baseBackground = 'transparent';
     card.fx = {
       background: baseBackground,
       bgImage: window._fxBgImage || null,
@@ -3038,10 +3002,6 @@ function setupFxToggle() {
   });
 }
 
-// Wire up: when background changes, rebuild card states so they reflect it
-document.getElementById('fxBackground').addEventListener('change', () => {
-  rebuildEffectGalleryStates();
-});
 
 // Initialize gallery on load
 if (document.readyState === 'loading') {
@@ -6078,7 +6038,7 @@ function attachSvipFooter(srcCanvas) {
 function getEffectsState() {
   const effect = $('#fxEffect').value;
   const fx = {
-    background: $('#fxBackground').value,
+    background: 'transparent',
     bgImage: window._fxBgImage || null,
     effect,
     inkStyle: 'plain'
