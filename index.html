@@ -3028,7 +3028,7 @@ function _renderFxCardFrame(card, t) {
 function _fxLoop(nowMs) {
   if (_fxClockStart === 0) _fxClockStart = nowMs;
   // 4-second loop for most effects
-  const loopMs = 4000;
+  const loopMs = 3000;
   const t = ((nowMs - _fxClockStart) % loopMs) / loopMs;
   for (const card of _fxCards) {
     _renderFxCardFrame(card, t);
@@ -4019,7 +4019,7 @@ async function ensureFFmpeg(onProgress) {
    transparentMode: if true, no background or footer is drawn — useful for WebM/GIF
    with alpha channel. */
 function makeFramePlanFromCanvas(srcCanvas, options = {}) {
-  const frames = options.frames || 36;
+  const frames = options.frames || 54;
   const W = srcCanvas.width, H = srcCanvas.height;
   const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
   const transparentMode = !!options.transparentMode;
@@ -4093,7 +4093,7 @@ function makeFramePlanFromCanvas(srcCanvas, options = {}) {
 
 /* Frame plan from stroke data (hand-drawn). Same interface. */
 function makeFramePlanFromStrokes(strokes, W, H, options = {}) {
-  const frames = options.frames || 40;
+  const frames = options.frames || 54;
   const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
   const transparentMode = !!options.transparentMode;
   const outputFormat = options.outputFormat || 'gif';
@@ -6627,8 +6627,8 @@ function generateGifFromCanvas(srcCanvas, options = {}) {
       ensureGifLib();
     } catch (e) { reject(e); return; }
 
-    const frames = options.frames || 36;
-    const delay = options.delay || 55;
+    const frames = options.frames || 54;
+    const delay = options.delay || 55;   // 1000/18fps ≈ 55ms → 54frames × 55ms ≈ 3s
     const W = srcCanvas.width, H = srcCanvas.height;
     const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
 
@@ -6751,8 +6751,8 @@ function generateGifFromStrokes(strokes, W, H, options = {}) {
       ensureGifLib();
     } catch (e) { reject(e); return; }
 
-    const frames = options.frames || 40;
-    const delay = options.delay || 50;
+    const frames = options.frames || 54;
+    const delay = options.delay || 55;
     const fx = options.fx || { background: 'transparent', bgImage: null, effect: 'none', inkStyle: 'plain' };
 
     let workerURL;
@@ -6958,7 +6958,7 @@ async function runFormatExport(fmt) {
 
   try {
     if (usingVideo) {
-      await prepareFxVideoFrames(fmt === 'gif' ? 30 : 48, setFmtProgress);
+      await prepareFxVideoFrames(fmt === 'gif' ? 54 : 72, setFmtProgress);
     }
     if (fmt === 'gif') {
       // Use legacy GIF code path (already optimized for transparency)
@@ -6971,7 +6971,7 @@ async function runFormatExport(fmt) {
       downloadURL(url, `${baseName}_${Date.now()}.gif`);
       toast('GIF 저장 완료');
     } else if (fmt === 'mp4') {
-      const plan = planFactory({ transparentMode: false, frames: 48, outputFormat: 'mp4' });
+      const plan = planFactory({ transparentMode: false, frames: 72, outputFormat: 'mp4' });
       const out = await encodeMp4FromFramePlan(plan, {
         fps: 24,
         onProgress: (label, r) => setFmtProgress(label, r)
@@ -6981,7 +6981,7 @@ async function runFormatExport(fmt) {
     } else if (fmt === 'webm') {
       // Video backgrounds are opaque, so disable transparent mode (which would
       // otherwise strip the effect) when a custom video is selected.
-      const plan = planFactory({ transparentMode: !usingVideo, frames: 48, outputFormat: 'webm' });
+      const plan = planFactory({ transparentMode: !usingVideo, frames: 72, outputFormat: 'webm' });
       const out = await encodeWebmFromFramePlan(plan, {
         fps: 24,
         onProgress: (label, r) => setFmtProgress(label, r)
@@ -7037,7 +7037,7 @@ async function renderGifFromPlan(plan, options = {}) {
 // Wire up the three animation-download buttons → format picker
 $('#exportTypeGIF').addEventListener('click', () => {
   openFormatPicker(
-    (opts) => makeFramePlanFromCanvas(renderTypeToTransparentCanvas(), { frames: 28, fx: getEffectsState(), ...opts }),
+    (opts) => makeFramePlanFromCanvas(renderTypeToTransparentCanvas(), { frames: 54, fx: getEffectsState(), ...opts }),
     'signature'
   );
 });
@@ -7053,7 +7053,7 @@ $('#exportDrawGIF').addEventListener('click', () => {
 $('#exportPhotoGIF').addEventListener('click', () => {
   if (!photoProcessed) { toast('먼저 사진을 업로드하세요'); return; }
   openFormatPicker(
-    (opts) => makeFramePlanFromCanvas(photoCanvas, { frames: 30, fx: getEffectsState(), ...opts }),
+    (opts) => makeFramePlanFromCanvas(photoCanvas, { frames: 54, fx: getEffectsState(), ...opts }),
     'signature_photo'
   );
 });
@@ -7427,7 +7427,7 @@ async function generatePreviewGif() {
     if (previewState.source === 'draw') {
       url = await generateGifFromStrokes(strokes, drawCanvas.width, drawCanvas.height, { fx });
     } else {
-      url = await generateGifFromCanvas(previewState.rawCanvas, { frames: 30, fx });
+      url = await generateGifFromCanvas(previewState.rawCanvas, { frames: 54, fx });
     }
     previewState.gifBlobURL = url;
     if (previewState.format === 'gif') {
