@@ -834,6 +834,35 @@ body.sidebar-collapsed #todayDate {
 
 .fx-file input { display: none; }
 
+/* ─── Custom video upload row ─── */
+.fx-video-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.fx-video-name {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--label-alternative);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+.fx-video-remove {
+  font-size: 11px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-solid-normal);
+  border-radius: var(--r-sm);
+  background: var(--bg-normal);
+  color: var(--status-negative);
+  cursor: pointer;
+}
+.fx-video-remove:hover { border-color: var(--status-negative); }
+body.sidebar-collapsed .fx-video-row { display: none; }
+
 /* ─── Effect card grid ─── */
 .fx-grid {
   display: grid;
@@ -2139,6 +2168,7 @@ footer.app-footer {
     <!-- Hidden select kept as the source of truth (existing code reads from it) -->
     <select id="fxEffect" style="display:none;">
       <option value="none" selected>— 없음</option>
+      <option value="custom-video">내 영상 · 영상 업로드</option>
       <option value="stamp">Stamp · 도장 · 낙관</option>
       <option value="epic-fire">Epic Fire · 불꽃 시네마틱</option>
       <option value="matrix">Matrix · 디지털 레인</option>
@@ -2148,6 +2178,17 @@ footer.app-footer {
       <option value="svip-purple">SVIP Purple · 보랏빛 광선</option>
       <option value="vip-aqua">VIP Aqua · 청록 링</option>
     </select>
+
+    <!-- Custom video upload — supplies a user video as the effect background -->
+    <div class="fx-video-row">
+      <label class="fx-file" id="fxVideoUpload">
+        <input type="file" accept="video/mp4,video/webm,video/*" id="fxVideoInput">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="vertical-align:-2px; margin-right:4px;"><path d="M1 3.5A1.5 1.5 0 012.5 2h6A1.5 1.5 0 0110 3.5v7A1.5 1.5 0 018.5 12h-6A1.5 1.5 0 011 10.5v-7z" stroke="currentColor" stroke-width="1.2"/><path d="M10 5.5L13 4v6l-3-1.5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        내 영상 업로드
+      </label>
+      <span class="fx-video-name" id="fxVideoName"></span>
+      <button type="button" class="fx-video-remove" id="fxVideoRemove" style="display:none;">삭제</button>
+    </div>
   </div>
 </div>
 
@@ -2788,6 +2829,149 @@ $$('.tab').forEach(tab => {
 /* ─── Effects controls ─── */
 window._fxBgImage = null;
 
+/* ═══════════════════════════════════════════════════════════
+   CUSTOM VIDEO EFFECT · user-supplied mp4/webm as background
+   ─────────────────────────────────────────────────────────────
+   State shape:
+     window._fxVideo = {
+       url:      object URL of the uploaded file
+       el:       <video> element (muted, looped, autoplaying)
+       frames:   null | HTMLCanvasElement[]  // pre-extracted for export
+       name:     original file name
+       w, h:     intrinsic video dimensions
+     }
+   Live previews draw `el` directly (synchronous). Export pre-extracts
+   evenly-spaced frames into `frames` so the synchronous renderFrame()
+   encoder loop can pick a frame by normalized time t.
+   ═══════════════════════════════════════════════════════════ */
+window._fxVideo = null;
+const FX_VIDEO_MAX_DIM = 720;   // cap extracted frame resolution (memory)
+
+/* Draw a source (video element or canvas) cover-fitted into W×H. */
+function drawVideoCover(ctx, W, H, src) {
+  const sw = src.videoWidth || src.width;
+  const sh = src.videoHeight || src.height;
+  if (!sw || !sh) return false;
+  const ar = sw / sh, car = W / H;
+  let dw, dh, dx, dy;
+  if (ar > car) { dh = H; dw = H * ar; dx = (W - dw) / 2; dy = 0; }
+  else          { dw = W; dh = W / ar; dx = 0; dy = (H - dh) / 2; }
+  ctx.drawImage(src, dx, dy, dw, dh);
+  return true;
+}
+
+/* Load a user video file and make it the active "custom-video" effect. */
+function handleFxVideoFile(file) {
+  if (!file || !file.type.startsWith('video/')) {
+    toast('영상 파일(mp4 · webm)만 가능합니다');
+    return;
+  }
+  clearFxVideo();   // revoke any previous video first
+  const url = URL.createObjectURL(file);
+  const v = document.createElement('video');
+  v.src = url;
+  v.muted = true;
+  v.loop = true;
+  v.playsInline = true;
+  v.preload = 'auto';
+
+  v.addEventListener('loadeddata', () => {
+    window._fxVideo = {
+      url, el: v, frames: null, name: file.name,
+      w: v.videoWidth, h: v.videoHeight
+    };
+    v.play().catch(() => {});
+    const nameEl = document.getElementById('fxVideoName');
+    const removeBtn = document.getElementById('fxVideoRemove');
+    if (nameEl) nameEl.textContent = file.name;
+    if (removeBtn) removeBtn.style.display = '';
+    rebuildEffectGalleryStates();
+    selectEffect('custom-video');
+    toast('영상이 특수 효과로 적용되었습니다');
+  }, { once: true });
+
+  v.addEventListener('error', () => {
+    toast('영상을 불러올 수 없습니다');
+    clearFxVideo();
+  }, { once: true });
+}
+
+/* Remove the current video and reset to "none" if it was selected. */
+function clearFxVideo() {
+  if (window._fxVideo) {
+    try { window._fxVideo.el.pause(); } catch (e) {}
+    URL.revokeObjectURL(window._fxVideo.url);
+    window._fxVideo = null;
+  }
+  const nameEl = document.getElementById('fxVideoName');
+  const removeBtn = document.getElementById('fxVideoRemove');
+  if (nameEl) nameEl.textContent = '';
+  if (removeBtn) removeBtn.style.display = 'none';
+  const sel = document.getElementById('fxEffect');
+  if (sel && sel.value === 'custom-video') {
+    rebuildEffectGalleryStates();
+    selectEffect('none');
+  } else {
+    rebuildEffectGalleryStates();
+  }
+}
+
+/* Seek a video element to `time` (seconds) and resolve when the frame is ready. */
+function seekVideoTo(v, time) {
+  return new Promise(resolve => {
+    const onSeeked = () => { v.removeEventListener('seeked', onSeeked); resolve(); };
+    v.addEventListener('seeked', onSeeked);
+    const dur = (v.duration && isFinite(v.duration)) ? v.duration : 0;
+    try {
+      v.currentTime = dur > 0 ? Math.min(time, Math.max(0, dur - 0.05)) : 0;
+    } catch (e) {
+      v.removeEventListener('seeked', onSeeked);
+      resolve();
+    }
+  });
+}
+
+/* Pre-extract `count` evenly-spaced frames from the active video into
+   offscreen canvases. Cached on window._fxVideo.frames so the synchronous
+   export render loop can index them by normalized time. */
+async function prepareFxVideoFrames(count, onProgress) {
+  const vid = window._fxVideo;
+  if (!vid) return;
+  const v = vid.el;
+  const vw = v.videoWidth, vh = v.videoHeight;
+  if (!vw || !vh) return;
+  const scale = Math.min(1, FX_VIDEO_MAX_DIM / Math.max(vw, vh));
+  const w = Math.max(2, Math.round(vw * scale));
+  const h = Math.max(2, Math.round(vh * scale));
+  const dur = (v.duration && isFinite(v.duration)) ? v.duration : 0;
+
+  const wasPlaying = !v.paused;
+  v.pause();
+  const frames = [];
+  for (let i = 0; i < count; i++) {
+    const time = dur > 0 ? (i / count) * dur : 0;
+    await seekVideoTo(v, time);
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(v, 0, 0, w, h);
+    frames.push(c);
+    if (onProgress) onProgress('영상 프레임 추출 중...', 0.02 + (i / count) * 0.08);
+  }
+  vid.frames = frames;
+  if (wasPlaying) v.play().catch(() => {});
+}
+
+/* Pick the video frame (canvas) matching normalized time t, and stash it on
+   the fx object so paintBackground() can draw it during export. */
+function setFxVideoFrameForT(fx, t) {
+  if (fx.effect !== 'custom-video') return;
+  const vid = window._fxVideo;
+  if (vid && vid.frames && vid.frames.length) {
+    const idx = Math.min(vid.frames.length - 1, Math.floor(t * vid.frames.length));
+    fx._videoFrame = vid.frames[idx];
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    EFFECT GALLERY · Animated card grid for choosing FX
@@ -2799,6 +2983,7 @@ window._fxBgImage = null;
 
 const FX_CARD_META = [
   { id: 'none',         label: '— 없음',         sub: '효과 끄기' },
+  { id: 'custom-video', label: '내 영상',        sub: '영상 업로드' },
   { id: 'stamp',        label: 'Stamp',          sub: '도장 · 낙관' },
   { id: 'epic-fire',    label: 'Epic Fire',      sub: '불꽃 시네마틱' },
   { id: 'matrix',       label: 'Matrix',         sub: '디지털 레인' },
@@ -2952,6 +3137,12 @@ function highlightSelectedFxCard() {
 }
 
 function selectEffect(effectId) {
+  // Choosing the video card without a loaded video opens the file picker instead
+  if (effectId === 'custom-video' && !window._fxVideo) {
+    const input = document.getElementById('fxVideoInput');
+    if (input) input.click();
+    return;
+  }
   const sel = document.getElementById('fxEffect');
   sel.value = effectId;
   // Dispatch change so any existing listeners on fxEffect still fire
@@ -3009,6 +3200,25 @@ if (document.readyState === 'loading') {
 document.fonts.ready.then(() => {
   if (typeof rebuildEffectGalleryStates === 'function') rebuildEffectGalleryStates();
 });
+
+// Custom video upload wiring
+(function setupFxVideoControls() {
+  const input = document.getElementById('fxVideoInput');
+  const removeBtn = document.getElementById('fxVideoRemove');
+  if (input) {
+    input.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handleFxVideoFile(file);
+      input.value = '';   // allow re-selecting the same file later
+    });
+  }
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      clearFxVideo();
+      toast('영상이 제거되었습니다');
+    });
+  }
+})();
 
 /* ═══════════════════════════════════════════════════════════
    PART A · TYPED SIGNATURE
@@ -3859,6 +4069,7 @@ function makeFramePlanFromCanvas(srcCanvas, options = {}) {
     if (transparentMode) {
       tctx.clearRect(0, 0, W, outH);
     } else {
+      setFxVideoFrameForT(effectiveFx, t);
       paintBackground(tctx, W, H, effectiveFx);
       applyBackEffects(tctx, W, H, t, effectiveFx, cache);
     }
@@ -3935,6 +4146,7 @@ function makeFramePlanFromStrokes(strokes, W, H, options = {}) {
     if (transparentMode) {
       tctx.clearRect(0, 0, W, outH);
     } else {
+      setFxVideoFrameForT(effectiveFx, t);
       paintBackground(tctx, W, H, effectiveFx);
       applyBackEffects(tctx, W, H, t, effectiveFx, cache);
     }
@@ -6052,6 +6264,18 @@ function paintBackground(ctx, W, H, opts) {
     ctx.drawImage(img, dx, dy, dw, dh);
     return;
   }
+  // Custom video background: pre-extracted frame (export) or live <video> (preview)
+  if (opts.effect === 'custom-video') {
+    const src = opts._videoFrame || (window._fxVideo && window._fxVideo.el) || null;
+    let drawn = false;
+    if (src) drawn = drawVideoCover(ctx, W, H, src);
+    if (!drawn) {
+      // No video yet — neutral dark fill so the signature stays legible
+      ctx.fillStyle = '#15171c';
+      ctx.fillRect(0, 0, W, H);
+    }
+    return;
+  }
   // Effect-driven backgrounds override "texture" / "transparent" choices
   if (opts.effect === 'svip-gold' || opts.effect === 'svip-purple' || opts.effect === 'vip-aqua') {
     drawColoredBackground(ctx, W, H, FX_PRESETS[opts.effect].bg);
@@ -6727,7 +6951,15 @@ async function runFormatExport(fmt) {
   document.querySelectorAll('.fmt-option').forEach(o => { o.disabled = true; });
   setFmtProgress('준비 중...', 0.02);
 
+  // When a custom video is the active effect, pre-extract its frames so the
+  // synchronous encoder loop can sample them. Frame counts mirror the per-format
+  // values used below (gif: source default, mp4/webm: 48).
+  const usingVideo = getEffectsState().effect === 'custom-video' && window._fxVideo;
+
   try {
+    if (usingVideo) {
+      await prepareFxVideoFrames(fmt === 'gif' ? 30 : 48, setFmtProgress);
+    }
     if (fmt === 'gif') {
       // Use legacy GIF code path (already optimized for transparency)
       const plan = planFactory({ transparentMode: false, outputFormat: 'gif' });
@@ -6747,7 +6979,9 @@ async function runFormatExport(fmt) {
       downloadURL(out.url, `${baseName}_${Date.now()}.${out.ext}`);
       toast('MP4 저장 완료');
     } else if (fmt === 'webm') {
-      const plan = planFactory({ transparentMode: true, frames: 48, outputFormat: 'webm' });
+      // Video backgrounds are opaque, so disable transparent mode (which would
+      // otherwise strip the effect) when a custom video is selected.
+      const plan = planFactory({ transparentMode: !usingVideo, frames: 48, outputFormat: 'webm' });
       const out = await encodeWebmFromFramePlan(plan, {
         fps: 24,
         onProgress: (label, r) => setFmtProgress(label, r)
