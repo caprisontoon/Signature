@@ -109,12 +109,12 @@ export default function PreviewModal() {
       renderPreviewViewport();
       updateSimulation();
 
-      modal.classList.add("open");
+      modal?.classList.add("open");
       document.body.style.overflow = "hidden";
     }
 
     function closePreview() {
-      modal.classList.remove("open");
+      modal?.classList.remove("open");
       document.body.style.overflow = "";
       const scene = document.getElementById("simScene");
       if (scene) scene.classList.remove("playing");

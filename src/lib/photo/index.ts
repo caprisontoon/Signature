@@ -35,7 +35,7 @@ export function processPhoto(
   const inkG = parseInt(inkHex.slice(3, 5), 16);
   const inkB = parseInt(inkHex.slice(5, 7), 16);
 
-  const mask = new Uint8Array(CANVAS_W * CANVAS_H);
+  const mask = new Uint8Array(CANVAS_W * CANVAS_H) as Uint8Array<ArrayBuffer>;
   for (let i = 0, j = 0; i < data.length; i += 4, j++) {
     if (data[i + 3] < 8) { mask[j] = 0; continue; }
     const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
@@ -64,7 +64,7 @@ export function processPhoto(
   return true;
 }
 
-function removeNoise(mask: Uint8Array, w: number, h: number): Uint8Array {
+function removeNoise(mask: Uint8Array<ArrayBuffer>, w: number, h: number): Uint8Array<ArrayBuffer> {
   const out = new Uint8Array(mask.length);
   for (let y = 1; y < h - 1; y++) {
     for (let x = 1; x < w - 1; x++) {

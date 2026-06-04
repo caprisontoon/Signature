@@ -56,7 +56,7 @@ export default function DrawView({ active }: { active: boolean }) {
     function doStepSmooth(next: number) {
       smoothLevel.current = Math.max(0, Math.min(10, next));
       strokes.current = reapplySmoothingFromRaw(strokes.current, smoothLevel.current);
-      redrawAll(ctx, canvas, strokes.current);
+      redrawAll(ctx, canvas!, strokes.current);
       updateSmoothUI();
     }
 
@@ -94,7 +94,7 @@ export default function DrawView({ active }: { active: boolean }) {
       if (strokes.current.length === 0) return;
       undoStack.current.value = [...strokes.current];
       strokes.current.pop();
-      redrawAll(ctx, canvas, strokes.current);
+      redrawAll(ctx, canvas!, strokes.current);
     });
 
     // Clear
@@ -106,7 +106,7 @@ export default function DrawView({ active }: { active: boolean }) {
 
     // Preview
     document.getElementById("previewDraw")?.addEventListener("click", () => {
-      redrawAll(ctx, canvas, strokes.current);
+      redrawAll(ctx, canvas!, strokes.current);
       toast("미리보기 완료");
     });
 
