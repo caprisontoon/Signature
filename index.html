@@ -2336,8 +2336,11 @@ footer.app-footer {
       <label>곡선 보정</label>
       <div class="smooth-stepper">
         <button type="button" class="smooth-btn" id="drawSmoothDown" aria-label="보정 한 단계 줄이기">−</button>
-        <span class="smooth-level" id="drawSmoothVal">0단계</span>
+        <input type="range" id="drawSmooth" min="0" max="10" value="0" step="1" style="flex:1;">
         <button type="button" class="smooth-btn" id="drawSmoothUp" aria-label="보정 한 단계 늘리기">+</button>
+      </div>
+      <div style="text-align:center; margin-top:4px;">
+        <span class="smooth-level" id="drawSmoothVal">0단계</span>
       </div>
     </div>
 
@@ -3512,7 +3515,7 @@ let undoStack = [];
 
 /* Curve-smoothing is a stepped control: each click adds/removes one
    Chaikin corner-cutting iteration. Level 0 = raw (no correction). */
-const SMOOTH_MAX_LEVEL = 8;
+const SMOOTH_MAX_LEVEL = 10;
 let drawSmoothLevel = 0;
 
 // Color chips
@@ -3606,25 +3609,28 @@ function reapplySmoothingFromRaw() {
   redrawAll();
 }
 
-/* Update the level readout and disable buttons at the limits. */
+/* Update label, slider position, and button disabled state. */
 function updateSmoothUI() {
   const label = document.getElementById('drawSmoothVal');
   if (label) label.textContent = drawSmoothLevel + '단계';
+  const slider = document.getElementById('drawSmooth');
+  if (slider && parseInt(slider.value) !== drawSmoothLevel) slider.value = drawSmoothLevel;
   const down = document.getElementById('drawSmoothDown');
   const up = document.getElementById('drawSmoothUp');
   if (down) down.disabled = drawSmoothLevel <= 0;
   if (up) up.disabled = drawSmoothLevel >= SMOOTH_MAX_LEVEL;
 }
 
-/* Step the smoothing level by ±1 and re-apply to every stroke from its
-   raw points (so corrections never compound unpredictably). */
-function stepSmooth(delta) {
-  const next = Math.min(SMOOTH_MAX_LEVEL, Math.max(0, drawSmoothLevel + delta));
+/* Set a specific level and re-apply. */
+function setSmooth(next) {
+  next = Math.min(SMOOTH_MAX_LEVEL, Math.max(0, next));
   if (next === drawSmoothLevel) return;
   drawSmoothLevel = next;
   updateSmoothUI();
   if (strokes.length > 0) reapplySmoothingFromRaw();
 }
+
+function stepSmooth(delta) { setSmooth(drawSmoothLevel + delta); }
 
 function drawSegment(stroke, i1, i2) {
   if (i1 < 0) return;
@@ -3685,6 +3691,7 @@ $('#drawStroke').addEventListener('input', (e) => {
 
 $('#drawSmoothUp').addEventListener('click', () => stepSmooth(+1));
 $('#drawSmoothDown').addEventListener('click', () => stepSmooth(-1));
+$('#drawSmooth').addEventListener('input', (e) => setSmooth(parseInt(e.target.value)));
 updateSmoothUI();
 
 $('#drawUndo').addEventListener('click', () => {
@@ -3703,16 +3710,25 @@ $('#drawClear').addEventListener('click', () => {
   }
 });
 
-/* Smoothing: Chaikin's algorithm + simplification.
-   `level` is the number of corner-cutting passes (0 = no correction).
-   Each step the user clicks applies exactly one more pass. */
+/* Smoothing: point simplification + Chaikin corner-cutting.
+   level 0  = raw (no change)
+   level 1  = very mild   …   level 10 = very aggressive
+   Both simplification distance and Chaikin passes scale non-linearly
+   so every step produces a clearly visible difference. */
 function smoothStroke(points, level) {
-  const iterations = Math.max(0, Math.round(level || 0));
-  if (iterations === 0 || points.length < 3) return points.slice();
+  const lv = Math.max(0, Math.round(level || 0));
+  if (lv === 0 || points.length < 3) return points.slice();
+
+  // Simplification distance grows quadratically so high levels remove much
+  // more jitter (1→2px, 5→13px, 10→32px).
+  const minDist = 1.2 * Math.pow(lv, 1.65);
+
+  // Chaikin passes: 1 at level 1, up to 6 at level 10.
+  const iterations = Math.ceil(lv * 0.6);
+
   let pts = points.slice();
 
-  // 1) Simplification (remove jitter) — grows gently with the level
-  const minDist = 1.5 + iterations * 0.5;
+  // 1) Distance-based simplification
   const simplified = [pts[0]];
   for (let i = 1; i < pts.length; i++) {
     const last = simplified[simplified.length - 1];
@@ -3723,22 +3739,14 @@ function smoothStroke(points, level) {
   }
   pts = simplified;
 
-  // 2) Chaikin's corner-cutting for smooth curves
+  // 2) Chaikin corner-cutting
   for (let iter = 0; iter < iterations; iter++) {
     if (pts.length < 3) break;
     const result = [pts[0]];
     for (let i = 0; i < pts.length - 1; i++) {
       const p0 = pts[i], p1 = pts[i + 1];
-      result.push({
-        x: 0.75 * p0.x + 0.25 * p1.x,
-        y: 0.75 * p0.y + 0.25 * p1.y,
-        t: p0.t
-      });
-      result.push({
-        x: 0.25 * p0.x + 0.75 * p1.x,
-        y: 0.25 * p0.y + 0.75 * p1.y,
-        t: p1.t
-      });
+      result.push({ x: 0.75 * p0.x + 0.25 * p1.x, y: 0.75 * p0.y + 0.25 * p1.y, t: p0.t });
+      result.push({ x: 0.25 * p0.x + 0.75 * p1.x, y: 0.25 * p0.y + 0.75 * p1.y, t: p1.t });
     }
     result.push(pts[pts.length - 1]);
     pts = result;
