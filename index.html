@@ -1123,6 +1123,43 @@ body.gallery-mode .fx-bar { display: none; }
   font-weight: 600;
 }
 
+/* ─── Curve-smoothing stepper (one step per click) ─── */
+.smooth-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.smooth-btn {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line-solid-normal);
+  border-radius: var(--r-md);
+  background: var(--bg-normal);
+  color: var(--label-normal);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.smooth-btn:hover:not(:disabled) {
+  border-color: var(--toonation-blue);
+  color: var(--toonation-blue);
+}
+.smooth-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.smooth-level {
+  flex: 1;
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--label-normal);
+}
+
 /* ─── Font / Color chips ─── */
 .font-grid {
   display: grid;
@@ -2297,9 +2334,10 @@ footer.app-footer {
 
     <div class="field">
       <label>곡선 보정</label>
-      <div class="range-row">
-        <input type="range" id="drawSmooth" min="0" max="100" value="60">
-        <span class="val" id="drawSmoothVal">60%</span>
+      <div class="smooth-stepper">
+        <button type="button" class="smooth-btn" id="drawSmoothDown" aria-label="보정 한 단계 줄이기">−</button>
+        <span class="smooth-level" id="drawSmoothVal">0단계</span>
+        <button type="button" class="smooth-btn" id="drawSmoothUp" aria-label="보정 한 단계 늘리기">+</button>
       </div>
     </div>
 
@@ -2325,7 +2363,7 @@ footer.app-footer {
 
     <div class="hint">
       <strong>SVIP TIP</strong>
-      마우스·트랙패드·애플펜슬로 그린 후 곡선 보정 값을 조절하면 떨림이 실시간으로 부드럽게 정돈됩니다. 값이 높을수록 더 매끄러워집니다.
+      마우스·트랙패드·애플펜슬로 그린 후 곡선 보정의 + 버튼을 한 번씩 누르면 한 단계씩 더 부드럽게 정돈됩니다. − 버튼으로 한 단계씩 되돌릴 수 있습니다.
     </div>
   </div>
 
@@ -3472,6 +3510,11 @@ let strokes = [];          // [[{x,y,t,p},...], ...]
 let currentStroke = null;
 let undoStack = [];
 
+/* Curve-smoothing is a stepped control: each click adds/removes one
+   Chaikin corner-cutting iteration. Level 0 = raw (no correction). */
+const SMOOTH_MAX_LEVEL = 8;
+let drawSmoothLevel = 0;
+
 // Color chips
 function updateWhiteInkBackdrop(color) {
   const isWhite = typeof color === 'string' && /^#?(ffffff|fff)$/i.test(color.replace(/^#/, ''));
@@ -3544,9 +3587,8 @@ function endDraw(e) {
     // Preserve the raw, unsmoothed points so we can re-smooth from scratch
     // whenever the smoothing slider changes (avoids cumulative smoothing).
     currentStroke.rawPoints = currentStroke.points.slice();
-    // Apply current smoothing intensity to the just-finished stroke.
-    const intensity = parseFloat($('#drawSmooth').value);
-    currentStroke.points = smoothStroke(currentStroke.rawPoints, intensity);
+    // Apply current smoothing level to the just-finished stroke.
+    currentStroke.points = smoothStroke(currentStroke.rawPoints, drawSmoothLevel);
     strokes.push(currentStroke);
     redrawAll();
   }
@@ -3557,12 +3599,31 @@ function endDraw(e) {
    from the original raw points. This makes the slider behave like a live
    control without compounding the smoothing each time. */
 function reapplySmoothingFromRaw() {
-  const intensity = parseFloat($('#drawSmooth').value);
   strokes = strokes.map(s => {
     const raw = s.rawPoints || s.points;
-    return { ...s, rawPoints: raw, points: smoothStroke(raw, intensity) };
+    return { ...s, rawPoints: raw, points: smoothStroke(raw, drawSmoothLevel) };
   });
   redrawAll();
+}
+
+/* Update the level readout and disable buttons at the limits. */
+function updateSmoothUI() {
+  const label = document.getElementById('drawSmoothVal');
+  if (label) label.textContent = drawSmoothLevel + '단계';
+  const down = document.getElementById('drawSmoothDown');
+  const up = document.getElementById('drawSmoothUp');
+  if (down) down.disabled = drawSmoothLevel <= 0;
+  if (up) up.disabled = drawSmoothLevel >= SMOOTH_MAX_LEVEL;
+}
+
+/* Step the smoothing level by ±1 and re-apply to every stroke from its
+   raw points (so corrections never compound unpredictably). */
+function stepSmooth(delta) {
+  const next = Math.min(SMOOTH_MAX_LEVEL, Math.max(0, drawSmoothLevel + delta));
+  if (next === drawSmoothLevel) return;
+  drawSmoothLevel = next;
+  updateSmoothUI();
+  if (strokes.length > 0) reapplySmoothingFromRaw();
 }
 
 function drawSegment(stroke, i1, i2) {
@@ -3622,11 +3683,9 @@ $('#drawStroke').addEventListener('input', (e) => {
   $('#drawStrokeVal').textContent = e.target.value;
 });
 
-$('#drawSmooth').addEventListener('input', (e) => {
-  $('#drawSmoothVal').textContent = e.target.value + '%';
-  // Live-apply smoothing to all existing strokes from their raw points.
-  if (strokes.length > 0) reapplySmoothingFromRaw();
-});
+$('#drawSmoothUp').addEventListener('click', () => stepSmooth(+1));
+$('#drawSmoothDown').addEventListener('click', () => stepSmooth(-1));
+updateSmoothUI();
 
 $('#drawUndo').addEventListener('click', () => {
   if (strokes.length > 0) {
@@ -3644,14 +3703,16 @@ $('#drawClear').addEventListener('click', () => {
   }
 });
 
-/* Smoothing: Chaikin's algorithm + simplification */
-function smoothStroke(points, intensity) {
-  if (points.length < 3) return points;
-  const iterations = Math.max(1, Math.round(intensity / 25));
+/* Smoothing: Chaikin's algorithm + simplification.
+   `level` is the number of corner-cutting passes (0 = no correction).
+   Each step the user clicks applies exactly one more pass. */
+function smoothStroke(points, level) {
+  const iterations = Math.max(0, Math.round(level || 0));
+  if (iterations === 0 || points.length < 3) return points.slice();
   let pts = points.slice();
 
-  // 1) Simplification (remove jitter) using distance threshold
-  const minDist = 1.5 + intensity * 0.04;
+  // 1) Simplification (remove jitter) — grows gently with the level
+  const minDist = 1.5 + iterations * 0.5;
   const simplified = [pts[0]];
   for (let i = 1; i < pts.length; i++) {
     const last = simplified[simplified.length - 1];
