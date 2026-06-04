@@ -3066,15 +3066,32 @@ function _renderFxCardFrame(card, t) {
   applyFrontEffects(ctx, W, H, t, fx, cache);
 }
 
+let _fxLastFrameMs = 0;
+const _FX_FPS = 30;   // card previews don't need 60fps
+
 function _fxLoop(nowMs) {
+  _fxRafId = requestAnimationFrame(_fxLoop);
+
+  // Throttle to ~30fps to halve the per-second rendering cost.
+  if (nowMs - _fxLastFrameMs < 1000 / _FX_FPS) return;
+  _fxLastFrameMs = nowMs;
+
+  // Skip all work when nothing is visible: background tab, or the effects
+  // bar is hidden (e.g. Gallery view). This is the main fix for the app
+  // feeling sluggish — the loop used to render all 10 cards forever.
+  if (document.hidden) return;
+  const bar = document.getElementById('fxBar');
+  if (!bar || bar.offsetParent === null) return;
+
   if (_fxClockStart === 0) _fxClockStart = nowMs;
-  // 4-second loop for most effects
   const loopMs = 3000;
   const t = ((nowMs - _fxClockStart) % loopMs) / loopMs;
   for (const card of _fxCards) {
+    // Only render cards that are actually on screen. Cards hidden by the
+    // collapsed grid ("더 보기") have display:none → offsetParent === null.
+    if (card.canvas.offsetParent === null) continue;
     _renderFxCardFrame(card, t);
   }
-  _fxRafId = requestAnimationFrame(_fxLoop);
 }
 
 function initEffectGallery() {
