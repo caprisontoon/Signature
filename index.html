@@ -163,280 +163,13 @@ input, select, textarea {
 [data-theme="dark"] ::selection { color: var(--toonation-blue); background: var(--toonation-navy); }
 
 /* ═══════════════════════════════════════════════════════════
-   APP SHELL · sidebar + main
+   APP SHELL
    ═══════════════════════════════════════════════════════════ */
 
 .app {
-  display: grid;
-  grid-template-columns: 260px 1fr;
   min-height: 100vh;
-  transition: grid-template-columns 0.25s ease;
 }
 
-/* Collapsed sidebar: narrow column, icons only */
-body.sidebar-collapsed .app {
-  grid-template-columns: 72px 1fr;
-}
-
-/* ─── Sidebar ─── */
-.sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  background: var(--bg-normal);
-  border-right: 1px solid var(--line-normal);
-  display: flex;
-  flex-direction: column;
-  padding: var(--s-5) var(--s-4);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-body.sidebar-collapsed .sidebar {
-  padding: var(--s-5) var(--s-2);
-}
-
-/* ─── Hamburger toggle ─── */
-.sidebar-toggle {
-  position: absolute;
-  top: 16px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  color: var(--label-neutral);
-  display: grid;
-  place-items: center;
-  transition: all 0.15s;
-  z-index: 5;
-}
-
-.sidebar-toggle:hover {
-  background: var(--fill-normal);
-  color: var(--label-normal);
-}
-
-body.sidebar-collapsed .sidebar-toggle {
-  right: 50%;
-  transform: translateX(50%);
-}
-
-/* Mobile floating toggle (when sidebar is offscreen) */
-.sidebar-toggle-mobile {
-  display: none;
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-md);
-  background: var(--bg-normal);
-  border: 1px solid var(--line-normal);
-  cursor: pointer;
-  color: var(--label-normal);
-  z-index: 200;
-  place-items: center;
-  box-shadow: var(--elev-2);
-}
-
-@media (max-width: 768px) {
-  .sidebar-toggle-mobile { display: none; }
-  .sidebar-toggle { display: grid; }
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-3) var(--s-2) var(--s-6);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  color: inherit;
-  transition: opacity 0.15s;
-  width: 100%;
-  padding-right: 44px; /* room for hamburger */
-}
-
-body.sidebar-collapsed .brand {
-  padding: var(--s-3) 0 var(--s-6);
-  justify-content: center;
-}
-
-body.sidebar-collapsed .brand-text {
-  display: none;
-}
-
-body.sidebar-collapsed .nav-section-label {
-  display: none;
-}
-
-body.sidebar-collapsed .tab {
-  justify-content: center;
-  padding: var(--s-3) 0;
-}
-
-body.sidebar-collapsed .tab > svg + * {
-  display: none; /* hide label & num */
-}
-
-body.sidebar-collapsed .tab > .num {
-  display: none;
-}
-
-/* Collapsed: keep tabs as single-line, no text overflow */
-body.sidebar-collapsed .tab,
-body.sidebar-collapsed .theme-toggle-label {
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-body.sidebar-collapsed .tab.active::before {
-  left: -8px;
-}
-
-body.sidebar-collapsed .theme-toggle {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-2);
-  padding: var(--s-3) var(--s-2);
-}
-
-body.sidebar-collapsed .theme-toggle-label > svg + * {
-  display: none;
-}
-
-body.sidebar-collapsed #todayDate {
-  display: none;
-}
-
-.brand:hover {
-  opacity: 0.75;
-}
-
-.brand:active {
-  opacity: 0.6;
-}
-
-.brand-logo {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.brand-logo svg { width: 100%; height: 100%; }
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-.brand-text .brand-name {
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: -0.03em;
-  color: var(--label-strong);
-}
-
-.brand-text .brand-product {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--label-alternative);
-  margin-top: 2px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-}
-
-.nav-section-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--label-alternative);
-  padding: var(--s-3) var(--s-3) var(--s-1);
-  margin-top: var(--s-2);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-/* Each tab nav item — keeps .tab class for JS compatibility */
-.tab {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-3);
-  border-radius: var(--r-md);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--label-neutral);
-  width: 100%;
-  text-align: left;
-  transition: all 0.15s;
-  position: relative;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.tab:hover {
-  background: var(--fill-normal);
-  color: var(--label-normal);
-}
-
-.tab.active {
-  background: var(--primary-bg-weak);
-  color: var(--primary-normal);
-  font-weight: 600;
-}
-
-.tab.active::before {
-  content: "";
-  position: absolute;
-  left: -16px;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  background: var(--toonation-blue);
-  border-radius: 0 var(--r-xs) var(--r-xs) 0;
-}
-
-.tab .num {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
-  font-weight: 600;
-  background: var(--fill-strong);
-  color: var(--label-alternative);
-  padding: 2px 6px;
-  border-radius: var(--r-xs);
-  margin-left: auto;
-}
-
-.tab.active .num {
-  background: var(--toonation-blue);
-  color: white;
-}
-
-.tab svg { flex-shrink: 0; }
-
-.sidebar-footer {
-  border-top: 1px solid var(--line-alternative);
-  padding-top: var(--s-3);
-  margin-top: var(--s-3);
-}
 
 .theme-toggle {
   display: flex;
@@ -493,11 +226,11 @@ body.sidebar-collapsed #todayDate {
   padding: var(--s-8) var(--s-10);
   max-width: 1400px;
   width: 100%;
+  margin: 0 auto;
 }
 
 @media (max-width: 1100px) {
   .main { padding: var(--s-6); }
-  .app { grid-template-columns: 220px 1fr; }
 }
 
 /* ─── Hero Banner ─── */
@@ -861,7 +594,7 @@ body.sidebar-collapsed #todayDate {
   cursor: pointer;
 }
 .fx-video-remove:hover { border-color: var(--status-negative); }
-body.sidebar-collapsed .fx-video-row { display: none; }
+
 
 /* ─── Effect card grid ─── */
 .fx-grid {
@@ -1994,83 +1727,7 @@ footer.app-footer {
   font-size: 13px;
 }
 
-/* Tablet: auto-collapse sidebar between 768px and 1200px */
-@media (max-width: 1200px) and (min-width: 769px) {
-  .app { grid-template-columns: 72px 1fr; }
-  .sidebar { padding: var(--s-5) var(--s-2); }
-  .brand-text, .nav-section-label, #todayDate { display: none; }
-  .brand { padding: var(--s-3) 0 var(--s-6); justify-content: center; padding-right: 0; }
-  .sidebar-toggle { right: 50%; transform: translateX(50%); }
-  .tab { justify-content: center; padding: var(--s-3) 0; white-space: nowrap; overflow: hidden; }
-  .tab > svg + *, .tab > .num { display: none; }
-  .tab.active::before { left: -8px; }
-  .theme-toggle { flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-3) var(--s-2); }
-  .theme-toggle-label { white-space: nowrap; overflow: hidden; }
-  .theme-toggle-label > svg + * { display: none; }
-  body.sidebar-force-open .app { grid-template-columns: 260px 1fr; }
-  body.sidebar-force-open .sidebar { padding: var(--s-5) var(--s-4); }
-  body.sidebar-force-open .brand-text,
-  body.sidebar-force-open .nav-section-label,
-  body.sidebar-force-open #todayDate { display: block; }
-  body.sidebar-force-open .brand { padding: var(--s-3) var(--s-2) var(--s-6); padding-right: 44px; justify-content: flex-start; }
-  body.sidebar-force-open .sidebar-toggle { right: 12px; transform: none; }
-  body.sidebar-force-open .tab { justify-content: flex-start; padding: var(--s-3); }
-  body.sidebar-force-open .tab > svg + *,
-  body.sidebar-force-open .tab > .num { display: inline; }
-  body.sidebar-force-open .tab.active::before { left: -16px; }
-  body.sidebar-force-open .theme-toggle { flex-direction: row; gap: 0; justify-content: space-between; padding: var(--s-3); }
-  body.sidebar-force-open .theme-toggle-label > svg + * { display: inline; }
-}
-
-/* Mobile: sidebar stays as an icon-only collapsed rail, expands on toggle */
 @media (max-width: 768px) {
-  /* Always reserve narrow column for icon rail */
-  .app { grid-template-columns: 64px 1fr; }
-  .sidebar {
-    position: sticky;
-    top: 0;
-    left: auto;
-    width: auto;
-    padding: var(--s-5) var(--s-2);
-    box-shadow: none;
-    transition: none;
-    z-index: 150;
-  }
-  /* Hide text-y content by default — icons only */
-  .brand-text, .nav-section-label, #todayDate { display: none; }
-  .brand { padding: var(--s-3) 0 var(--s-6); justify-content: center; padding-right: 0; }
-  .sidebar-toggle { right: 50%; transform: translateX(50%); display: grid; }
-  .tab { justify-content: center; padding: var(--s-3) 0; white-space: nowrap; overflow: hidden; }
-  .tab > svg + *, .tab > .num { display: none; }
-  .tab.active::before { left: -8px; }
-  .theme-toggle { flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-3) var(--s-2); }
-  .theme-toggle-label { white-space: nowrap; overflow: hidden; }
-  .theme-toggle-label > svg + * { display: none; }
-
-  /* When user taps the toggle, sidebar overlays expanded above content */
-  .sidebar.open {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 260px;
-    padding: var(--s-5) var(--s-4);
-    box-shadow: var(--elev-3);
-    background: var(--bg-normal);
-    height: 100vh;
-    overflow-y: auto;
-  }
-  .sidebar.open .brand-text,
-  .sidebar.open .nav-section-label,
-  .sidebar.open #todayDate { display: block; }
-  .sidebar.open .brand { padding: var(--s-3) var(--s-2) var(--s-6); padding-right: 44px; justify-content: flex-start; }
-  .sidebar.open .sidebar-toggle { right: 12px; transform: none; }
-  .sidebar.open .tab { justify-content: flex-start; padding: var(--s-3); }
-  .sidebar.open .tab > svg + *,
-  .sidebar.open .tab > .num { display: inline; }
-  .sidebar.open .tab.active::before { left: -16px; }
-  .sidebar.open .theme-toggle { flex-direction: row; gap: 0; justify-content: space-between; padding: var(--s-3); }
-  .sidebar.open .theme-toggle-label > svg + * { display: inline; }
-
   .main { padding: var(--s-4); }
   .hero-banner {
     flex-direction: column;
@@ -2081,18 +1738,6 @@ footer.app-footer {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--s-3);
-  }
-  /* Sidebar backdrop */
-  .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 140;
-  }
-  .sidebar.open ~ .sidebar-backdrop,
-  body.sidebar-open .sidebar-backdrop {
-    display: block;
   }
 }
 
@@ -2246,57 +1891,6 @@ footer.app-footer {
 
 <div class="app">
 
-<!-- Mobile floating hamburger (visible <=768px) -->
-<button class="sidebar-toggle-mobile" id="sidebarToggleMobile" aria-label="메뉴 열기">
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h12M4 14h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-</button>
-
-<!-- ═══════════ Sidebar ═══════════ -->
-<aside class="sidebar" id="sidebar">
-  <!-- Hamburger toggle (visible on desktop/tablet) -->
-  <button class="sidebar-toggle" id="sidebarToggle" aria-label="사이드바 접기/펼치기">
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-  </button>
-
-  <button class="brand" id="brandHome" type="button" aria-label="홈으로 이동">
-    <div class="brand-logo">
-      <svg viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
-        <g fill="#5C9CFA">
-          <rect x="14" y="14" width="26" height="52" rx="13"/>
-          <rect x="0" y="28" width="54" height="26" rx="13"/>
-        </g>
-        <g>
-          <circle cx="90" cy="40" r="28" fill="#C7DDFF"/>
-          <circle cx="90" cy="40" r="11" fill="var(--bg-normal)"/>
-        </g>
-        <g>
-          <circle cx="158" cy="40" r="28" fill="#5C9CFA"/>
-          <circle cx="158" cy="40" r="11" fill="var(--bg-normal)"/>
-        </g>
-      </svg>
-    </div>
-    <div class="brand-text">
-      <span class="brand-name">toonation</span>
-      <span class="brand-product">Signature Studio</span>
-    </div>
-  </button>
-
-  <nav class="sidebar-nav">
-    <div class="nav-section-label">시그니처 스튜디오</div>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="theme-toggle" id="themeToggle">
-      <div class="theme-toggle-label">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 9.5A5.5 5.5 0 016.5 3 5.5 5.5 0 1013 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        <span class="theme-label-text">다크 모드</span>
-      </div>
-      <div class="toggle-switch"></div>
-    </div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--label-alternative);margin-top:12px;padding:0 12px;letter-spacing:0.05em;" id="todayDate">—</div>
-  </div>
-</aside>
-
 <!-- ═══════════ Main ═══════════ -->
 <main class="main">
 
@@ -2305,6 +1899,13 @@ footer.app-footer {
     <div class="page-title-group">
       <h1>SVIP 시그니처 스튜디오</h1>
       <p>펜으로 시그니처를 그리고, 특수 효과와 함께 나만의 시그니처 영상을 만들어 보세요</p>
+    </div>
+    <div class="theme-toggle" id="themeToggle">
+      <div class="theme-toggle-label">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 9.5A5.5 5.5 0 016.5 3 5.5 5.5 0 1013 9.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span class="theme-label-text">다크 모드</span>
+      </div>
+      <div class="toggle-switch"></div>
     </div>
   </div>
 
@@ -2422,8 +2023,6 @@ footer.app-footer {
 
 </div>
 
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
 <!-- ═══════════ Current Signature Popup ═══════════ -->
 <div class="modal-backdrop" id="currentSigModal">
   <div class="modal" role="dialog" aria-labelledby="currentSigTitle" style="max-width:720px;">
@@ -2510,93 +2109,6 @@ const $$ = (s) => document.querySelectorAll(s);
     const html = document.documentElement;
     html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
   });
-})();
-
-/* ─── Brand logo → scroll to top ─── */
-(function(){
-  const brand = $('#brandHome');
-  if (!brand) return;
-  brand.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-})();
-
-/* ─── Sidebar toggle (hamburger) ─── */
-(function(){
-  const toggle = $('#sidebarToggle');
-  const toggleMobile = $('#sidebarToggleMobile');
-  const sidebar = $('#sidebar');
-  const backdrop = $('#sidebarBackdrop');
-  const body = document.body;
-
-  // Desktop/tablet/mobile: collapse/expand
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      const w = window.innerWidth;
-      if (w > 1200) {
-        // Wide: toggle collapsed state
-        body.classList.toggle('sidebar-collapsed');
-      } else if (w > 768) {
-        // Tablet: toggle force-open
-        body.classList.toggle('sidebar-force-open');
-      } else {
-        // Mobile: toggle expanded overlay
-        sidebar.classList.toggle('open');
-        body.classList.toggle('sidebar-open');
-      }
-    });
-  }
-
-  // Mobile drawer
-  function openMobile() {
-    sidebar.classList.add('open');
-    body.classList.add('sidebar-open');
-  }
-  function closeMobile() {
-    sidebar.classList.remove('open');
-    body.classList.remove('sidebar-open');
-  }
-  if (toggleMobile) toggleMobile.addEventListener('click', openMobile);
-  if (backdrop) backdrop.addEventListener('click', closeMobile);
-
-  // Reset state on resize beyond breakpoints + auto-collapse
-  let lastWidth = window.innerWidth;
-  let autoCollapsedOnce = false;
-
-  function applyAutoCollapse() {
-    const w = window.innerWidth;
-
-    // Mobile drawer cleanup
-    if (w > 768) {
-      sidebar.classList.remove('open');
-      body.classList.remove('sidebar-open');
-    }
-    if (w > 1200) {
-      body.classList.remove('sidebar-force-open');
-    }
-
-    // Auto-collapse on narrow desktop/tablet (769–1200px)
-    // Auto-expand when back to wide
-    if (w > 768 && w <= 1200) {
-      if (!body.classList.contains('sidebar-collapsed')) {
-        body.classList.add('sidebar-collapsed');
-        autoCollapsedOnce = true;
-      }
-    } else if (w > 1200) {
-      // Only auto-expand if we previously auto-collapsed
-      if (autoCollapsedOnce && body.classList.contains('sidebar-collapsed')) {
-        body.classList.remove('sidebar-collapsed');
-        autoCollapsedOnce = false;
-      }
-    }
-
-    lastWidth = w;
-  }
-
-  // Run once on load
-  applyAutoCollapse();
-
-  window.addEventListener('resize', applyAutoCollapse);
 })();
 
 /* ─── Toast ─── */
