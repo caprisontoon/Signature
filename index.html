@@ -3122,11 +3122,19 @@ async function encodeMp4FromFramePlan(plan, options = {}) {
   }
 
   // ── PATH B: Record WebM via MediaRecorder, transcode with ffmpeg.wasm ──
-  if (onProgress) onProgress('WebM 녹화 중 (트랜스코딩 준비)...', 0.05);
-  // Use the WebM encoder to get a stream
+  // (Firefox + any browser that records WebM but not native MP4.)
   const webmCandidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
-  const webmMime = webmCandidates.find(m => MediaRecorder.isTypeSupported(m));
-  if (!webmMime) throw new Error('이 브라우저는 영상 녹화를 지원하지 않습니다.');
+  const webmMime = (typeof MediaRecorder !== 'undefined')
+    ? webmCandidates.find(m => MediaRecorder.isTypeSupported(m))
+    : null;
+
+  // ── PATH C: No usable MediaRecorder at all → encode PNG frames with ffmpeg.
+  // Guarantees MP4 output on every desktop browser (incl. Safari edge cases).
+  if (!webmMime) {
+    return await encodeMp4FromFramesViaFFmpeg(plan, { fps, evenW, evenH, onProgress });
+  }
+
+  if (onProgress) onProgress('WebM 녹화 중 (트랜스코딩 준비)...', 0.05);
 
   const tmp2 = document.createElement('canvas');
   tmp2.width = evenW; tmp2.height = evenH;
@@ -3175,6 +3183,58 @@ async function encodeMp4FromFramePlan(plan, options = {}) {
     'out.mp4'
   ]);
   try { await ffmpeg.deleteFile(inputName); } catch (_) {}
+  const data = await ffmpeg.readFile('out.mp4');
+  try { await ffmpeg.deleteFile('out.mp4'); } catch (_) {}
+  const blob = new Blob([data.buffer], { type: 'video/mp4' });
+  if (onProgress) onProgress('완료', 1.0);
+  return { url: URL.createObjectURL(blob), ext: 'mp4', mime: 'video/mp4' };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PATH C · PNG frames → MP4 via ffmpeg.wasm.
+   No MediaRecorder required — works on every desktop browser,
+   including Safari builds that report no recordable mime type.
+   ───────────────────────────────────────────────────────────── */
+async function encodeMp4FromFramesViaFFmpeg(plan, options = {}) {
+  const { renderFrame, totalFrames } = plan;
+  const { fps = 24, evenW, evenH, onProgress } = options;
+
+  if (onProgress) onProgress('FFmpeg 로딩...', 0.05);
+  const ffmpeg = await ensureFFmpeg((label, r) => {
+    if (onProgress) onProgress(label, 0.05 + r * 0.10);
+  });
+
+  const tmp = document.createElement('canvas');
+  tmp.width = evenW; tmp.height = evenH;
+  const tctx = tmp.getContext('2d');
+
+  // Write each frame as a zero-padded PNG into ffmpeg's virtual FS.
+  for (let f = 0; f < totalFrames; f++) {
+    const t = (f + 1) / totalFrames;
+    tctx.fillStyle = '#000000';
+    tctx.fillRect(0, 0, evenW, evenH);
+    renderFrame(tctx, t);
+    const blob = await new Promise(res => tmp.toBlob(res, 'image/png'));
+    const name = `f${String(f).padStart(4, '0')}.png`;
+    await ffmpeg.writeFile(name, new Uint8Array(await blob.arrayBuffer()));
+    if (onProgress) onProgress('프레임 준비 중...', 0.15 + (f / totalFrames) * 0.55);
+  }
+
+  if (onProgress) onProgress('MP4로 변환 중...', 0.72);
+  await ffmpeg.exec([
+    '-framerate', String(fps),
+    '-i', 'f%04d.png',
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    '-preset', 'medium',
+    '-crf', '20',
+    '-movflags', '+faststart',
+    'out.mp4'
+  ]);
+
+  for (let f = 0; f < totalFrames; f++) {
+    try { await ffmpeg.deleteFile(`f${String(f).padStart(4, '0')}.png`); } catch (_) {}
+  }
   const data = await ffmpeg.readFile('out.mp4');
   try { await ffmpeg.deleteFile('out.mp4'); } catch (_) {}
   const blob = new Blob([data.buffer], { type: 'video/mp4' });
@@ -5940,7 +6000,7 @@ function buildUseSigPlan() {
     fx,
     frames: 72,
     transparentMode: false,
-    outputFormat: 'webm'
+    outputFormat: 'mp4'
   });
 }
 
@@ -6013,7 +6073,7 @@ useSigModal.addEventListener('click', (e) => { if (e.target === useSigModal) clo
 
 document.getElementById('previewUseSig').addEventListener('click', openUseSig);
 
-/* Produce the final 3-second WebM and register it as the current signature. */
+/* Produce the final 3-second MP4 and register it as the current signature. */
 confirmUseSigBtn.addEventListener('click', async () => {
   if (_useSigBusy) return;
   if (!getNicknameOrAlert()) return;
@@ -6040,7 +6100,7 @@ confirmUseSigBtn.addEventListener('click', async () => {
     }
     // Rebuild the plan fresh so it picks up the latest nickname/effects.
     const plan = buildUseSigPlan();
-    const out = await encodeWebmFromFramePlan(plan, { fps: 24, onProgress: setProg });
+    const out = await encodeMp4FromFramePlan(plan, { fps: 24, onProgress: setProg });
 
     // Register as the current signature
     if (currentSignatureURL) { try { URL.revokeObjectURL(currentSignatureURL); } catch (e) {} }
